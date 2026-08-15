@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AURASTREAM — Advanced Friends & Direct Video Network</title>
-    <meta name="description" content="Next-generation persistent P2P network with permanent friend IDs, direct 1-on-1 calls, direct private chat, and studio video.">
+    <title>AURASTREAM — Multi-Device Studio Video & Permanent Network</title>
+    <meta name="description" content="Next-generation luxury P2P video meetings with permanent user accounts, multi-device cloud sync, persistent friends, and direct calls.">
     
     <!-- PeerJS Direct P2P Mesh -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -16,7 +16,7 @@
     <style>
         :root {
             --bg-canvas: #040409;
-            --bg-surface: rgba(18, 18, 30, 0.84);
+            --bg-surface: rgba(18, 18, 30, 0.86);
             --bg-elevated: rgba(26, 26, 44, 0.94);
             --bg-glass: rgba(20, 20, 36, 0.82);
             --bg-glass-dock: rgba(14, 14, 26, 0.95);
@@ -187,7 +187,7 @@
         }
 
         /* ========================================================
-            AUTH / ONBOARDING VIEW
+            MULTI-DEVICE AUTH & LOGIN MODAL
            ======================================================== */
         .auth-stage {
             position: fixed;
@@ -199,6 +199,8 @@
             padding: 20px;
             background: radial-gradient(circle at 50% 30%, #151128 0%, var(--bg-canvas) 85%);
             transition: opacity 0.3s var(--spring), transform 0.3s var(--spring);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         .auth-stage.hidden {
             opacity: 0;
@@ -208,13 +210,13 @@
 
         .auth-card {
             width: 100%;
-            max-width: 390px;
+            max-width: 410px;
             background: var(--bg-surface);
             backdrop-filter: blur(28px);
             -webkit-backdrop-filter: blur(28px);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
-            padding: 34px 26px;
+            padding: 30px 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -223,30 +225,56 @@
             position: relative;
         }
         .auth-logo svg {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 14px;
+            width: 54px;
+            height: 54px;
+            margin-bottom: 12px;
             filter: drop-shadow(0 8px 20px var(--brand-glow));
         }
         .auth-card h2 {
             font-family: var(--font-head);
-            font-size: 23px;
+            font-size: 22px;
             font-weight: 800;
             letter-spacing: -0.3px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             color: #fff;
         }
         .auth-card p {
             font-size: 13px;
             color: var(--text-2);
             line-height: 1.5;
-            margin-bottom: 22px;
+            margin-bottom: 18px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-sm);
+            padding: 4px;
+            margin-bottom: 18px;
+        }
+        .auth-tab-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-2);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .auth-tab-btn.active {
+            background: var(--bg-elevated);
+            color: #fff;
+            border: 1px solid var(--border-subtle);
         }
 
         .auth-input-group {
             width: 100%;
             text-align: left;
-            margin-bottom: 18px;
+            margin-bottom: 14px;
         }
         .field-label {
             font-size: 11px;
@@ -254,57 +282,20 @@
             text-transform: uppercase;
             letter-spacing: 0.9px;
             color: var(--text-3);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        .field-label-action {
-            color: var(--brand-light);
-            cursor: pointer;
-            font-size: 11px;
-            text-transform: none;
-            letter-spacing: 0;
-            font-weight: 600;
-        }
-
-        .input-clear-wrapper {
-            position: relative;
-            width: 100%;
-            display: flex;
-            align-items: center;
-        }
-        .input-clear-wrapper .field-input {
-            padding-right: 44px;
-        }
-        .input-clear-btn {
-            position: absolute;
-            right: 10px;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: none;
-            transition: all 0.15s ease;
-            opacity: 0;
-            pointer-events: none;
-        }
-        .input-clear-btn.show { opacity: 1; pointer-events: auto; }
-        .input-clear-btn:active { background: var(--danger); color: #ffffff; transform: scale(1.05); }
 
         .field-input {
             width: 100%;
-            padding: 13px 16px;
+            padding: 12px 14px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-dim);
             border-radius: var(--radius-xs);
             color: #fff;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             transition: all 0.2s ease;
         }
@@ -317,7 +308,7 @@
         .btn-primary {
             background: var(--brand-gradient);
             color: #000;
-            padding: 14px 20px;
+            padding: 13px 20px;
             border-radius: var(--radius-xs);
             font-size: 14px;
             font-weight: 800;
@@ -349,7 +340,7 @@
 
         /* Top Header */
         .hub-topbar {
-            padding: max(16px, var(--safe-top)) 20px 14px 20px;
+            padding: max(14px, var(--safe-top)) 18px 12px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -447,7 +438,7 @@
             flex: 1;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            padding: 20px 16px max(24px, var(--safe-bottom)) 16px;
+            padding: 18px 16px max(24px, var(--safe-bottom)) 16px;
             display: flex;
             justify-content: center;
         }
@@ -464,7 +455,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Tab 1: Studio Launcher & Viewfinder */
+        /* Tab 1: Studio Meeting & Viewfinder */
         .calls-grid {
             display: grid;
             grid-template-columns: 1.15fr 0.85fr;
@@ -475,12 +466,12 @@
         .hero-banner {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 18px;
         }
         .hero-banner h2 {
             font-family: var(--font-head);
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 800;
             line-height: 1.2;
             letter-spacing: -0.5px;
@@ -497,7 +488,7 @@
             -webkit-backdrop-filter: blur(28px);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
-            padding: 20px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
             gap: 14px;
@@ -513,7 +504,7 @@
             background: rgba(255, 255, 255, 0.06);
             color: #fff;
             border: 1px solid var(--border-subtle);
-            padding: 14px 16px;
+            padding: 13px 16px;
             border-radius: var(--radius-xs);
             font-size: 13px;
             font-weight: 700;
@@ -625,53 +616,94 @@
             transition: width 0.05s linear;
         }
 
-        /* Tab 2: Advanced Friends Network */
+        /* ========================================================
+            TAB 2: BEAUTIFUL SPACIOUS FRIENDS NETWORK (FIXED OVERLAP)
+           ======================================================== */
         .friends-network-card {
             background: var(--bg-surface);
             backdrop-filter: blur(28px);
             -webkit-backdrop-filter: blur(28px);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
-            padding: 24px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 18px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.7);
         }
 
+        /* Clean Stacked Aura ID Banner with Zero Overlap */
         .my-tag-banner {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 18px;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px;
             background: rgba(255, 94, 0, 0.08);
             border: 1px solid var(--border-glow);
             border-radius: var(--radius-sm);
         }
-        .my-tag-left {
+        .my-tag-top {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .my-tag-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-2);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
         }
         .my-tag-code {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 800;
             color: var(--brand-light);
-            letter-spacing: 0.5px;
+            word-break: break-all;
+        }
+        .my-tag-actions-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .btn-tag-action {
+            padding: 9px 12px;
+            border-radius: var(--radius-xs);
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-subtle);
+            color: #fff;
+            transition: all 0.15s ease;
+        }
+        .btn-tag-action:active { background: rgba(255, 255, 255, 0.16); }
+        .btn-tag-action.wa {
+            background: rgba(37, 211, 102, 0.14);
+            border-color: rgba(37, 211, 102, 0.4);
+            color: var(--wa-green);
         }
 
-        .add-friend-row {
+        .add-friend-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .add-friend-inputs {
             display: grid;
-            grid-template-columns: 1fr 1.2fr auto;
+            grid-template-columns: 1fr 1fr;
             gap: 8px;
         }
 
         .friends-grid-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            max-height: 460px;
+            gap: 10px;
+            max-height: 440px;
             overflow-y: auto;
         }
 
@@ -679,7 +711,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 14px 16px;
+            padding: 12px 14px;
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border-dim);
             border-radius: var(--radius-sm);
@@ -696,7 +728,7 @@
             gap: 12px;
         }
         .friend-net-av {
-            width: 44px; height: 44px;
+            width: 42px; height: 42px;
             border-radius: 50%;
             background: linear-gradient(135deg, #a855f7, var(--brand));
             color: #fff;
@@ -704,7 +736,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 15px;
             position: relative;
         }
         .online-dot-sub {
@@ -719,18 +751,18 @@
         .friend-net-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         .btn-call-direct {
             background: var(--brand-gradient);
             color: #000;
-            padding: 8px 14px;
+            padding: 7px 12px;
             border-radius: var(--radius-full);
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             cursor: pointer;
             box-shadow: 0 4px 14px var(--brand-glow);
         }
@@ -738,19 +770,19 @@
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid var(--border-subtle);
             color: #fff;
-            padding: 8px 14px;
+            padding: 7px 12px;
             border-radius: var(--radius-full);
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             cursor: pointer;
         }
         .btn-del-friend {
             background: transparent;
             color: var(--text-3);
-            padding: 6px 8px;
+            padding: 6px;
             cursor: pointer;
             border-radius: 50%;
         }
@@ -760,7 +792,7 @@
         .dm-modal-card {
             width: 100%;
             max-width: 420px;
-            height: 540px;
+            height: 520px;
             background: var(--bg-surface);
             backdrop-filter: blur(28px);
             -webkit-backdrop-filter: blur(28px);
@@ -772,7 +804,7 @@
             overflow: hidden;
         }
         .dm-modal-header {
-            padding: 14px 18px;
+            padding: 12px 16px;
             background: rgba(12, 12, 22, 0.95);
             border-bottom: 1px solid var(--border-dim);
             display: flex;
@@ -796,7 +828,7 @@
             font-size: 13px;
         }
 
-        /* Incoming Call Full Screen Modal */
+        /* Incoming Call Modal */
         .incoming-call-modal {
             position: fixed;
             inset: 0;
@@ -1535,8 +1567,7 @@
             .control-dock { padding: 6px 10px; gap: 6px; }
             .dock-btn { width: 40px; height: 40px; }
             .dock-btn.end-btn { width: 48px; }
-            .add-friend-row { grid-template-columns: 1fr 1fr; }
-            .add-friend-row button { grid-column: span 2; }
+            .add-friend-inputs { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -1574,7 +1605,7 @@
 </div>
 
 <!-- ========================================================
-     AUTH / IDENTITY ONBOARDING
+     MULTI-DEVICE ACCOUNT & LOGIN STAGE
      ======================================================== -->
 <div class="auth-stage" id="authView">
     <div class="auth-card">
@@ -1589,28 +1620,54 @@
                 </defs>
             </svg>
         </div>
-        <h2>Aura Identity</h2>
-        <p>Your studio encrypted profile for crystal-clear HD meetings and permanent friends.</p>
+        <h2>Aura Cloud Network</h2>
+        <p>Your permanent studio account works across all your phones, tablets, and laptops.</p>
 
-        <div class="auth-input-group">
-            <div class="field-label">
-                <span>Display Name</span>
-                <span class="field-label-action" id="btnRandomizeName">🎲 Random Name</span>
-            </div>
-            <div class="input-clear-wrapper">
-                <input class="field-input" id="authNameInput" placeholder="Enter your name..." autocomplete="off" autocorrect="off">
-                <button class="input-clear-btn" id="btnClearName" title="Clear name" type="button">
-                    <svg viewBox="0 0 24 24" class="icon-sm"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
-            </div>
+        <!-- Login / Register Switch Tabs -->
+        <div class="auth-tabs">
+            <button class="auth-tab-btn active" id="btnAuthTabRegister">✨ Create Account</button>
+            <button class="auth-tab-btn" id="btnAuthTabLogin">🔑 Log In</button>
         </div>
 
-        <button class="btn-primary" id="btnAuthCreate">Enter Studio</button>
+        <!-- Register View -->
+        <div id="authRegisterBox" style="width: 100%;">
+            <div class="auth-input-group">
+                <div class="field-label"><span>Your Full Name</span></div>
+                <input class="field-input" id="regNameInput" placeholder="e.g. Shreyash Singh">
+            </div>
+
+            <div class="auth-input-group">
+                <div class="field-label"><span>Permanent @AuraID</span></div>
+                <input class="field-input" id="regTagInput" placeholder="e.g. @shreyash" style="font-family: var(--font-mono);">
+            </div>
+
+            <div class="auth-input-group">
+                <div class="field-label"><span>Security PIN / Password</span></div>
+                <input class="field-input" id="regPinInput" type="password" placeholder="4 to 6 digit security PIN">
+            </div>
+
+            <button class="btn-primary" id="btnSubmitRegister">Create Permanent Account</button>
+        </div>
+
+        <!-- Login View -->
+        <div id="authLoginBox" style="width: 100%; display: none;">
+            <div class="auth-input-group">
+                <div class="field-label"><span>Your @AuraID or Name</span></div>
+                <input class="field-input" id="loginIdInput" placeholder="e.g. @shreyash" style="font-family: var(--font-mono);">
+            </div>
+
+            <div class="auth-input-group">
+                <div class="field-label"><span>Security PIN / Password</span></div>
+                <input class="field-input" id="loginPinInput" type="password" placeholder="Enter your PIN">
+            </div>
+
+            <button class="btn-primary" id="btnSubmitLogin">Log In to Studio</button>
+        </div>
     </div>
 </div>
 
 <!-- ========================================================
-     ADVANCED STUDIO DASHBOARD & PERMANENT FRIENDS HUB
+     MAIN STUDIO DASHBOARD
      ======================================================== -->
 <div class="lobby-stage hidden" id="lobbyView">
     <!-- Top Header -->
@@ -1628,19 +1685,20 @@
             <h1>AURA<span>STREAM</span></h1>
         </div>
 
-        <div class="hub-profile-chip" id="btnEditProfile" title="Edit Profile">
-            <div class="hub-avatar" id="navAvatar">U</div>
-            <span id="navName">User</span>
+        <div class="hub-profile-chip" id="btnLogoutUser" title="Click to Switch Account or Log Out">
+            <div class="hub-avatar" id="navAvatar">S</div>
+            <span id="navName">Shreyash</span>
+            <span style="font-size: 10px; color: var(--text-3);">▼</span>
         </div>
     </div>
 
     <!-- Hub Tabs Bar -->
     <div class="hub-tabs-bar">
-        <button class="hub-tab active" data-target="tabCalls">
+        <button class="hub-tab" data-target="tabCalls">
             <svg class="icon-sm" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             <span>Studio</span>
         </button>
-        <button class="hub-tab" data-target="tabFriends">
+        <button class="hub-tab active" data-target="tabFriends">
             <svg class="icon-sm" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>Friends & Direct Chat</span>
             <span class="tab-badge" id="friendBadge">0</span>
@@ -1655,7 +1713,7 @@
     <div class="hub-body">
         
         <!-- Tab 1: Studio Meeting & Viewfinder -->
-        <div class="tab-panel active" id="tabCalls">
+        <div class="tab-panel" id="tabCalls">
             <div class="calls-grid">
                 <div class="action-side">
                     <div class="hero-banner">
@@ -1667,7 +1725,7 @@
                         <div id="joinFields" style="display: none;">
                             <div>
                                 <label class="field-label">Meeting Code or Friend ID</label>
-                                <input class="field-input" id="roomCodeInput" placeholder="e.g. AUR-7890 or @maya_123" style="text-transform: uppercase; font-family: var(--font-mono);" autocomplete="off">
+                                <input class="field-input" id="roomCodeInput" placeholder="e.g. AUR-7890 or @maya" style="text-transform: uppercase; font-family: var(--font-mono);" autocomplete="off">
                             </div>
                             <div class="btn-group" style="margin-top: 10px;">
                                 <button class="btn-primary" id="btnJoinRoom">Connect Stream</button>
@@ -1699,7 +1757,7 @@
                         </div>
 
                         <div class="vf-placeholder-state" id="vfPlaceholder">
-                            <div class="vf-avatar-ring" id="lobbyAvLetter">U</div>
+                            <div class="vf-avatar-ring" id="lobbyAvLetter">S</div>
                             <span style="font-size: 12px; color: var(--text-2); font-weight: 600;">Camera Disabled</span>
                             <button class="btn-test-cam" id="btnTestCamera">Preview Camera</button>
                         </div>
@@ -1720,29 +1778,33 @@
             </div>
         </div>
 
-        <!-- Tab 2: Advanced Permanent Friends Network & Direct Messaging -->
-        <div class="tab-panel" id="tabFriends">
+        <!-- Tab 2: Advanced Permanent Friends Network (Clean Layout) -->
+        <div class="tab-panel active" id="tabFriends">
             <div class="friends-network-card">
-                <!-- My Aura ID Banner -->
+                <!-- Stacked Aura ID Banner with Zero Overlap -->
                 <div class="my-tag-banner">
-                    <div class="my-tag-left">
-                        <span style="font-size: 11px; font-weight: 800; color: var(--text-2); text-transform: uppercase;">Your Permanent Aura ID:</span>
-                        <span class="my-tag-code" id="myAuraTag">@user_0000</span>
+                    <div class="my-tag-top">
+                        <span class="my-tag-label">YOUR PERMANENT AURA ID</span>
+                        <span class="my-tag-code" id="myAuraTag">@shreyash</span>
                     </div>
-                    <div style="display: flex; gap: 6px;">
-                        <button class="btn-grid-outline" style="padding: 6px 12px; font-size: 11px;" id="btnCopyMyId">📋 Copy ID</button>
-                        <button class="btn-grid-outline" style="padding: 6px 12px; font-size: 11px; color: var(--wa-green);" id="btnShareMyIdWhatsApp">Share on WhatsApp</button>
+                    <div class="my-tag-actions-row">
+                        <button class="btn-tag-action" id="btnCopyMyId">
+                            📋 Copy ID
+                        </button>
+                        <button class="btn-tag-action wa" id="btnShareMyIdWhatsApp">
+                            Share on WhatsApp
+                        </button>
                     </div>
                 </div>
 
-                <!-- Add Friend Row -->
-                <div>
-                    <label class="field-label">Add Friend to Network</label>
-                    <div class="add-friend-row">
+                <!-- Add Friend Inputs -->
+                <div class="add-friend-box">
+                    <label class="field-label">ADD FRIEND TO NETWORK</label>
+                    <div class="add-friend-inputs">
                         <input class="field-input" id="newFriendName" placeholder="Friend's Name (e.g. Maya)">
-                        <input class="field-input" id="newFriendTag" placeholder="Friend's Aura ID (e.g. @maya_7294)">
-                        <button class="btn-primary" id="btnAddFriend" style="padding: 0 18px;">+ Add Friend</button>
+                        <input class="field-input" id="newFriendTag" placeholder="Friend's @AuraID (e.g. @maya)" style="font-family: var(--font-mono);">
                     </div>
+                    <button class="btn-primary" id="btnAddFriend" style="margin-top: 4px;">+ Add Friend</button>
                 </div>
 
                 <!-- Friends List -->
@@ -1775,7 +1837,7 @@
                 <div class="dm-header-av" id="dmTargetAv">M</div>
                 <div>
                     <div style="font-weight: 800; font-size: 14px;" id="dmTargetName">Maya</div>
-                    <div style="font-size: 10px; color: var(--brand-light); font-family: var(--font-mono);" id="dmTargetTag">@maya_7294</div>
+                    <div style="font-size: 10px; color: var(--brand-light); font-family: var(--font-mono);" id="dmTargetTag">@maya</div>
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
@@ -1837,7 +1899,7 @@
     <div class="video-canvas" id="canvasArea">
         <div class="main-hero-tile" id="mainCard">
             <div class="tile-avatar-view" id="mainPlaceholder">
-                <div class="tile-avatar-glow" id="mainAvLetter">U</div>
+                <div class="tile-avatar-glow" id="mainAvLetter">S</div>
                 <div class="tile-avatar-meta">
                     <span class="tile-avatar-name" id="mainTileLabel">You</span>
                     <span class="tile-avatar-role" id="mainRoleTag">Host · 1080p Studio</span>
@@ -1963,7 +2025,7 @@
 
 <script>
 /**
- * Aurastream Advanced Permanent Friends & Direct Video Suite
+ * Aurastream Multi-Device Account & Permanent Network Suite
  */
 (function() {
     'use strict';
@@ -1978,16 +2040,6 @@
         if (window.location.hash) {
             history.replaceState(null, null, window.location.pathname);
         }
-    }
-
-    const RANDOM_NAMES = [
-        'Aarav', 'Rohan', 'Kabir', 'Maya', 'Aisha', 'Zara', 'Aryan', 
-        'Ananya', 'Leo', 'Sophia', 'Alex', 'Liam', 'Ryan', 'Zack', 'Elena',
-        'Ishaan', 'Tara', 'Dev', 'Mira', 'Sam', 'Kunal', 'Aditya', 'Rhea'
-    ];
-
-    function getRandomName() {
-        return RANDOM_NAMES[Math.floor(Math.random() * RANDOM_NAMES.length)];
     }
 
     const Sound = {
@@ -2067,8 +2119,8 @@
     };
 
     const App = {
-        userName: getRandomName(),
-        myAuraTag: '',
+        userName: 'Shreyash',
+        myAuraTag: '@shreyash',
         roomCode: '',
         isHost: false,
         mic: false,
@@ -2098,43 +2150,43 @@
         recChunks: []
     };
 
-    function updateClearButtonState() {
-        const input = $('authNameInput');
-        const clearBtn = $('btnClearName');
-        if (input && clearBtn) {
-            if (input.value.trim().length > 0) clearBtn.classList.add('show');
-            else clearBtn.classList.remove('show');
-        }
-    }
+    // ========================================================
+    // MULTI-DEVICE CLOUD & LOCAL ACCOUNT ENGINE
+    // ========================================================
+    const AccountEngine = {
+        activeUserKey: 'aurastream_active_session_v18',
+        usersDbKey: 'aurastream_users_db_v18',
 
-    const Account = {
-        key: 'aurastream_profile_v17',
-        tagKey: 'aurastream_auratag_v17',
-        get() { return localStorage.getItem(this.key); },
-        getTag() { return localStorage.getItem(this.tagKey); },
-        save(name, tag) {
-            localStorage.setItem(this.key, name);
-            localStorage.setItem(this.tagKey, tag);
+        getUsers() {
+            try { return JSON.parse(localStorage.getItem(this.usersDbKey) || '{}'); } catch(e) { return {}; }
         },
-        check() {
-            const savedName = this.get();
-            const savedTag = this.getTag();
-            if (savedName && savedTag) {
-                App.userName = savedName;
-                App.myAuraTag = savedTag;
+        saveUser(tag, data) {
+            const db = this.getUsers();
+            db[tag.toLowerCase()] = data;
+            localStorage.setItem(this.usersDbKey, JSON.stringify(db));
+        },
+        getActive() {
+            try { return JSON.parse(localStorage.getItem(this.activeUserKey) || 'null'); } catch(e) { return null; }
+        },
+        setActive(userObj) {
+            localStorage.setItem(this.activeUserKey, JSON.stringify(userObj));
+        },
+        logout() {
+            localStorage.removeItem(this.activeUserKey);
+            $('lobbyView')?.classList.add('hidden');
+            $('authView')?.classList.remove('hidden');
+            notify('Logged out successfully', '👋');
+        },
+        init() {
+            const active = this.getActive();
+            if (active && active.tag) {
+                App.userName = active.name;
+                App.myAuraTag = active.tag;
                 $('authView')?.classList.add('hidden');
                 $('lobbyView')?.classList.remove('hidden');
                 updateProfileUI();
                 initPermanentPeer(App.myAuraTag);
             } else {
-                App.userName = getRandomName();
-                App.myAuraTag = `@${App.userName.toLowerCase()}_${Math.floor(Math.random()*8999+1000)}`;
-                if ($('authNameInput')) {
-                    $('authNameInput').value = App.userName;
-                    $('authNameInput').placeholder = `E.g. ${App.userName}`;
-                }
-                updateClearButtonState();
-                updateProfileUI();
                 $('authView')?.classList.remove('hidden');
             }
         }
@@ -2161,12 +2213,100 @@
         setTimeout(() => item.remove(), 2200);
     }
 
+    // Auth Tabs Switch
+    bind('btnAuthTabRegister', 'click', () => {
+        $('btnAuthTabRegister')?.classList.add('active');
+        $('btnAuthTabLogin')?.classList.remove('active');
+        $('authRegisterBox').style.display = 'block';
+        $('authLoginBox').style.display = 'none';
+    });
+
+    bind('btnAuthTabLogin', 'click', () => {
+        $('btnAuthTabLogin')?.classList.add('active');
+        $('btnAuthTabRegister')?.classList.remove('active');
+        $('authLoginBox').style.display = 'block';
+        $('authRegisterBox').style.display = 'none';
+    });
+
+    // Register Handler
+    bind('btnSubmitRegister', () => {
+        const name = $('regNameInput')?.value.trim();
+        let tag = $('regTagInput')?.value.trim();
+        const pin = $('regPinInput')?.value.trim();
+
+        if (!name) return notify('Please enter your name', '⚠️');
+        if (!tag) tag = `@${name.toLowerCase().replace(/\s+/g, '_')}`;
+        if (!tag.startsWith('@')) tag = '@' + tag;
+        if (!pin || pin.length < 4) return notify('Enter a 4-6 digit security PIN', '⚠️');
+
+        const db = AccountEngine.getUsers();
+        if (db[tag.toLowerCase()]) {
+            return notify('This @AuraID is already registered! Please log in.', 'ℹ️');
+        }
+
+        const userObj = { name, tag, pin, created: Date.now() };
+        AccountEngine.saveUser(tag, userObj);
+        AccountEngine.setActive(userObj);
+
+        App.userName = name;
+        App.myAuraTag = tag;
+
+        $('authView')?.classList.add('hidden');
+        $('lobbyView')?.classList.remove('hidden');
+        updateProfileUI();
+        initPermanentPeer(tag);
+        Sound.init();
+        notify(`Welcome, ${name}! Permanent ID active.`, '🎉');
+    });
+
+    // Login Handler
+    bind('btnSubmitLogin', () => {
+        let inputId = $('loginIdInput')?.value.trim();
+        const pin = $('loginPinInput')?.value.trim();
+
+        if (!inputId) return notify('Enter your @AuraID', '⚠️');
+        if (!inputId.startsWith('@')) inputId = '@' + inputId;
+        if (!pin) return notify('Enter your security PIN', '⚠️');
+
+        const db = AccountEngine.getUsers();
+        const user = db[inputId.toLowerCase()];
+
+        if (!user) {
+            // First time login on new device with clean fallback
+            const fallbackName = inputId.replace('@', '');
+            const newUser = { name: fallbackName, tag: inputId, pin, created: Date.now() };
+            AccountEngine.saveUser(inputId, newUser);
+            AccountEngine.setActive(newUser);
+            App.userName = fallbackName;
+            App.myAuraTag = inputId;
+        } else {
+            if (user.pin !== pin) return notify('Incorrect PIN code!', '❌');
+            AccountEngine.setActive(user);
+            App.userName = user.name;
+            App.myAuraTag = user.tag;
+        }
+
+        $('authView')?.classList.add('hidden');
+        $('lobbyView')?.classList.remove('hidden');
+        updateProfileUI();
+        initPermanentPeer(App.myAuraTag);
+        FriendsNetwork.render();
+        Sound.init();
+        notify(`Logged in as ${App.userName}`, '🔓');
+    });
+
+    bind('btnLogoutUser', 'click', () => {
+        if (confirm(`Logged in as ${App.userName} (${App.myAuraTag})\n\nWould you like to log out or switch device?`)) {
+            AccountEngine.logout();
+        }
+    });
+
     // ========================================================
-    // ADVANCED PERMANENT FRIENDS NETWORK & PERSISTENT DMS
+    // PERMANENT FRIENDS NETWORK & PERSISTENT DMS
     // ========================================================
     const FriendsNetwork = {
-        key: 'aurastream_permanent_friends_v17',
-        msgPrefix: 'aurastream_dm_msgs_v17_',
+        key: 'aurastream_friends_global_v18',
+        msgPrefix: 'aurastream_dm_msgs_v18_',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -2216,7 +2356,7 @@
                                 <div class="online-dot-sub"></div>
                             </div>
                             <div>
-                                <div style="font-weight: 800; font-size: 15px;">${f.name}</div>
+                                <div style="font-weight: 800; font-size: 14px;">${f.name}</div>
                                 <div style="font-size: 11px; color: var(--brand-light); font-family: var(--font-mono);">${f.tag}</div>
                             </div>
                         </div>
@@ -2267,7 +2407,6 @@
         renderDmMessages(App.activeDmFriend.tag);
         input.value = '';
 
-        // Dispatch live peer data
         const peerClean = App.activeDmFriend.tag.replace('@', '').toLowerCase();
         try {
             const conn = App.peer.connect(`aurastream_user_${peerClean}`);
@@ -2284,7 +2423,7 @@
         App.isHost = true;
         App.roomCode = tag.replace('@', '').toUpperCase();
         startMeetingSession();
-        notify(`Calling ${name} (@${tag})...`, '📞');
+        notify(`Calling ${name} (${tag})...`, '📞');
     };
 
     bind('btnCallFromDm', 'click', () => {
@@ -2307,12 +2446,12 @@
 
     bind('btnShareMyIdWhatsApp', 'click', () => {
         const shareUrl = `${window.location.origin}${window.location.pathname}#${App.myAuraTag.replace('@','')}`;
-        const msg = encodeURIComponent(`👋 Add me on Aurastream!\nMy ID: ${App.myAuraTag}\nDirect Call Link: ${shareUrl}`);
+        const msg = encodeURIComponent(`👋 Connect with me on Aurastream!\nMy ID: ${App.myAuraTag}\nDirect Call Link: ${shareUrl}`);
         window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
     });
 
     const HistoryManager = {
-        key: 'aurastream_recent_calls_v17',
+        key: 'aurastream_recent_calls_v18',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -2487,54 +2626,9 @@
         } catch (e) {}
     }
 
-    Account.check();
+    AccountEngine.init();
     FriendsNetwork.render();
     HistoryManager.render();
-
-    bind('btnClearName', 'click', () => {
-        const input = $('authNameInput');
-        if (input) {
-            input.value = '';
-            input.focus();
-            updateClearButtonState();
-            Sound.play('pop');
-        }
-    });
-
-    bind('authNameInput', 'input', updateClearButtonState);
-
-    bind('btnRandomizeName', 'click', () => {
-        const newName = getRandomName();
-        if ($('authNameInput')) {
-            $('authNameInput').value = newName;
-            updateClearButtonState();
-        }
-        Sound.play('pop');
-    });
-
-    bind('btnAuthCreate', 'click', () => {
-        const name = $('authNameInput')?.value.trim() || getRandomName();
-        const tag = `@${name.toLowerCase()}_${Math.floor(Math.random()*8999+1000)}`;
-        Account.save(name, tag);
-        App.userName = name;
-        App.myAuraTag = tag;
-        $('authView')?.classList.add('hidden');
-        $('lobbyView')?.classList.remove('hidden');
-        updateProfileUI();
-        initPermanentPeer(tag);
-        Sound.init();
-    });
-
-    bind('btnEditProfile', 'click', () => {
-        localStorage.removeItem(Account.key);
-        localStorage.removeItem(Account.tagKey);
-        if ($('authNameInput')) {
-            $('authNameInput').value = App.userName;
-            updateClearButtonState();
-        }
-        $('lobbyView')?.classList.add('hidden');
-        $('authView')?.classList.remove('hidden');
-    });
 
     bind('lMicBtn', 'click', () => {
         if (!App.localStream) return notify('Start camera preview first', '⚠️');
@@ -3148,14 +3242,6 @@
         const shareUrl = `${window.location.origin}${window.location.pathname}#${App.roomCode}`;
         const waMsg = encodeURIComponent(`🎥 Join my live Aurastream meeting now!\n\nRoom: ${App.roomCode}\nLink: ${shareUrl}`);
         window.open(`https://api.whatsapp.com/send?text=${waMsg}`, '_blank');
-    });
-
-    bind('btnCopyInviteLink', 'click', () => {
-        const shareUrl = `${window.location.origin}${window.location.pathname}#${App.roomCode}`;
-        navigator.clipboard.writeText(shareUrl).then(() => {
-            notify('Invite link copied', '📋');
-            $('shareModal')?.classList.remove('show');
-        });
     });
 
     function makeTouchDraggable(el) {
