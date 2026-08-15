@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AURASTREAM — Luxury Studio HD Video & Private Rooms</title>
-    <meta name="description" content="Next-generation luxury P2P video meetings with auto-adaptive network streaming, studio lighting, voice isolation, and zero latency.">
+    <title>AURASTREAM — Studio Video & WhatsApp Suite</title>
+    <meta name="description" content="Next-generation luxury P2P video meetings with WhatsApp-style contact management, call history, adaptive streaming, and zero latency.">
     
     <!-- PeerJS Direct P2P Mesh -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -15,11 +15,11 @@
 
     <style>
         :root {
-            --bg-canvas: #030308;
-            --bg-surface: rgba(16, 16, 28, 0.78);
-            --bg-elevated: rgba(24, 24, 42, 0.92);
-            --bg-glass: rgba(18, 18, 34, 0.75);
-            --bg-glass-dock: rgba(12, 12, 24, 0.92);
+            --bg-canvas: #040409;
+            --bg-surface: rgba(18, 18, 30, 0.82);
+            --bg-elevated: rgba(26, 26, 44, 0.94);
+            --bg-glass: rgba(20, 20, 36, 0.78);
+            --bg-glass-dock: rgba(14, 14, 26, 0.94);
             
             --brand: #ff5e00;
             --brand-light: #ff7e29;
@@ -27,13 +27,13 @@
             --brand-subtle: rgba(255, 94, 0, 0.14);
             --brand-gradient: linear-gradient(135deg, #ff3b00 0%, #ff6a00 50%, #ff0055 100%);
             
+            --wa-green: #25d366;
+            --wa-green-glow: rgba(37, 211, 102, 0.35);
             --accent-purple: #a855f7;
             --accent-cyan: #06b6d4;
             --danger: #ff2a55;
             --danger-glow: rgba(255, 42, 85, 0.45);
             --success: #00f076;
-            --success-glow: rgba(0, 240, 118, 0.35);
-            --wa-green: #25d366;
             
             --border-dim: rgba(255, 255, 255, 0.08);
             --border-subtle: rgba(255, 255, 255, 0.16);
@@ -136,7 +136,7 @@
             background: 
                 radial-gradient(circle at 10% 20%, rgba(255, 94, 0, 0.12) 0%, transparent 45%),
                 radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 60%);
+                radial-gradient(circle at 50% 50%, rgba(37, 211, 102, 0.04) 0%, transparent 60%);
         }
 
         button, input {
@@ -339,81 +339,57 @@
         .btn-primary:active { transform: scale(0.98); }
 
         /* ========================================================
-            PREMIUM LUXURY STUDIO LOBBY (FRONT PAGE)
+            WHATSAPP-STYLE STUDIO DASHBOARD / LOBBY
            ======================================================== */
         .lobby-stage {
             position: fixed;
             inset: 0;
             z-index: 500;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: max(16px, var(--safe-top)) max(16px, var(--safe-right)) max(16px, var(--safe-bottom)) max(16px, var(--safe-left));
-            background: radial-gradient(circle at 50% 15%, #181232 0%, var(--bg-canvas) 85%);
+            flex-direction: column;
+            background: radial-gradient(circle at 50% 12%, #1a1436 0%, var(--bg-canvas) 85%);
             transition: opacity 0.3s var(--spring);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            overflow: hidden;
         }
         .lobby-stage.hidden { opacity: 0; pointer-events: none; }
 
-        .studio-container {
-            width: 100%;
-            max-width: 980px;
-            display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 32px;
-            align-items: center;
-            margin: auto;
-        }
-
-        .brand-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .brand-header {
+        /* Top Nav Header */
+        .hub-topbar {
+            padding: max(16px, var(--safe-top)) 20px 14px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            background: rgba(12, 12, 22, 0.88);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--border-dim);
+            z-index: 50;
         }
-        .brand-header-left {
+        .hub-brand {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
-        .logo-emblem svg {
-            width: 44px;
-            height: 44px;
-            filter: drop-shadow(0 6px 16px var(--brand-glow));
+        .hub-brand svg {
+            width: 36px; height: 36px;
+            filter: drop-shadow(0 4px 12px var(--brand-glow));
         }
-        .brand-title h1 {
+        .hub-brand h1 {
             font-family: var(--font-head);
-            font-size: 23px;
+            font-size: 20px;
             font-weight: 800;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.4px;
         }
-        .brand-title h1 span {
+        .hub-brand h1 span {
             background: var(--brand-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .brand-title p {
-            font-size: 11px;
-            color: var(--text-2);
-            font-weight: 600;
-            letter-spacing: 0.2px;
-        }
 
-        .user-profile-badge {
-            background: var(--bg-surface);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+        .hub-profile-chip {
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--border-subtle);
-            padding: 6px 14px;
+            padding: 5px 12px;
             border-radius: var(--radius-full);
             display: flex;
             align-items: center;
@@ -421,64 +397,107 @@
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.15s ease;
         }
-        .user-profile-badge:active { transform: scale(0.96); background: var(--bg-elevated); }
-
-        .user-profile-avatar {
-            width: 24px;
-            height: 24px;
+        .hub-avatar {
+            width: 22px; height: 22px;
+            border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
-            border-radius: 50%;
+            font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 900;
             font-size: 11px;
         }
 
-        /* Hero Highlights Pill */
-        .feature-chip-row {
+        /* WhatsApp Style Tab Segment Bar */
+        .hub-tabs-bar {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
+            background: rgba(16, 16, 28, 0.95);
+            border-bottom: 1px solid var(--border-dim);
+            padding: 0 16px;
+            z-index: 40;
         }
-        .feature-chip {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-dim);
-            padding: 4px 10px;
-            border-radius: var(--radius-full);
-            font-size: 11px;
-            font-weight: 700;
+        .hub-tab {
+            flex: 1;
+            padding: 13px 4px;
+            font-size: 12px;
+            font-weight: 800;
             color: var(--text-2);
+            background: transparent;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            text-align: center;
             display: flex;
             align-items: center;
-            gap: 5px;
+            justify-content: center;
+            gap: 6px;
+            letter-spacing: 0.3px;
+            transition: all 0.2s ease;
         }
-        .feature-chip.active {
-            background: rgba(0, 240, 118, 0.1);
-            border-color: rgba(0, 240, 118, 0.3);
-            color: var(--success);
+        .hub-tab.active {
+            color: var(--brand);
+            border-bottom-color: var(--brand);
+        }
+        .hub-tab .tab-badge {
+            background: rgba(255, 94, 0, 0.18);
+            color: var(--brand);
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: var(--radius-full);
+            font-weight: 800;
         }
 
-        .hero-headline {
+        /* Hub Body Content Container */
+        .hub-body {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 20px 16px max(24px, var(--safe-bottom)) 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .tab-panel {
+            width: 100%;
+            max-width: 960px;
+            display: none;
+            animation: fadeIn 0.25s var(--spring);
+        }
+        .tab-panel.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Panel 1: Meeting & Viewfinder Grid */
+        .calls-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .hero-banner {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .hero-banner h2 {
             font-family: var(--font-head);
-            font-size: 30px;
+            font-size: 28px;
             font-weight: 800;
             line-height: 1.2;
-            letter-spacing: -0.6px;
-            color: #fff;
+            letter-spacing: -0.5px;
         }
-        .hero-desc {
-            font-size: 14px;
-            line-height: 1.6;
+        .hero-banner p {
+            font-size: 13px;
             color: var(--text-2);
-            margin-top: 4px;
+            line-height: 1.55;
         }
 
-        .join-box-card {
+        .action-card-box {
             background: var(--bg-surface);
             backdrop-filter: blur(28px);
             -webkit-backdrop-filter: blur(28px);
@@ -488,7 +507,7 @@
             display: flex;
             flex-direction: column;
             gap: 14px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            box-shadow: 0 18px 45px rgba(0,0,0,0.7);
         }
 
         .btn-group {
@@ -516,23 +535,6 @@
             transform: scale(0.98);
         }
 
-        .lobby-friends-btn {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px dashed var(--border-subtle);
-            border-radius: var(--radius-xs);
-            color: var(--text-2);
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-        .lobby-friends-btn:active { background: rgba(255,255,255,0.08); }
-
-        /* Viewfinder Camera Stage */
         .viewfinder-shell {
             width: 100%;
             aspect-ratio: 4/3;
@@ -541,13 +543,11 @@
             border: 1px solid var(--border-subtle);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.85);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.85);
         }
-        
         .vf-stream-badge {
             position: absolute;
-            top: 12px;
-            left: 12px;
+            top: 12px; left: 12px;
             background: rgba(10, 10, 20, 0.78);
             backdrop-filter: blur(12px);
             border: 1px solid var(--border-dim);
@@ -562,20 +562,17 @@
             align-items: center;
             gap: 6px;
         }
-
         .vf-overlay-controls {
             position: absolute;
-            bottom: 14px;
-            left: 50%;
+            bottom: 12px; left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             z-index: 10;
         }
         .vf-toggle-btn {
-            width: 44px;
-            height: 44px;
+            width: 42px; height: 42px;
             border-radius: var(--radius-full);
             background: rgba(14, 14, 26, 0.88);
             backdrop-filter: blur(16px);
@@ -585,13 +582,8 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.15s ease;
         }
-        .vf-toggle-btn:active { transform: scale(0.92); }
-        .vf-toggle-btn.off {
-            background: var(--danger);
-            border-color: transparent;
-        }
+        .vf-toggle-btn.off { background: var(--danger); border-color: transparent; }
 
         .vf-placeholder-state {
             position: absolute;
@@ -600,36 +592,33 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
             background: radial-gradient(circle at center, #151128 0%, #06060c 100%);
             z-index: 2;
             transition: opacity 0.2s ease;
         }
         .vf-avatar-ring {
-            width: 72px;
-            height: 72px;
+            width: 68px; height: 68px;
             border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 28px var(--brand-glow);
+            box-shadow: 0 8px 24px var(--brand-glow);
         }
         .btn-test-cam {
             background: rgba(255,255,255,0.08);
             border: 1px solid var(--border-subtle);
             color: #fff;
-            padding: 8px 18px;
+            padding: 8px 16px;
             border-radius: var(--radius-full);
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.15s ease;
         }
-        .btn-test-cam:active { background: rgba(255,255,255,0.16); }
 
         .audio-eq-bars {
             position: absolute;
@@ -644,6 +633,103 @@
             background: var(--brand-gradient);
             transition: width 0.05s linear;
         }
+
+        /* Panel 2 & 3: WhatsApp Contact & Call Management Lists */
+        .management-shelf {
+            background: var(--bg-surface);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+        }
+        .shelf-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .shelf-head h3 {
+            font-family: var(--font-head);
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .add-contact-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 8px;
+        }
+
+        .contacts-scroll, .history-scroll {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 480px;
+            overflow-y: auto;
+        }
+
+        .contact-item, .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-sm);
+            transition: all 0.15s ease;
+        }
+        .contact-item:hover, .history-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--border-subtle);
+        }
+
+        .contact-info, .history-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .contact-av, .history-av {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7, var(--brand));
+            color: #fff;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .contact-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-wa-call {
+            background: rgba(37, 211, 102, 0.18);
+            border: 1px solid rgba(37, 211, 102, 0.4);
+            color: var(--wa-green);
+            padding: 7px 12px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .btn-del-contact {
+            background: transparent;
+            color: var(--text-3);
+            padding: 6px;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .btn-del-contact:hover { color: var(--danger); }
 
         /* ========================================================
             ACTIVE CALL STAGE (AIRY & CLEAN FACETIME HUD)
@@ -660,7 +746,6 @@
         }
         .call-stage.active { display: flex; }
 
-        /* Clean Top Bar */
         .hud-topbar {
             position: absolute;
             top: 0; left: 0; right: 0;
@@ -713,8 +798,7 @@
         }
 
         .live-pulse-dot {
-            width: 7px;
-            height: 7px;
+            width: 7px; height: 7px;
             background: var(--success);
             border-radius: 50%;
             box-shadow: 0 0 8px var(--success);
@@ -726,8 +810,7 @@
         }
 
         .hud-icon-btn {
-            width: 38px;
-            height: 38px;
+            width: 38px; height: 38px;
             border-radius: 50%;
             background: rgba(18, 18, 30, 0.78);
             backdrop-filter: blur(16px);
@@ -813,7 +896,6 @@
             filter: contrast(1.06) saturate(1.12) brightness(1.04);
         }
 
-        /* Clean Central Identity Display */
         .tile-avatar-view {
             display: flex;
             flex-direction: column;
@@ -823,8 +905,7 @@
             transition: opacity 0.25s ease;
         }
         .tile-avatar-glow {
-            width: 86px;
-            height: 86px;
+            width: 86px; height: 86px;
             border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
@@ -835,7 +916,6 @@
             justify-content: center;
             box-shadow: 0 12px 40px var(--brand-glow);
         }
-
         .tile-avatar-meta {
             display: flex;
             flex-direction: column;
@@ -859,7 +939,6 @@
             letter-spacing: 0.3px;
         }
 
-        /* Airy Waiting Pill */
         .subtle-waiting-hub {
             position: absolute;
             bottom: 96px;
@@ -886,8 +965,7 @@
             font-weight: 600;
         }
         .subtle-spinner {
-            width: 12px;
-            height: 12px;
+            width: 12px; height: 12px;
             border: 2px solid rgba(255,255,255,0.2);
             border-top-color: var(--brand);
             border-radius: 50%;
@@ -895,11 +973,9 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Draggable PiP Tile */
         .pip-card {
             position: absolute;
-            top: 75px;
-            right: 14px;
+            top: 75px; right: 14px;
             width: 105px;
             aspect-ratio: 9/16;
             background: #000;
@@ -954,8 +1030,7 @@
         }
 
         .dock-btn {
-            width: 44px;
-            height: 44px;
+            width: 44px; height: 44px;
             border-radius: var(--radius-full);
             background: rgba(255, 255, 255, 0.08);
             color: var(--text-1);
@@ -1022,7 +1097,6 @@
         }
         .r-btn:active { transform: scale(1.35); }
 
-        /* Floating Heads-Up Banner */
         .floating-chat-banner {
             position: fixed;
             top: calc(max(14px, var(--safe-top)) + 52px);
@@ -1044,13 +1118,9 @@
             opacity: 0;
             max-width: 90%;
         }
-        .floating-chat-banner.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
+        .floating-chat-banner.show { transform: translateX(-50%) translateY(0); opacity: 1; }
         .floating-avatar {
-            width: 26px;
-            height: 26px;
+            width: 26px; height: 26px;
             border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
@@ -1061,7 +1131,6 @@
             font-size: 11px;
         }
 
-        /* Safe Toasts */
         .toast-shelf {
             position: fixed;
             top: calc(max(14px, var(--safe-top)) + 52px);
@@ -1094,7 +1163,7 @@
             100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* Side Drawer */
+        /* In-Call Side Drawer */
         .side-drawer {
             position: absolute;
             top: 0; right: 0; bottom: 0;
@@ -1138,10 +1207,7 @@
             cursor: pointer;
             text-align: center;
         }
-        .d-tab.active {
-            color: var(--brand);
-            border-bottom-color: var(--brand);
-        }
+        .d-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
 
         .drawer-content {
             flex: 1;
@@ -1161,22 +1227,11 @@
             gap: 12px;
             -webkit-overflow-scrolling: touch;
         }
-
-        .chat-msg {
-            display: flex;
-            flex-direction: column;
-            max-width: 85%;
-        }
+        .chat-msg { display: flex; flex-direction: column; max-width: 85%; }
         .chat-msg.me { align-self: flex-end; align-items: flex-end; }
         .chat-msg.them { align-self: flex-start; align-items: flex-start; }
-
         .chat-author { font-size: 10px; font-weight: 800; color: var(--text-2); margin-bottom: 2px; padding: 0 4px; }
-        .chat-bubble {
-            padding: 9px 13px;
-            font-size: 13px;
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
+        .chat-bubble { padding: 9px 13px; font-size: 13px; line-height: 1.4; word-wrap: break-word; }
         .chat-msg.me .chat-bubble {
             background: var(--brand-gradient);
             color: #000;
@@ -1205,13 +1260,7 @@
             padding: 4px 6px 4px 12px;
         }
         .chat-input-row:focus-within { border-color: var(--brand); }
-        .chat-input-row input {
-            flex: 1;
-            background: transparent;
-            color: #fff;
-            font-size: 13px;
-            padding: 6px 0;
-        }
+        .chat-input-row input { flex: 1; background: transparent; color: #fff; font-size: 13px; padding: 6px 0; }
         .chat-send-btn {
             width: 32px; height: 32px;
             border-radius: 50%;
@@ -1223,15 +1272,8 @@
             cursor: pointer;
         }
 
-        .friends-list, .people-list {
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            overflow-y: auto;
-            flex: 1;
-        }
-        .friend-card, .person-item {
+        .people-list { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .person-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -1240,12 +1282,8 @@
             border-radius: var(--radius-xs);
             border: 1px solid var(--border-dim);
         }
-        .friend-meta, .person-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .friend-av, .person-avatar {
+        .person-info { display: flex; align-items: center; gap: 10px; }
+        .person-avatar {
             width: 36px; height: 36px;
             border-radius: 50%;
             background: linear-gradient(135deg, #a855f7, var(--brand));
@@ -1255,15 +1293,6 @@
             align-items: center;
             justify-content: center;
             font-size: 13px;
-        }
-        .btn-friend-call {
-            padding: 6px 12px;
-            border-radius: var(--radius-full);
-            background: var(--brand);
-            color: #000;
-            font-size: 11px;
-            font-weight: 800;
-            cursor: pointer;
         }
 
         /* Modals */
@@ -1305,8 +1334,7 @@
             background: #fff;
             padding: 10px;
             border-radius: var(--radius-sm);
-            width: 140px;
-            height: 140px;
+            width: 140px; height: 140px;
             margin: 0 auto 16px;
             display: flex;
             align-items: center;
@@ -1365,8 +1393,8 @@
         }
 
         @media (max-width: 900px) {
-            .studio-container { grid-template-columns: 1fr; gap: 18px; }
-            .hero-headline { font-size: 24px; }
+            .calls-grid { grid-template-columns: 1fr; gap: 18px; }
+            .hero-banner h2 { font-size: 24px; }
             .side-drawer {
                 width: 100%;
                 top: auto; bottom: 0;
@@ -1381,6 +1409,8 @@
             .control-dock { padding: 6px 10px; gap: 6px; }
             .dock-btn { width: 40px; height: 40px; }
             .dock-btn.end-btn { width: 48px; }
+            .add-contact-row { grid-template-columns: 1fr 1fr; }
+            .add-contact-row button { grid-column: span 2; }
         }
     </style>
 </head>
@@ -1436,116 +1466,147 @@
 </div>
 
 <!-- ========================================================
-     DELIGHTFUL NEXT-GEN FRONT PAGE / STUDIO LOBBY
+     WHATSAPP-STYLE STUDIO DASHBOARD & LOBBY
      ======================================================== -->
 <div class="lobby-stage hidden" id="lobbyView">
-    <div class="studio-container">
-        <div class="brand-panel">
-            <div class="brand-header">
-                <div class="brand-header-left">
-                    <div class="logo-emblem">
-                        <svg viewBox="0 0 48 48" fill="none">
-                            <rect width="48" height="48" rx="16" fill="url(#brandGradLobby)"/>
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM24 32C19.5817 32 16 28.4183 16 24C16 19.5817 19.5817 16 24 16C28.4183 16 32 19.5817 32 24C32 28.4183 28.4183 32 24 32ZM24 28C26.2091 28 28 26.2091 28 24C28 21.7909 26.2091 20 24 20C21.7909 20 20 21.7909 20 24C20 26.2091 21.7909 28 24 28Z" fill="#030307"/>
-                            <defs>
-                                <linearGradient id="brandGradLobby" x1="0" y1="0" x2="48" y2="48">
-                                    <stop stop-color="#ff3b00"/><stop offset="0.5" stop-color="#ff6a00"/><stop offset="1" stop-color="#ff0055"/>
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                    </div>
-                    <div class="brand-title">
-                        <h1>AURA<span>STREAM</span></h1>
-                        <p>Studio Pro 3.0</p>
-                    </div>
-                </div>
-                <div class="user-profile-badge" id="btnEditProfile" title="Edit Profile">
-                    <div class="user-profile-avatar" id="navAvatar">U</div>
-                    <span id="navName">User</span>
-                </div>
-            </div>
+    <!-- Top Header -->
+    <div class="hub-topbar">
+        <div class="hub-brand">
+            <svg viewBox="0 0 48 48" fill="none">
+                <rect width="48" height="48" rx="16" fill="url(#brandGradHub)"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM24 32C19.5817 32 16 28.4183 16 24C16 19.5817 19.5817 16 24 16C28.4183 16 32 19.5817 32 24C32 28.4183 28.4183 32 24 32ZM24 28C26.2091 28 28 26.2091 28 24C28 21.7909 26.2091 20 24 20C21.7909 20 20 21.7909 20 24C20 26.2091 21.7909 28 24 28Z" fill="#030307"/>
+                <defs>
+                    <linearGradient id="brandGradHub" x1="0" y1="0" x2="48" y2="48">
+                        <stop stop-color="#ff3b00"/><stop offset="0.5" stop-color="#ff6a00"/><stop offset="1" stop-color="#ff0055"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <h1>AURA<span>STREAM</span></h1>
+        </div>
 
-            <!-- Feature Highlight Row -->
-            <div class="feature-chip-row">
-                <div class="feature-chip active">
-                    <div class="live-pulse-dot"></div>
-                    <span>Ultra HD 1080p 60FPS</span>
-                </div>
-                <div class="feature-chip">
-                    <span>⚡ 0ms P2P Mesh</span>
-                </div>
-                <div class="feature-chip">
-                    <span>🔒 End-to-End Encrypted</span>
-                </div>
-            </div>
+        <div class="hub-profile-chip" id="btnEditProfile" title="Edit Profile">
+            <div class="hub-avatar" id="navAvatar">U</div>
+            <span id="navName">User</span>
+        </div>
+    </div>
 
-            <div>
-                <h2 class="hero-headline">Studio Meetings.<br>Pure Cinematic Video.</h2>
-                <p class="hero-desc">Adaptive bandwidth engine, hardware echo isolation, instant WhatsApp invites, and true zero-latency peer connection.</p>
-            </div>
+    <!-- WhatsApp Tabs Bar -->
+    <div class="hub-tabs-bar">
+        <button class="hub-tab active" data-target="tabCalls">
+            <svg class="icon-sm" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 2.59 3.4l1.27 1.27a2 2 0 0 1 .45-2.11 12.84 12.84 0 0 0-2.81-.7 2 2 0 0 1-1.72-2z"/></svg>
+            <span>Calls</span>
+        </button>
+        <button class="hub-tab" data-target="tabContacts">
+            <svg class="icon-sm" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Contacts</span>
+            <span class="tab-badge" id="contactBadge">0</span>
+        </button>
+        <button class="hub-tab" data-target="tabRecents">
+            <svg class="icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Recents</span>
+        </button>
+    </div>
 
-            <div class="join-box-card">
-                <div id="joinFields" style="display: none;">
-                    <div>
-                        <label class="field-label">Meeting Code</label>
-                        <input class="field-input" id="roomCodeInput" placeholder="e.g. AUR-7890" style="text-transform: uppercase; font-family: var(--font-mono);" autocomplete="off">
+    <!-- Hub Body Content -->
+    <div class="hub-body">
+        
+        <!-- Tab 1: Calls & Viewfinder -->
+        <div class="tab-panel active" id="tabCalls">
+            <div class="calls-grid">
+                <div class="action-side">
+                    <div class="hero-banner">
+                        <h2>Studio Meetings.<br>Pure Cinematic Video.</h2>
+                        <p>Adaptive bandwidth engine, hardware echo isolation, instant WhatsApp invites, and true zero-latency peer mesh.</p>
                     </div>
-                    <div class="btn-group" style="margin-top: 10px;">
-                        <button class="btn-primary" id="btnJoinRoom">Connect Stream</button>
-                        <button class="btn-secondary" id="btnBack">Back</button>
+
+                    <div class="action-card-box">
+                        <div id="joinFields" style="display: none;">
+                            <div>
+                                <label class="field-label">Meeting Code</label>
+                                <input class="field-input" id="roomCodeInput" placeholder="e.g. AUR-7890" style="text-transform: uppercase; font-family: var(--font-mono);" autocomplete="off">
+                            </div>
+                            <div class="btn-group" style="margin-top: 10px;">
+                                <button class="btn-primary" id="btnJoinRoom">Connect Stream</button>
+                                <button class="btn-secondary" id="btnBack">Back</button>
+                            </div>
+                        </div>
+
+                        <div id="createFields">
+                            <div class="btn-group">
+                                <button class="btn-primary" id="btnCreateRoom">
+                                    <svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                    New Meeting
+                                </button>
+                                <button class="btn-secondary" id="btnShowJoin">
+                                    <svg class="icon" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+                                    Join Code
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div id="createFields">
-                    <div class="btn-group">
-                        <button class="btn-primary" id="btnCreateRoom">
-                            <svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                            New Meeting
-                        </button>
-                        <button class="btn-secondary" id="btnShowJoin">
-                            <svg class="icon" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
-                            Join with Code
-                        </button>
-                    </div>
-                </div>
+                <!-- Preview Viewfinder -->
+                <div class="preview-side">
+                    <div class="viewfinder-shell">
+                        <div class="vf-stream-badge">
+                            <div class="live-pulse-dot"></div>
+                            <span>1080P · 60 FPS · STUDIO</span>
+                        </div>
 
-                <div class="lobby-friends-btn" id="btnLobbyOpenFriends">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <svg class="icon-sm" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                        <span>Saved Friends & Contacts</span>
+                        <div class="vf-placeholder-state" id="vfPlaceholder">
+                            <div class="vf-avatar-ring" id="lobbyAvLetter">U</div>
+                            <span style="font-size: 12px; color: var(--text-2); font-weight: 600;">Camera Disabled</span>
+                            <button class="btn-test-cam" id="btnTestCamera">Preview Camera</button>
+                        </div>
+
+                        <video id="lobbyVideo" autoplay playsinline webkit-playsinline muted style="opacity: 0; visibility: hidden;"></video>
+                        
+                        <div class="vf-overlay-controls">
+                            <button class="vf-toggle-btn off" id="lMicBtn" title="Toggle Mic">
+                                <svg class="icon" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                            </button>
+                            <button class="vf-toggle-btn off" id="lCamBtn" title="Toggle Camera">
+                                <svg class="icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                            </button>
+                        </div>
+                        <div class="audio-eq-bars"><div class="audio-eq-fill" id="lAudioMeter"></div></div>
                     </div>
-                    <span style="font-size: 11px; color: var(--brand); font-weight: 800;" id="lobbyFriendCount">0 Friends</span>
                 </div>
             </div>
         </div>
 
-        <!-- Luxury Interactive Viewfinder Preview -->
-        <div class="preview-column">
-            <div class="viewfinder-shell">
-                <div class="vf-stream-badge">
-                    <div class="live-pulse-dot"></div>
-                    <span>1080P · 60 FPS · STUDIO</span>
+        <!-- Tab 2: WhatsApp Contacts Management -->
+        <div class="tab-panel" id="tabContacts">
+            <div class="management-shelf">
+                <div class="shelf-head">
+                    <h3>WhatsApp Contacts</h3>
+                    <span style="font-size: 12px; color: var(--text-2);" id="contactsCountLabel">0 contacts saved</span>
                 </div>
 
-                <div class="vf-placeholder-state" id="vfPlaceholder">
-                    <div class="vf-avatar-ring" id="lobbyAvLetter">U</div>
-                    <span style="font-size: 12px; color: var(--text-2); font-weight: 600;">Camera Disabled</span>
-                    <button class="btn-test-cam" id="btnTestCamera">Preview Camera</button>
+                <!-- Add Contact Input Bar -->
+                <div class="add-contact-row">
+                    <input class="field-input" id="newContactName" placeholder="Name (e.g. Rahul Sharma)">
+                    <input class="field-input" id="newContactPhone" placeholder="Phone or Tag (e.g. +91 98765...)">
+                    <button class="btn-primary" id="btnAddContact" style="padding: 0 18px;">+ Save</button>
                 </div>
 
-                <video id="lobbyVideo" autoplay playsinline webkit-playsinline muted style="opacity: 0; visibility: hidden;"></video>
-                
-                <div class="vf-overlay-controls">
-                    <button class="vf-toggle-btn off" id="lMicBtn" title="Toggle Mic">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
-                    </button>
-                    <button class="vf-toggle-btn off" id="lCamBtn" title="Toggle Camera">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-                    </button>
-                </div>
-                <div class="audio-eq-bars"><div class="audio-eq-fill" id="lAudioMeter"></div></div>
+                <div class="contacts-scroll" id="contactsContainer"></div>
             </div>
         </div>
+
+        <!-- Tab 3: Recent Calls Log -->
+        <div class="tab-panel" id="tabRecents">
+            <div class="management-shelf">
+                <div class="shelf-head">
+                    <h3>Recent Call History</h3>
+                    <button class="btn-secondary" id="btnClearHistory" style="padding: 6px 14px; font-size: 11px;">Clear Log</button>
+                </div>
+
+                <div class="history-scroll" id="historyContainer"></div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -1575,8 +1636,8 @@
             <button class="hud-icon-btn" id="btnFlipCam" title="Flip Camera">
                 <svg class="icon-sm" viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
             </button>
-            <button class="hud-icon-btn" id="btnFriendsTabToggle" title="Contacts">
-                <svg class="icon-sm" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            <button class="hud-icon-btn" id="btnDrawerToggle" title="Contacts / Chat">
+                <svg class="icon-sm" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </button>
             <button class="hud-icon-btn" id="btnRoster" title="Participants">
                 <svg class="icon-sm" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
@@ -1585,10 +1646,9 @@
         </div>
     </div>
 
-    <!-- Center Stage -->
+    <!-- Center Stage Video Canvas -->
     <div class="video-canvas" id="canvasArea">
         <div class="main-hero-tile" id="mainCard">
-            <!-- Center Avatar with Integrated Name -->
             <div class="tile-avatar-view" id="mainPlaceholder">
                 <div class="tile-avatar-glow" id="mainAvLetter">U</div>
                 <div class="tile-avatar-meta">
@@ -1601,7 +1661,6 @@
             <video id="mainVideo" autoplay playsinline webkit-playsinline muted style="opacity: 0; visibility: hidden;"></video>
         </div>
 
-        <!-- Waiting Pill positioned cleanly above bottom dock -->
         <div class="subtle-waiting-hub" id="waitingHub">
             <div class="subtle-spinner"></div>
             <span>Waiting for peer to connect...</span>
@@ -1613,7 +1672,7 @@
         </div>
     </div>
 
-    <!-- Clean Balanced Liquid Dock with High-End Studio Mic -->
+    <!-- Control Dock -->
     <div class="dock-wrapper">
         <div class="reaction-menu" id="reactionMenu">
             <button class="r-btn" data-e="🔥">🔥</button>
@@ -1647,7 +1706,7 @@
             </button>
 
             <button class="dock-btn" id="dockChat" title="Chat (C)">
-                <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </button>
 
             <!-- Instant End Call -->
@@ -1657,7 +1716,7 @@
         </div>
     </div>
 
-    <!-- Side Drawer (Chat / Friends / Roster) -->
+    <!-- Side Drawer -->
     <div class="side-drawer" id="sideDrawer">
         <div class="drawer-head">
             <h3 id="drawerTitle">Live Chat</h3>
@@ -1668,15 +1727,13 @@
 
         <div class="drawer-tabs">
             <button class="d-tab active" data-tab="chatTab">Chat</button>
-            <button class="d-tab" data-tab="friendsTab">Friends</button>
+            <button class="d-tab" data-tab="contactsTab">Contacts</button>
             <button class="d-tab" data-tab="rosterTab">In-Call</button>
         </div>
 
         <div class="drawer-content active" id="chatTab">
             <div class="chat-feed" id="chatMessages">
-                <div style="text-align: center; font-size: 11px; color: var(--text-3);">
-                    Encrypted Direct P2P Session
-                </div>
+                <div style="text-align: center; font-size: 11px; color: var(--text-3);">Encrypted Direct P2P Session</div>
             </div>
 
             <div class="chat-bar">
@@ -1689,8 +1746,8 @@
             </div>
         </div>
 
-        <div class="drawer-content" id="friendsTab">
-            <div class="friends-list" id="friendsContainer"></div>
+        <div class="drawer-content" id="contactsTab">
+            <div class="contacts-scroll" id="drawerContactsContainer" style="padding: 12px;"></div>
         </div>
 
         <div class="drawer-content" id="rosterTab">
@@ -1724,7 +1781,7 @@
 
 <script>
 /**
- * Aurastream Next-Gen Adaptive Ultra HD Studio Edition
+ * Aurastream Next-Gen WhatsApp & Studio Suite
  */
 (function() {
     'use strict';
@@ -1840,7 +1897,7 @@
     }
 
     const Account = {
-        key: 'aurastream_profile_v15',
+        key: 'aurastream_profile_v16',
         get() { return localStorage.getItem(this.key); },
         save(name) { localStorage.setItem(this.key, name); },
         check() {
@@ -1883,42 +1940,135 @@
         setTimeout(() => item.remove(), 2200);
     }
 
-    const Friends = {
-        key: 'aurastream_friends_list_v15',
+    // ========================================================
+    // WHATSAPP CONTACTS & RECENT HISTORY MANAGERS
+    // ========================================================
+    const ContactsManager = {
+        key: 'aurastream_whatsapp_contacts_v16',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
-        save(list) {
+        add(name, phone) {
+            if (!name) return notify('Enter contact name', '⚠️');
+            const list = this.getAll();
+            list.unshift({ id: Date.now(), name: name.trim(), phone: (phone || 'WhatsApp Contact').trim() });
             localStorage.setItem(this.key, JSON.stringify(list));
             this.render();
+            notify(`${name} saved to contacts`, '👤');
+        },
+        remove(id) {
+            let list = this.getAll();
+            list = list.filter(item => item.id !== id);
+            localStorage.setItem(this.key, JSON.stringify(list));
+            this.render();
+            notify('Contact removed', '🗑️');
         },
         render() {
             const list = this.getAll();
-            if ($('lobbyFriendCount')) $('lobbyFriendCount').textContent = `${list.length} Friend${list.length === 1 ? '' : 's'}`;
-            const container = $('friendsContainer');
-            if (!container) return;
-            container.innerHTML = list.length === 0 ? '<div style="text-align:center; color:var(--text-3); font-size:12px; margin-top:20px;">No saved contacts.</div>' : '';
-            list.forEach(f => {
-                const div = document.createElement('div');
-                div.className = 'friend-card';
-                div.innerHTML = `
-                    <div class="friend-meta">
-                        <div class="friend-av">${f.name[0].toUpperCase()}</div>
-                        <div>
-                            <div style="font-weight: 800; font-size: 13px;">${f.name}</div>
-                            <div style="font-size: 11px; color: var(--text-3);">${f.tag || 'Friend'}</div>
+            if ($('contactBadge')) $('contactBadge').textContent = list.length;
+            if ($('contactsCountLabel')) $('contactsCountLabel').textContent = `${list.length} contact${list.length === 1 ? '' : 's'} saved`;
+
+            const container = $('contactsContainer');
+            const drawerContainer = $('drawerContactsContainer');
+            
+            const html = list.length === 0 
+                ? '<div style="text-align:center; color:var(--text-3); font-size:12px; padding:24px;">No contacts added yet. Add above!</div>' 
+                : list.map(c => `
+                    <div class="contact-item">
+                        <div class="contact-info">
+                            <div class="contact-av">${c.name[0].toUpperCase()}</div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 14px;">${c.name}</div>
+                                <div style="font-size: 11px; color: var(--text-2); font-family: var(--font-mono);">${c.phone}</div>
+                            </div>
+                        </div>
+                        <div class="contact-actions">
+                            <button class="btn-wa-call" onclick="callWhatsAppContact('${c.name}', '${c.phone}')">
+                                <svg class="icon-sm" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+                                <span>Invite</span>
+                            </button>
+                            <button class="btn-del-contact" onclick="ContactsManager.remove(${c.id})">✕</button>
                         </div>
                     </div>
-                    <button class="btn-friend-call" onclick="callFriend('${f.name}')">Call</button>`;
-                container.appendChild(div);
-            });
+                `).join('');
+
+            if (container) container.innerHTML = html;
+            if (drawerContainer) drawerContainer.innerHTML = html;
         }
     };
+    window.ContactsManager = ContactsManager;
 
-    window.callFriend = name => {
+    window.callWhatsAppContact = (name, phone) => {
         const shareUrl = `${window.location.origin}${window.location.pathname}#${App.roomCode || 'AUR-LIVE'}`;
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(`👋 Hey ${name}, join my live meeting: ${shareUrl}`)}`, '_blank');
+        const msg = encodeURIComponent(`🎥 Hey ${name}, join my live Aurastream meeting here:\n${shareUrl}`);
+        window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
     };
+
+    const HistoryManager = {
+        key: 'aurastream_recent_calls_v16',
+        getAll() {
+            try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
+        },
+        add(roomCode, duration) {
+            const list = this.getAll();
+            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            list.unshift({ id: Date.now(), roomCode, duration, time: timeStr });
+            if (list.length > 20) list.pop();
+            localStorage.setItem(this.key, JSON.stringify(list));
+            this.render();
+        },
+        clear() {
+            localStorage.removeItem(this.key);
+            this.render();
+            notify('Call history cleared', '🗑️');
+        },
+        render() {
+            const list = this.getAll();
+            const container = $('historyContainer');
+            if (!container) return;
+            container.innerHTML = list.length === 0 
+                ? '<div style="text-align:center; color:var(--text-3); font-size:12px; padding:24px;">No recent calls.</div>'
+                : list.map(h => `
+                    <div class="history-item">
+                        <div class="history-info">
+                            <div class="history-av">📞</div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 14px; font-family: var(--font-mono);">${h.roomCode}</div>
+                                <div style="font-size: 11px; color: var(--text-2);">${h.time} · Duration: ${h.duration}</div>
+                            </div>
+                        </div>
+                        <button class="btn-primary" style="width: auto; padding: 6px 14px; font-size: 12px;" onclick="reconnectCall('${h.roomCode}')">Join</button>
+                    </div>
+                `).join('');
+        }
+    };
+    window.reconnectCall = code => {
+        if ($('roomCodeInput')) $('roomCodeInput').value = code;
+        $('hub-tab') && switchHubTab('tabCalls');
+        $('btnShowJoin')?.click();
+    };
+
+    bind('btnAddContact', 'click', () => {
+        const name = $('newContactName')?.value;
+        const phone = $('newContactPhone')?.value;
+        ContactsManager.add(name, phone);
+        if ($('newContactName')) $('newContactName').value = '';
+        if ($('newContactPhone')) $('newContactPhone').value = '';
+    });
+
+    bind('btnClearHistory', 'click', () => HistoryManager.clear());
+
+    // Switch Hub Tabs
+    function switchHubTab(targetId) {
+        document.querySelectorAll('.hub-tab').forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === targetId));
+        if (targetId === 'tabContacts') ContactsManager.render();
+        if (targetId === 'tabRecents') HistoryManager.render();
+    }
+
+    document.querySelectorAll('.hub-tab').forEach(btn => {
+        btn.onclick = () => switchHubTab(btn.dataset.target);
+    });
 
     function getMediaConstraints() {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -2040,7 +2190,8 @@
     }
 
     Account.check();
-    Friends.render();
+    ContactsManager.render();
+    HistoryManager.render();
 
     bind('btnClearName', 'click', () => {
         const input = $('authNameInput');
@@ -2264,7 +2415,6 @@
         updateRosterCount(2);
     }
 
-    // Bulletproof zero-shrink layout engine
     function updateVideoLayout() {
         const mainVid = $('mainVideo');
         const pipVid = $('pipVideo');
@@ -2272,9 +2422,7 @@
 
         if (!App.remoteStream) {
             if (mainVid && App.localStream) {
-                if (mainVid.srcObject !== App.localStream) {
-                    mainVid.srcObject = App.localStream;
-                }
+                if (mainVid.srcObject !== App.localStream) mainVid.srcObject = App.localStream;
                 mainVid.muted = true;
                 mainVid.classList.toggle('self-mirrored', App.facing === 'user');
                 mainVid.style.opacity = App.cam ? '1' : '0';
@@ -2293,9 +2441,7 @@
 
         if (!App.swappedViews) {
             if (mainVid) {
-                if (mainVid.srcObject !== App.remoteStream) {
-                    mainVid.srcObject = App.remoteStream;
-                }
+                if (mainVid.srcObject !== App.remoteStream) mainVid.srcObject = App.remoteStream;
                 mainVid.muted = false;
                 mainVid.classList.remove('self-mirrored');
                 mainVid.style.opacity = '1';
@@ -2310,9 +2456,7 @@
             }
 
             if (pipVid && App.localStream) {
-                if (pipVid.srcObject !== App.localStream) {
-                    pipVid.srcObject = App.localStream;
-                }
+                if (pipVid.srcObject !== App.localStream) pipVid.srcObject = App.localStream;
                 pipVid.muted = true;
                 pipVid.classList.toggle('self-mirrored', App.facing === 'user');
                 pipVid.style.opacity = App.cam ? '1' : '0';
@@ -2322,9 +2466,7 @@
             if ($('pipTagLabel')) $('pipTagLabel').textContent = 'You';
         } else {
             if (mainVid && App.localStream) {
-                if (mainVid.srcObject !== App.localStream) {
-                    mainVid.srcObject = App.localStream;
-                }
+                if (mainVid.srcObject !== App.localStream) mainVid.srcObject = App.localStream;
                 mainVid.muted = true;
                 mainVid.classList.toggle('self-mirrored', App.facing === 'user');
                 mainVid.style.opacity = App.cam ? '1' : '0';
@@ -2339,9 +2481,7 @@
             }
 
             if (pipVid && App.remoteStream) {
-                if (pipVid.srcObject !== App.remoteStream) {
-                    pipVid.srcObject = App.remoteStream;
-                }
+                if (pipVid.srcObject !== App.remoteStream) pipVid.srcObject = App.remoteStream;
                 pipVid.muted = false;
                 pipVid.classList.remove('self-mirrored');
                 pipVid.style.opacity = '1';
@@ -2549,24 +2689,23 @@
             d.classList.remove('open');
         } else {
             d.classList.add('open');
-            switchTab(tab);
+            switchDrawerTab(tab);
         }
     }
 
     bind('dockChat', 'click', () => toggleDrawer('chatTab'));
-    bind('btnFriendsTabToggle', 'click', () => toggleDrawer('friendsTab'));
+    bind('btnDrawerToggle', 'click', () => toggleDrawer('contactsTab'));
     bind('btnRoster', 'click', () => toggleDrawer('rosterTab'));
-    bind('btnLobbyOpenFriends', 'click', () => toggleDrawer('friendsTab'));
     bind('btnCloseDrawer', 'click', () => toggleDrawer());
 
     document.querySelectorAll('.d-tab').forEach(tab => {
-        tab.onclick = () => switchTab(tab.dataset.tab);
+        tab.onclick = () => switchDrawerTab(tab.dataset.tab);
     });
 
-    function switchTab(targetId) {
+    function switchDrawerTab(targetId) {
         document.querySelectorAll('.d-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === targetId));
         document.querySelectorAll('.drawer-content').forEach(c => c.classList.toggle('active', c.id === targetId));
-        if (targetId === 'friendsTab') Friends.render();
+        if (targetId === 'contactsTab') ContactsManager.render();
     }
 
     function sendChat() {
@@ -2628,15 +2767,14 @@
                         <div style="font-size: 11px; color: var(--text-2); font-weight:600;">Adaptive Stream</div>
                     </div>
                 </div>
-                <button class="btn-grid-outline" style="padding:4px 8px; font-size:10px;" onclick="savePeerAsFriend()">+ Friend</button>
+                <button class="btn-grid-outline" style="padding:4px 8px; font-size:10px;" onclick="savePeerAsContact()">+ Save</button>
             `;
             list.appendChild(item);
         }
     }
 
-    window.savePeerAsFriend = () => {
-        Friends.add('Connected Peer', App.roomCode);
-        notify('Saved to Friends list', '👥');
+    window.savePeerAsContact = () => {
+        ContactsManager.add('Connected Peer', App.roomCode);
     };
 
     function renderQrCode(text) {
@@ -2745,11 +2883,12 @@
         }
     }
 
-    // ========================================================
-    // COMPLETE & CLEAN END CALL DISPOSAL
-    // ========================================================
+    // Complete & Clean Teardown
     bind('dockEnd', 'click', () => {
         Sound.play('leave');
+
+        const dur = $('hudTimer')?.textContent || '00:00';
+        if (App.roomCode) HistoryManager.add(App.roomCode, dur);
 
         if (App.localStream) {
             App.localStream.getTracks().forEach(t => t.stop());
