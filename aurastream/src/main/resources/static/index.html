@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AURASTREAM — Studio Video & Permanent Multi-Device Network</title>
+    <title>AURASTREAM — Studio Ultra HD Video & Mesh Network</title>
     <meta name="description" content="Next-generation luxury P2P video meetings with permanent user accounts, multi-device sync, persistent friends, and direct calls.">
     
     <!-- PeerJS Direct P2P Mesh -->
@@ -15,42 +15,42 @@
 
     <style>
         :root {
-            --bg-canvas: #040409;
-            --bg-surface: rgba(18, 18, 30, 0.86);
-            --bg-elevated: rgba(26, 26, 44, 0.94);
-            --bg-glass: rgba(20, 20, 36, 0.82);
-            --bg-glass-dock: rgba(14, 14, 26, 0.95);
+            --bg-canvas: #05050a;
+            --bg-surface: rgba(18, 18, 28, 0.85);
+            --bg-elevated: rgba(26, 26, 40, 0.92);
+            --bg-glass-card: rgba(22, 22, 34, 0.78);
+            --bg-dock: rgba(12, 12, 20, 0.94);
             
-            --brand: #ff5e00;
-            --brand-light: #ff7e29;
-            --brand-glow: rgba(255, 94, 0, 0.42);
-            --brand-subtle: rgba(255, 94, 0, 0.14);
-            --brand-gradient: linear-gradient(135deg, #ff3b00 0%, #ff6a00 50%, #ff0055 100%);
+            --brand: #ff5500;
+            --brand-light: #ff772e;
+            --brand-glow: rgba(255, 85, 0, 0.38);
+            --brand-subtle: rgba(255, 85, 0, 0.12);
+            --brand-gradient: linear-gradient(135deg, #ff4500 0%, #ff6a00 50%, #ff1155 100%);
             
-            --wa-green: #25d366;
-            --wa-green-glow: rgba(37, 211, 102, 0.35);
-            --accent-purple: #a855f7;
+            --wa-green: #22c55e;
+            --wa-green-glow: rgba(34, 197, 94, 0.32);
+            --accent-purple: #9333ea;
             --accent-cyan: #06b6d4;
-            --danger: #ff2a55;
-            --danger-glow: rgba(255, 42, 85, 0.45);
-            --success: #00f076;
-            --success-glow: rgba(0, 240, 118, 0.35);
+            --danger: #f43f5e;
+            --danger-glow: rgba(244, 63, 94, 0.4);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.35);
             
-            --border-dim: rgba(255, 255, 255, 0.08);
-            --border-subtle: rgba(255, 255, 255, 0.16);
-            --border-glow: rgba(255, 94, 0, 0.55);
+            --border-dim: rgba(255, 255, 255, 0.07);
+            --border-subtle: rgba(255, 255, 255, 0.13);
+            --border-glow: rgba(255, 85, 0, 0.48);
             
             --text-1: #ffffff;
-            --text-2: #9da3be;
-            --text-3: #5c6280;
+            --text-2: #94a3b8;
+            --text-3: #64748b;
             
             --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-head: 'Space Grotesk', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
             
             --radius-xs: 12px;
-            --radius-sm: 18px;
-            --radius-md: 24px;
+            --radius-sm: 16px;
+            --radius-md: 22px;
             --radius-full: 9999px;
             
             --spring: cubic-bezier(0.16, 1, 0.3, 1);
@@ -78,27 +78,80 @@
             position: relative;
             user-select: none;
             -webkit-font-smoothing: antialiased;
+            letter-spacing: -0.01em;
             touch-action: manipulation;
+        }
+
+        /* Ambient Glow Backdrop */
+        .ambient-mesh {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background: 
+                radial-gradient(circle at 15% 15%, rgba(255, 85, 0, 0.09) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(147, 51, 234, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.03) 0%, transparent 60%);
+        }
+
+        button, input {
+            font-family: var(--font-body);
+            outline: none;
+            border: none;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.9;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+        .icon-sm {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.9;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+
+        .close-btn {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border-subtle);
+            color: #ffffff;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .close-btn:active {
+            background: var(--danger);
+            border-color: var(--danger);
+            transform: scale(0.92);
         }
 
         /* Fullscreen Video Constraints */
         #mainVideo {
             position: absolute !important;
             inset: 0 !important;
-            top: 0 !important;
-            left: 0 !important;
             width: 100% !important;
             height: 100% !important;
             min-width: 100% !important;
             min-height: 100% !important;
-            max-width: 100% !important;
-            max-height: 100% !important;
             object-fit: cover !important;
             object-position: center !important;
             display: block !important;
             background: transparent;
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
             transition: opacity 0.25s ease;
         }
         #mainVideo.self-mirrored {
@@ -129,65 +182,8 @@
             -webkit-transform: rotateY(180deg) !important;
         }
 
-        .ambient-mesh {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            background: 
-                radial-gradient(circle at 10% 20%, rgba(255, 94, 0, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 50% 50%, rgba(37, 211, 102, 0.04) 0%, transparent 60%);
-        }
-
-        button, input {
-            font-family: var(--font-body);
-            outline: none;
-            border: none;
-        }
-
-        .icon {
-            width: 20px;
-            height: 20px;
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 2.2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            flex-shrink: 0;
-        }
-        .icon-sm {
-            width: 16px;
-            height: 16px;
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 2.2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            flex-shrink: 0;
-        }
-
-        .close-btn {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid var(--border-subtle);
-            color: #ffffff;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-        .close-btn:active {
-            background: var(--danger);
-            border-color: var(--danger);
-            transform: scale(0.92);
-        }
-
         /* ========================================================
-            MULTI-DEVICE AUTH & LOGIN MODAL
+            AUTH & ONBOARDING MODAL
            ======================================================== */
         .auth-stage {
             position: fixed;
@@ -197,7 +193,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            background: radial-gradient(circle at 50% 30%, #151128 0%, var(--bg-canvas) 85%);
+            background: radial-gradient(circle at 50% 25%, #161226 0%, var(--bg-canvas) 85%);
             transition: opacity 0.3s var(--spring), transform 0.3s var(--spring);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
@@ -210,13 +206,13 @@
 
         .auth-card {
             width: 100%;
-            max-width: 420px;
+            max-width: 410px;
             background: var(--bg-surface);
             backdrop-filter: blur(28px);
             -webkit-backdrop-filter: blur(28px);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
-            padding: 30px 24px;
+            padding: 32px 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -225,16 +221,16 @@
             position: relative;
         }
         .auth-logo svg {
-            width: 54px;
-            height: 54px;
-            margin-bottom: 12px;
-            filter: drop-shadow(0 8px 20px var(--brand-glow));
+            width: 52px;
+            height: 52px;
+            margin-bottom: 14px;
+            filter: drop-shadow(0 8px 22px var(--brand-glow));
         }
         .auth-card h2 {
             font-family: var(--font-head);
             font-size: 22px;
             font-weight: 800;
-            letter-spacing: -0.3px;
+            letter-spacing: -0.03em;
             margin-bottom: 4px;
             color: #fff;
         }
@@ -242,7 +238,7 @@
             font-size: 13px;
             color: var(--text-2);
             line-height: 1.5;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
         .auth-tabs {
@@ -256,10 +252,10 @@
         }
         .auth-tab-btn {
             flex: 1;
-            padding: 10px;
+            padding: 9px;
             border-radius: 12px;
             font-size: 13px;
-            font-weight: 800;
+            font-weight: 700;
             color: var(--text-2);
             background: transparent;
             cursor: pointer;
@@ -269,7 +265,7 @@
             background: var(--bg-elevated);
             color: #fff;
             border: 1px solid var(--border-subtle);
-            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
         .auth-input-group {
@@ -281,7 +277,7 @@
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.9px;
+            letter-spacing: 0.8px;
             color: var(--text-3);
             margin-bottom: 6px;
             display: flex;
@@ -310,7 +306,7 @@
         .field-input:focus {
             border-color: var(--brand);
             background: var(--brand-subtle);
-            box-shadow: 0 0 0 3px rgba(255, 94, 0, 0.18);
+            box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.16);
         }
 
         .toggle-pin-btn {
@@ -329,7 +325,7 @@
         .btn-primary {
             background: var(--brand-gradient);
             color: #000;
-            padding: 14px 20px;
+            padding: 13px 20px;
             border-radius: var(--radius-xs);
             font-size: 14px;
             font-weight: 800;
@@ -345,7 +341,7 @@
         .btn-primary:active { transform: scale(0.98); }
 
         /* ========================================================
-            ADVANCED STUDIO DASHBOARD & FRIENDS HUB
+            STUDIO HUB DASHBOARD (STUDIO DEFAULT TAB)
            ======================================================== */
         .lobby-stage {
             position: fixed;
@@ -353,19 +349,19 @@
             z-index: 500;
             display: flex;
             flex-direction: column;
-            background: radial-gradient(circle at 50% 12%, #1a1436 0%, var(--bg-canvas) 85%);
+            background: radial-gradient(circle at 50% 12%, #18132d 0%, var(--bg-canvas) 85%);
             transition: opacity 0.3s var(--spring);
             overflow: hidden;
         }
         .lobby-stage.hidden { opacity: 0; pointer-events: none; }
 
-        /* Top Header */
+        /* Top Header Bar */
         .hub-topbar {
             padding: max(14px, var(--safe-top)) 18px 12px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(12, 12, 22, 0.88);
+            background: rgba(10, 10, 18, 0.88);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border-bottom: 1px solid var(--border-dim);
@@ -377,14 +373,14 @@
             gap: 10px;
         }
         .hub-brand svg {
-            width: 36px; height: 36px;
+            width: 34px; height: 34px;
             filter: drop-shadow(0 4px 12px var(--brand-glow));
         }
         .hub-brand h1 {
             font-family: var(--font-head);
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 800;
-            letter-spacing: -0.4px;
+            letter-spacing: -0.03em;
         }
         .hub-brand h1 span {
             background: var(--brand-gradient);
@@ -403,7 +399,9 @@
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
+            transition: background 0.15s ease;
         }
+        .hub-profile-chip:active { background: rgba(255, 255, 255, 0.12); }
         .hub-avatar {
             width: 22px; height: 22px;
             border-radius: 50%;
@@ -416,10 +414,10 @@
             font-size: 11px;
         }
 
-        /* Tabs Bar */
+        /* Clean Top Tabs */
         .hub-tabs-bar {
             display: flex;
-            background: rgba(16, 16, 28, 0.95);
+            background: rgba(14, 14, 24, 0.94);
             border-bottom: 1px solid var(--border-dim);
             padding: 0 16px;
             z-index: 40;
@@ -438,7 +436,7 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
             transition: all 0.2s ease;
         }
         .hub-tab.active {
@@ -446,7 +444,7 @@
             border-bottom-color: var(--brand);
         }
         .hub-tab .tab-badge {
-            background: rgba(255, 94, 0, 0.18);
+            background: rgba(255, 85, 0, 0.16);
             color: var(--brand);
             font-size: 10px;
             padding: 2px 7px;
@@ -459,7 +457,7 @@
             flex: 1;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            padding: 18px 16px max(24px, var(--safe-bottom)) 16px;
+            padding: 20px 16px max(24px, var(--safe-bottom)) 16px;
             display: flex;
             justify-content: center;
         }
@@ -476,7 +474,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Tab 1: Studio Meeting & Viewfinder */
+        /* Tab 1: Studio Meeting (Default Active) */
         .calls-grid {
             display: grid;
             grid-template-columns: 1.15fr 0.85fr;
@@ -487,7 +485,7 @@
         .hero-banner {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             margin-bottom: 18px;
         }
         .hero-banner h2 {
@@ -495,7 +493,7 @@
             font-size: 26px;
             font-weight: 800;
             line-height: 1.2;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.03em;
         }
         .hero-banner p {
             font-size: 13px;
@@ -509,7 +507,7 @@
             -webkit-backdrop-filter: blur(28px);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
-            padding: 18px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 14px;
@@ -536,7 +534,7 @@
             cursor: pointer;
             transition: all 0.15s ease;
         }
-        .btn-secondary:active { background: rgba(255, 255, 255, 0.14); transform: scale(0.98); }
+        .btn-secondary:active { background: rgba(255, 255, 255, 0.12); transform: scale(0.98); }
 
         .viewfinder-shell {
             width: 100%;
@@ -638,7 +636,7 @@
         }
 
         /* ========================================================
-            TAB 2: BEAUTIFUL SPACIOUS FRIENDS NETWORK (FIXED OVERLAP)
+            TAB 2: BEAUTIFUL SPACIOUS FRIENDS NETWORK
            ======================================================== */
         .friends-network-card {
             background: var(--bg-surface);
@@ -658,7 +656,7 @@
             flex-direction: column;
             gap: 12px;
             padding: 16px;
-            background: rgba(255, 94, 0, 0.08);
+            background: rgba(255, 85, 0, 0.08);
             border: 1px solid var(--border-glow);
             border-radius: var(--radius-sm);
         }
@@ -703,8 +701,8 @@
         }
         .btn-tag-action:active { background: rgba(255, 255, 255, 0.16); }
         .btn-tag-action.wa {
-            background: rgba(37, 211, 102, 0.14);
-            border-color: rgba(37, 211, 102, 0.4);
+            background: rgba(34, 197, 94, 0.14);
+            border-color: rgba(34, 197, 94, 0.38);
             color: var(--wa-green);
         }
 
@@ -750,7 +748,7 @@
         .friend-net-av {
             width: 42px; height: 42px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #a855f7, var(--brand));
+            background: linear-gradient(135deg, #9333ea, var(--brand));
             color: #fff;
             font-weight: 900;
             display: flex;
@@ -776,13 +774,13 @@
         .btn-call-direct {
             background: var(--brand-gradient);
             color: #000;
-            padding: 7px 12px;
+            padding: 7px 13px;
             border-radius: var(--radius-full);
             font-size: 11px;
             font-weight: 800;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 5px;
             cursor: pointer;
             box-shadow: 0 4px 14px var(--brand-glow);
         }
@@ -796,7 +794,7 @@
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 5px;
             cursor: pointer;
         }
         .btn-del-friend {
@@ -853,7 +851,7 @@
             position: fixed;
             inset: 0;
             z-index: 20000;
-            background: radial-gradient(circle at center, rgba(255, 94, 0, 0.22) 0%, rgba(2, 2, 8, 0.96) 80%);
+            background: radial-gradient(circle at center, rgba(255, 85, 0, 0.22) 0%, rgba(2, 2, 8, 0.96) 80%);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             display: none;
@@ -865,11 +863,11 @@
         }
         .incoming-call-modal.show { display: flex; }
         .incoming-avatar {
-            width: 110px; height: 110px;
+            width: 105px; height: 105px;
             border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
-            font-size: 44px;
+            font-size: 42px;
             font-weight: 900;
             display: flex;
             align-items: center;
@@ -912,7 +910,7 @@
         .btn-call-dec svg { transform: rotate(135deg); }
 
         /* ========================================================
-            ACTIVE CALL STAGE (AIRY & CLEAN FACETIME HUD)
+            ACTIVE CALL STAGE (FACETIME CINEMATIC HUD)
            ======================================================== */
         .call-stage {
             display: none;
@@ -946,7 +944,7 @@
         }
 
         .room-tag-pill {
-            background: rgba(18, 18, 30, 0.78);
+            background: rgba(18, 18, 28, 0.78);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-subtle);
@@ -992,7 +990,7 @@
         .hud-icon-btn {
             width: 38px; height: 38px;
             border-radius: 50%;
-            background: rgba(18, 18, 30, 0.78);
+            background: rgba(18, 18, 28, 0.78);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border-subtle);
@@ -1031,10 +1029,10 @@
             height: 38px;
             padding: 0 13px;
             border-radius: var(--radius-full);
-            background: rgba(37, 211, 102, 0.16);
+            background: rgba(34, 197, 94, 0.16);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(37, 211, 102, 0.4);
+            border: 1px solid rgba(34, 197, 94, 0.38);
             color: var(--wa-green);
             display: flex;
             align-items: center;
@@ -1059,7 +1057,6 @@
         .main-hero-tile {
             position: absolute;
             inset: 0;
-            top: 0; left: 0; right: 0; bottom: 0;
             width: 100%;
             height: 100%;
             background: radial-gradient(circle at center, #151128 0%, #030308 100%);
@@ -1106,13 +1103,13 @@
             font-size: 16px;
             font-weight: 800;
             color: #ffffff;
-            letter-spacing: -0.2px;
+            letter-spacing: -0.02em;
         }
         .tile-avatar-role {
             font-size: 11px;
             font-weight: 700;
             color: var(--brand-light);
-            background: rgba(255, 94, 0, 0.12);
+            background: rgba(255, 85, 0, 0.12);
             padding: 3px 10px;
             border-radius: var(--radius-full);
             border: 1px solid var(--border-glow);
@@ -1199,7 +1196,7 @@
             align-items: center;
             gap: 8px;
             padding: 7px 12px;
-            background: var(--bg-glass-dock);
+            background: var(--bg-dock);
             backdrop-filter: blur(28px);
             -webkit-backdrop-filter: blur(28px);
             border: 1px solid var(--border-subtle);
@@ -1222,10 +1219,10 @@
         .dock-btn:active { transform: scale(0.92); }
 
         .dock-btn.studio-mic.active {
-            background: radial-gradient(circle at center, rgba(255, 94, 0, 0.25) 0%, rgba(255, 94, 0, 0.08) 100%);
+            background: radial-gradient(circle at center, rgba(255, 85, 0, 0.25) 0%, rgba(255, 85, 0, 0.08) 100%);
             color: var(--brand-light);
             border: 1px solid var(--border-glow);
-            box-shadow: 0 0 18px rgba(255, 94, 0, 0.25);
+            box-shadow: 0 0 18px rgba(255, 85, 0, 0.25);
         }
 
         .dock-btn.active {
@@ -1235,9 +1232,9 @@
         }
 
         .dock-btn.muted {
-            background: rgba(255, 42, 85, 0.16);
+            background: rgba(244, 63, 94, 0.16);
             color: var(--danger);
-            border: 1px solid rgba(255, 42, 85, 0.4);
+            border: 1px solid rgba(244, 63, 94, 0.4);
         }
 
         .dock-btn.end-btn {
@@ -1246,7 +1243,7 @@
             color: #fff;
             box-shadow: 0 4px 18px var(--danger-glow);
         }
-        .dock-btn.end-btn:active { background: #e00028; }
+        .dock-btn.end-btn:active { background: #e11d48; }
         .dock-btn.end-btn svg { transform: rotate(135deg); }
 
         .reaction-menu {
@@ -1464,7 +1461,7 @@
         .person-avatar {
             width: 36px; height: 36px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #a855f7, var(--brand));
+            background: linear-gradient(135deg, #9333ea, var(--brand));
             color: #fff;
             font-weight: 900;
             display: flex;
@@ -1632,10 +1629,10 @@
         <div class="auth-logo">
             <svg viewBox="0 0 48 48" fill="none">
                 <rect width="48" height="48" rx="16" fill="url(#brandGradAuth)"/>
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM24 32C19.5817 32 16 28.4183 16 24C16 19.5817 19.5817 16 24 16C28.4183 16 32 19.5817 32 24C32 28.4183 28.4183 32 24 32ZM24 28C26.2091 28 28 26.2091 28 24C28 21.7909 26.2091 20 24 20C21.7909 20 20 21.7909 20 24C20 26.2091 21.7909 28 24 28Z" fill="#030307"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM24 32C19.5817 32 16 28.4183 16 24C16 19.5817 19.5817 16 24 16C28.4183 16 32 19.5817 32 24C32 28.4183 28.4183 32 24 32ZM24 28C26.2091 28 28 26.2091 28 24C28 21.7909 26.2091 20 24 20C21.7909 20 20 21.7909 20 24C20 26.2091 21.7909 28 24 28Z" fill="#05050a"/>
                 <defs>
                     <linearGradient id="brandGradAuth" x1="0" y1="0" x2="48" y2="48">
-                        <stop stop-color="#ff3b00"/><stop offset="0.5" stop-color="#ff6a00"/><stop offset="1" stop-color="#ff0055"/>
+                        <stop stop-color="#ff4500"/><stop offset="0.5" stop-color="#ff6a00"/><stop offset="1" stop-color="#ff1155"/>
                     </linearGradient>
                 </defs>
             </svg>
@@ -1693,7 +1690,7 @@
 </div>
 
 <!-- ========================================================
-     MAIN STUDIO DASHBOARD
+     MAIN STUDIO DASHBOARD (DEFAULT ACTIVE TAB: STUDIO)
      ======================================================== -->
 <div class="lobby-stage hidden" id="lobbyView">
     <!-- Top Header -->
@@ -1701,10 +1698,10 @@
         <div class="hub-brand">
             <svg viewBox="0 0 48 48" fill="none">
                 <rect width="48" height="48" rx="16" fill="url(#brandGradHub)"/>
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM24 32C19.5817 32 16 28.4183 16 24C16 19.5817 19.5817 16 24 16C28.4183 16 32 19.5817 32 24C32 28.4183 28.4183 32 24 32ZM24 28C26.2091 28 28 26.2091 28 24C28 21.7909 26.2091 20 24 20C21.7909 20 20 21.7909 20 24C20 26.2091 21.7909 28 24 28Z" fill="#030307"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM24 32C19.5817 32 16 28.4183 16 24C16 19.5817 19.5817 16 24 16C28.4183 16 32 19.5817 32 24C32 28.4183 28.4183 32 24 32ZM24 28C26.2091 28 28 26.2091 28 24C28 21.7909 26.2091 20 24 20C21.7909 20 20 21.7909 20 24C20 26.2091 21.7909 28 24 28Z" fill="#05050a"/>
                 <defs>
                     <linearGradient id="brandGradHub" x1="0" y1="0" x2="48" y2="48">
-                        <stop stop-color="#ff3b00"/><stop offset="0.5" stop-color="#ff6a00"/><stop offset="1" stop-color="#ff0055"/>
+                        <stop stop-color="#ff4500"/><stop offset="0.5" stop-color="#ff6a00"/><stop offset="1" stop-color="#ff1155"/>
                     </linearGradient>
                 </defs>
             </svg>
@@ -1718,13 +1715,13 @@
         </div>
     </div>
 
-    <!-- Hub Tabs Bar -->
+    <!-- Hub Tabs Bar (Studio Active by Default) -->
     <div class="hub-tabs-bar">
-        <button class="hub-tab" data-target="tabCalls">
+        <button class="hub-tab active" data-target="tabCalls">
             <svg class="icon-sm" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             <span>Studio</span>
         </button>
-        <button class="hub-tab active" data-target="tabFriends">
+        <button class="hub-tab" data-target="tabFriends">
             <svg class="icon-sm" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>Friends & Direct Chat</span>
             <span class="tab-badge" id="friendBadge">0</span>
@@ -1738,8 +1735,8 @@
     <!-- Hub Body Content -->
     <div class="hub-body">
         
-        <!-- Tab 1: Studio Meeting & Viewfinder -->
-        <div class="tab-panel" id="tabCalls">
+        <!-- Tab 1: Studio Meeting & Viewfinder (Default Open) -->
+        <div class="tab-panel active" id="tabCalls">
             <div class="calls-grid">
                 <div class="action-side">
                     <div class="hero-banner">
@@ -1804,8 +1801,8 @@
             </div>
         </div>
 
-        <!-- Tab 2: Advanced Permanent Friends Network (Clean Layout) -->
-        <div class="tab-panel active" id="tabFriends">
+        <!-- Tab 2: Advanced Permanent Friends Network -->
+        <div class="tab-panel" id="tabFriends">
             <div class="friends-network-card">
                 <!-- Stacked Aura ID Banner with Zero Overlap -->
                 <div class="my-tag-banner">
