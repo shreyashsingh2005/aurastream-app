@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AURASTREAM — Studio Ultra HD Video & Private Rooms</title>
-    <meta name="description" content="Next-generation luxury P2P 1080p 60FPS video meetings with studio lighting, voice isolation, friends list, and zero latency.">
+    <title>AURASTREAM — Adaptive Studio HD Video</title>
+    <meta name="description" content="Next-generation luxury P2P video meetings with auto-adaptive network streaming, studio lighting, voice isolation, and zero latency.">
     
     <!-- PeerJS Direct P2P Mesh -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -80,9 +80,26 @@
             touch-action: manipulation;
         }
 
+        /* Bulletproof Fullscreen Video Constraints */
         video {
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
+        }
+
+        .main-hero-tile video, .viewfinder-shell video, .pip-card video {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            min-width: 100% !important;
+            min-height: 100% !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
+            object-fit: cover !important;
+            display: block !important;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.2s ease;
         }
 
         .ambient-mesh {
@@ -224,6 +241,7 @@
             font-weight: 600;
         }
 
+        /* Clear Cut Button */
         .input-clear-wrapper {
             position: relative;
             width: 100%;
@@ -464,13 +482,7 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
         .viewfinder-shell video {
-            position: absolute;
-            inset: 0;
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
             transform: scaleX(-1);
-            transition: opacity 0.2s ease;
         }
         .vf-overlay-controls {
             position: absolute;
@@ -509,6 +521,7 @@
             gap: 10px;
             background: radial-gradient(circle at center, #151128 0%, #06060c 100%);
             z-index: 2;
+            transition: opacity 0.2s ease;
         }
         .vf-avatar-ring {
             width: 68px;
@@ -549,7 +562,7 @@
         }
 
         /* ========================================================
-            ACTIVE CALL STAGE (AIRY, UNCLUTTERED FACETIME CANVAS)
+            ACTIVE CALL STAGE (AIRY & CLEAN FACETIME HUD)
            ======================================================== */
         .call-stage {
             display: none;
@@ -689,9 +702,8 @@
         .video-canvas {
             flex: 1;
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
             background: #000;
         }
@@ -710,26 +722,19 @@
         .main-hero-tile.speaking {
             box-shadow: inset 0 0 0 3px var(--brand);
         }
-        .main-hero-tile video {
-            position: absolute;
-            inset: 0;
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-            transition: opacity 0.2s ease;
-        }
 
         .studio-lighting video {
             filter: contrast(1.06) saturate(1.12) brightness(1.04);
         }
 
-        /* Clean Central Identity Display (No Bottom-Left Overlaps) */
+        /* Clean Central Identity Display */
         .tile-avatar-view {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 14px;
             z-index: 2;
+            transition: opacity 0.25s ease;
         }
         .tile-avatar-glow {
             width: 86px;
@@ -768,7 +773,7 @@
             letter-spacing: 0.3px;
         }
 
-        /* Airy Waiting Pill (Centered with zero overlapping elements) */
+        /* Airy Waiting Pill */
         .subtle-waiting-hub {
             position: absolute;
             bottom: 96px;
@@ -823,15 +828,6 @@
         }
         .pip-card:active { cursor: grabbing; }
         .pip-card.hidden { display: none; }
-        .pip-card video {
-            position: absolute;
-            inset: 0;
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-            transform: scaleX(-1);
-            pointer-events: none;
-        }
         .pip-tag {
             position: absolute;
             bottom: 6px; left: 6px;
@@ -1374,7 +1370,7 @@
                     </div>
                     <div class="brand-title">
                         <h1>AURA<span>STREAM</span></h1>
-                        <p>Studio HD Pro Suite</p>
+                        <p>Adaptive HD Pro Suite</p>
                     </div>
                 </div>
                 <div class="user-profile-badge" id="btnEditProfile" title="Edit Profile">
@@ -1384,8 +1380,8 @@
             </div>
 
             <div>
-                <h2 class="hero-headline">Studio Meetings.<br>Zero Latency Stream.</h2>
-                <p class="hero-desc">Hardware echo-cancellation, live voice visualizers, WhatsApp invites, and true end-to-end privacy.</p>
+                <h2 class="hero-headline">Studio Meetings.<br>Adaptive Fast Stream.</h2>
+                <p class="hero-desc">Auto-scaling bitrate for 2G/3G/4G/5G, zero echo, WhatsApp invites, and true end-to-end privacy.</p>
             </div>
 
             <div class="join-box-card">
@@ -1430,7 +1426,7 @@
                     <span style="font-size: 12px; color: var(--text-2); font-weight: 600;">Camera Disabled</span>
                     <button class="btn-test-cam" id="btnTestCamera">Preview Camera</button>
                 </div>
-                <video id="lobbyVideo" autoplay playsinline webkit-playsinline muted style="opacity: 0; pointer-events: none;"></video>
+                <video id="lobbyVideo" autoplay playsinline webkit-playsinline muted style="opacity: 0; visibility: hidden;"></video>
                 
                 <div class="vf-overlay-controls">
                     <button class="vf-toggle-btn off" id="lMicBtn" title="Toggle Mic">
@@ -1490,13 +1486,13 @@
                 <div class="tile-avatar-glow" id="mainAvLetter">U</div>
                 <div class="tile-avatar-meta">
                     <span class="tile-avatar-name" id="mainTileLabel">You</span>
-                    <span class="tile-avatar-role" id="mainRoleTag">Host · 1080p Studio</span>
+                    <span class="tile-avatar-role" id="mainRoleTag">Host · Adaptive HD</span>
                 </div>
             </div>
-            <video id="mainVideo" autoplay playsinline webkit-playsinline style="opacity: 0; pointer-events: none;"></video>
+            <video id="mainVideo" autoplay playsinline webkit-playsinline style="opacity: 0; visibility: hidden;"></video>
         </div>
 
-        <!-- Waiting Pill positioned cleanly above bottom dock without any conflicting badges -->
+        <!-- Waiting Pill positioned cleanly above bottom dock -->
         <div class="subtle-waiting-hub" id="waitingHub">
             <div class="subtle-spinner"></div>
             <span>Waiting for peer to connect...</span>
@@ -1508,7 +1504,7 @@
         </div>
     </div>
 
-    <!-- Clean Balanced Liquid Dock -->
+    <!-- Clean Balanced Liquid Dock with High-End Studio Mic -->
     <div class="dock-wrapper">
         <div class="reaction-menu" id="reactionMenu">
             <button class="r-btn" data-e="🔥">🔥</button>
@@ -1619,7 +1615,7 @@
 
 <script>
 /**
- * Aurastream Next-Gen Ultra HD Studio Edition
+ * Aurastream Next-Gen Adaptive Ultra HD Studio Edition
  */
 (function() {
     'use strict';
@@ -1735,7 +1731,7 @@
     }
 
     const Account = {
-        key: 'aurastream_profile_v11',
+        key: 'aurastream_profile_v12',
         get() { return localStorage.getItem(this.key); },
         save(name) { localStorage.setItem(this.key, name); },
         check() {
@@ -1765,7 +1761,7 @@
         if ($('lobbyAvLetter')) $('lobbyAvLetter').textContent = initial;
         if ($('mainAvLetter')) $('mainAvLetter').textContent = initial;
         if ($('mainTileLabel')) $('mainTileLabel').textContent = App.userName;
-        if ($('mainRoleTag')) $('mainRoleTag').textContent = `${App.isHost ? 'Host' : 'Guest'} · 1080p Studio`;
+        if ($('mainRoleTag')) $('mainRoleTag').textContent = `${App.isHost ? 'Host' : 'Guest'} · Adaptive HD`;
     }
 
     function notify(msg, emoji = '✨') {
@@ -1779,7 +1775,7 @@
     }
 
     const Friends = {
-        key: 'aurastream_friends_list_v11',
+        key: 'aurastream_friends_list_v12',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -1815,14 +1811,15 @@
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(`👋 Hey ${name}, join my live meeting: ${shareUrl}`)}`, '_blank');
     };
 
+    // Adaptive constraints for all camera sensors & screen ratios
     function getMediaConstraints() {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         return {
             video: {
-                width: isMobile ? { ideal: 1920, max: 1920, min: 1280 } : { ideal: 1920, min: 1920 },
-                height: isMobile ? { ideal: 1080, max: 1080, min: 720 } : { ideal: 1080, min: 1080 },
+                width: isMobile ? { ideal: 1280, max: 1920 } : { ideal: 1920, min: 1280 },
+                height: isMobile ? { ideal: 720, max: 1080 } : { ideal: 1080, min: 720 },
                 facingMode: { ideal: App.facing },
-                frameRate: { ideal: 60, min: 30 }
+                frameRate: { ideal: 60, min: 24 }
             },
             audio: {
                 echoCancellation: { ideal: true },
@@ -1832,18 +1829,24 @@
         };
     }
 
-    function tunePeerConnectionBitrate(peerConnection) {
+    // Auto-Adaptive Dynamic WebRTC Bandwidth Scaler (2G to 5G)
+    function tunePeerConnectionAdaptive(peerConnection) {
         if (!peerConnection || !peerConnection.getSenders) return;
         peerConnection.getSenders().forEach(sender => {
             if (!sender.track) return;
             const params = sender.getParameters();
             if (!params.encodings || params.encodings.length === 0) params.encodings = [{}];
+            
             if (sender.track.kind === 'video') {
-                params.encodings[0].maxBitrate = 4000000;
+                params.encodings[0].minBitrate = 150000;  // 150 kbps for low 2G/3G network
+                params.encodings[0].maxBitrate = 4000000; // Up to 4.0 Mbps for fast 5G/Wi-Fi
                 params.encodings[0].maxFramerate = 60;
-                params.degradationPreference = 'maintain-resolution';
+                params.encodings[0].networkPriority = 'high';
+                params.degradationPreference = 'balanced'; // Smoothly scales quality without dropping frames
             } else if (sender.track.kind === 'audio') {
-                params.encodings[0].maxBitrate = 128000;
+                params.encodings[0].minBitrate = 16000;   // 16 kbps voice for weak signals
+                params.encodings[0].maxBitrate = 128000;  // 128 kbps crystal audio
+                params.encodings[0].networkPriority = 'high';
             }
             try { sender.setParameters(params); } catch (e) {}
         });
@@ -1859,7 +1862,7 @@
                 $('lobbyVideo').srcObject = App.localStream;
                 $('lobbyVideo').muted = true;
                 $('lobbyVideo').style.opacity = '1';
-                $('lobbyVideo').style.pointerEvents = 'auto';
+                $('lobbyVideo').style.visibility = 'visible';
             }
             if ($('vfPlaceholder')) $('vfPlaceholder').style.display = 'none';
             
@@ -1985,7 +1988,7 @@
         App.localStream.getVideoTracks().forEach(t => t.enabled = App.cam);
         if ($('lobbyVideo')) {
             $('lobbyVideo').style.opacity = App.cam ? '1' : '0';
-            $('lobbyVideo').style.pointerEvents = App.cam ? 'auto' : 'none';
+            $('lobbyVideo').style.visibility = App.cam ? 'visible' : 'hidden';
         }
         if ($('vfPlaceholder')) $('vfPlaceholder').style.display = App.cam ? 'none' : 'flex';
     });
@@ -2088,7 +2091,9 @@
                         iceServers: [
                             { urls: 'stun:stun.l.google.com:19302' },
                             { urls: 'stun:stun1.l.google.com:19302' },
-                            { urls: 'stun:stun.cloudflare.com:3478' }
+                            { urls: 'stun:stun2.l.google.com:19302' },
+                            { urls: 'stun:stun.cloudflare.com:3478' },
+                            { urls: 'stun:global.stun.twilio.com:3478' }
                         ]
                     }
                 });
@@ -2101,7 +2106,7 @@
                     App.peerCall = call;
                     if (App.localStream) call.answer(App.localStream);
                     call.on('stream', remoteStream => attachRemoteStream(remoteStream));
-                    if (call.peerConnection) tunePeerConnectionBitrate(call.peerConnection);
+                    if (call.peerConnection) tunePeerConnectionAdaptive(call.peerConnection);
                 });
 
                 App.peer.on('connection', conn => {
@@ -2130,7 +2135,7 @@
             const call = App.peer.call(hostId, App.localStream);
             App.peerCall = call;
             call.on('stream', remoteStream => attachRemoteStream(remoteStream));
-            if (call.peerConnection) tunePeerConnectionBitrate(call.peerConnection);
+            if (call.peerConnection) tunePeerConnectionAdaptive(call.peerConnection);
 
             const conn = App.peer.connect(hostId);
             App.dataConn = conn;
@@ -2144,58 +2149,74 @@
         updateVideoLayout();
         $('pipCard')?.classList.remove('hidden');
         Sound.play('join');
-        notify('Peer connected in HD', '🟢');
+        notify('Peer connected · Adaptive HD', '🟢');
         updateRosterCount(2);
     }
 
+    // Zero-shrink video layout engine
     function updateVideoLayout() {
         const mainVid = $('mainVideo');
         const pipVid = $('pipVideo');
+        const mainPlace = $('mainPlaceholder');
 
         if (!App.remoteStream) {
             if (mainVid && App.localStream) {
-                mainVid.srcObject = App.localStream;
+                if (mainVid.srcObject !== App.localStream) mainVid.srcObject = App.localStream;
                 mainVid.muted = true;
                 mainVid.style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
                 mainVid.style.opacity = App.cam ? '1' : '0';
-                mainVid.style.pointerEvents = App.cam ? 'auto' : 'none';
+                mainVid.style.visibility = App.cam ? 'visible' : 'hidden';
+                if (App.cam) mainVid.play().catch(()=>{});
             }
-            if ($('mainPlaceholder')) $('mainPlaceholder').style.display = App.cam ? 'none' : 'flex';
+            if (mainPlace) {
+                mainPlace.style.opacity = App.cam ? '0' : '1';
+                mainPlace.style.visibility = App.cam ? 'hidden' : 'visible';
+            }
             $('pipCard')?.classList.add('hidden');
             return;
         }
 
         if (!App.swappedViews) {
             if (mainVid) {
-                mainVid.srcObject = App.remoteStream;
+                if (mainVid.srcObject !== App.remoteStream) mainVid.srcObject = App.remoteStream;
                 mainVid.muted = false;
                 mainVid.style.transform = 'scaleX(1)';
                 mainVid.style.opacity = '1';
-                mainVid.style.pointerEvents = 'auto';
+                mainVid.style.visibility = 'visible';
                 mainVid.play().catch(()=>{});
             }
-            if ($('mainPlaceholder')) $('mainPlaceholder').style.display = 'none';
+            if (mainPlace) {
+                mainPlace.style.opacity = '0';
+                mainPlace.style.visibility = 'hidden';
+            }
 
             if (pipVid && App.localStream) {
-                pipVid.srcObject = App.localStream;
+                if (pipVid.srcObject !== App.localStream) pipVid.srcObject = App.localStream;
                 pipVid.muted = true;
                 pipVid.style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+                pipVid.style.opacity = App.cam ? '1' : '0';
+                pipVid.style.visibility = App.cam ? 'visible' : 'hidden';
             }
             if ($('pipTagLabel')) $('pipTagLabel').textContent = 'You';
         } else {
             if (mainVid && App.localStream) {
-                mainVid.srcObject = App.localStream;
+                if (mainVid.srcObject !== App.localStream) mainVid.srcObject = App.localStream;
                 mainVid.muted = true;
                 mainVid.style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
                 mainVid.style.opacity = App.cam ? '1' : '0';
-                mainVid.style.pointerEvents = App.cam ? 'auto' : 'none';
+                mainVid.style.visibility = App.cam ? 'visible' : 'hidden';
             }
-            if ($('mainPlaceholder')) $('mainPlaceholder').style.display = App.cam ? 'none' : 'flex';
+            if (mainPlace) {
+                mainPlace.style.opacity = App.cam ? '0' : '1';
+                mainPlace.style.visibility = App.cam ? 'hidden' : 'visible';
+            }
 
             if (pipVid && App.remoteStream) {
-                pipVid.srcObject = App.remoteStream;
+                if (pipVid.srcObject !== App.remoteStream) pipVid.srcObject = App.remoteStream;
                 pipVid.muted = false;
                 pipVid.style.transform = 'scaleX(1)';
+                pipVid.style.opacity = '1';
+                pipVid.style.visibility = 'visible';
                 pipVid.play().catch(()=>{});
             }
             if ($('pipTagLabel')) $('pipTagLabel').textContent = 'Peer';
@@ -2212,7 +2233,7 @@
         App.studioFilter = !App.studioFilter;
         $('canvasArea')?.classList.toggle('studio-lighting', App.studioFilter);
         $('btnStudioFilter')?.classList.toggle('active', App.studioFilter);
-        notify(App.studioFilter ? 'Studio Enhancer Active' : 'Natural Lighting', App.studioFilter ? '✨' : '💡');
+        notify(App.studioFilter ? 'Studio Lighting Active' : 'Natural Stream', App.studioFilter ? '✨' : '💡');
     });
 
     function bindDataEvents(conn) {
@@ -2475,7 +2496,7 @@
                     <div class="person-avatar" style="background: var(--purple); color: #fff;">P</div>
                     <div>
                         <div style="font-weight: 800; font-size: 13px;">Connected Peer</div>
-                        <div style="font-size: 11px; color: var(--text-2); font-weight:600;">Participant (HD)</div>
+                        <div style="font-size: 11px; color: var(--text-2); font-weight:600;">Adaptive Stream</div>
                     </div>
                 </div>
                 <button class="btn-grid-outline" style="padding:4px 8px; font-size:10px;" onclick="savePeerAsFriend()">+ Friend</button>
@@ -2630,6 +2651,7 @@
             $('mainVideo').srcObject = null; 
             $('mainVideo').muted = true;
             $('mainVideo').style.opacity = '0';
+            $('mainVideo').style.visibility = 'hidden';
         }
         if ($('pipVideo')) { 
             $('pipVideo').srcObject = null; 
@@ -2639,6 +2661,7 @@
             $('lobbyVideo').srcObject = null; 
             $('lobbyVideo').muted = true;
             $('lobbyVideo').style.opacity = '0';
+            $('lobbyVideo').style.visibility = 'hidden';
         }
 
         App.remoteStream = null;
