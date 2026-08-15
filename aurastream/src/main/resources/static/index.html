@@ -15,11 +15,11 @@
 
     <style>
         :root {
-            --bg-canvas: #030307;
-            --bg-surface: rgba(14, 14, 24, 0.78);
-            --bg-elevated: rgba(22, 22, 38, 0.88);
-            --bg-glass: rgba(18, 18, 32, 0.68);
-            --bg-glass-dock: rgba(12, 12, 22, 0.88);
+            --bg-canvas: #05050a;
+            --bg-surface: rgba(16, 16, 28, 0.82);
+            --bg-elevated: rgba(24, 24, 40, 0.9);
+            --bg-glass: rgba(18, 18, 32, 0.72);
+            --bg-glass-dock: rgba(12, 12, 22, 0.9);
             
             --brand: #ff5e00;
             --brand-light: #ff7e29;
@@ -35,7 +35,7 @@
             --purple: #a855f7;
             --cyan: #06b6d4;
             
-            --border-dim: rgba(255, 255, 255, 0.07);
+            --border-dim: rgba(255, 255, 255, 0.08);
             --border-subtle: rgba(255, 255, 255, 0.14);
             --border-glow: rgba(255, 94, 0, 0.45);
             
@@ -47,8 +47,8 @@
             --font-head: 'Space Grotesk', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
             
-            --radius-xs: 10px;
-            --radius-sm: 16px;
+            --radius-xs: 12px;
+            --radius-sm: 18px;
             --radius-md: 24px;
             --radius-full: 9999px;
             
@@ -91,9 +91,8 @@
             pointer-events: none;
             z-index: 0;
             background: 
-                radial-gradient(circle at 15% 15%, rgba(255, 94, 0, 0.09) 0%, transparent 45%),
-                radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.08) 0%, transparent 45%),
-                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.03) 0%, transparent 60%);
+                radial-gradient(circle at 20% 15%, rgba(255, 94, 0, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 80% 85%, rgba(168, 85, 247, 0.07) 0%, transparent 45%);
         }
 
         button, input {
@@ -124,7 +123,7 @@
         }
 
         .close-btn {
-            background: rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.08);
             border: 1px solid var(--border-subtle);
             color: #ffffff;
             width: 36px;
@@ -134,7 +133,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
         }
         .close-btn:active {
             background: var(--danger);
@@ -143,7 +142,7 @@
         }
 
         /* ========================================================
-            CINEMATIC AUTH / ONBOARDING VIEW
+            AUTH / ONBOARDING VIEW
            ======================================================== */
         .auth-stage {
             position: fixed;
@@ -153,7 +152,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            background: radial-gradient(circle at 50% 30%, #151128 0%, var(--bg-canvas) 80%);
+            background: radial-gradient(circle at 50% 30%, #151128 0%, var(--bg-canvas) 85%);
             transition: opacity 0.3s var(--spring), transform 0.3s var(--spring);
         }
         .auth-stage.hidden {
@@ -164,37 +163,29 @@
 
         .auth-card {
             width: 100%;
-            max-width: 400px;
+            max-width: 390px;
             background: var(--bg-surface);
             backdrop-filter: blur(28px);
             -webkit-backdrop-filter: blur(28px);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
-            padding: 34px 28px;
+            padding: 34px 26px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.1);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.85);
             position: relative;
         }
-        .auth-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 20%; right: 20%; height: 2px;
-            background: var(--brand-gradient);
-            box-shadow: 0 0 15px var(--brand);
-            border-radius: var(--radius-full);
-        }
         .auth-logo svg {
-            width: 64px;
-            height: 64px;
-            margin-bottom: 16px;
+            width: 60px;
+            height: 60px;
+            margin-bottom: 14px;
             filter: drop-shadow(0 8px 20px var(--brand-glow));
         }
         .auth-card h2 {
             font-family: var(--font-head);
-            font-size: 24px;
+            font-size: 23px;
             font-weight: 800;
             letter-spacing: -0.3px;
             margin-bottom: 6px;
@@ -204,13 +195,13 @@
             font-size: 13px;
             color: var(--text-2);
             line-height: 1.5;
-            margin-bottom: 24px;
+            margin-bottom: 22px;
         }
 
         .auth-input-group {
             width: 100%;
             text-align: left;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
         .field-label {
             font-size: 11px;
@@ -230,14 +221,8 @@
             text-transform: none;
             letter-spacing: 0;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: color 0.15s;
         }
-        .field-label-action:hover { color: #fff; }
 
-        /* Input with Cut/Clear Button */
         .input-clear-wrapper {
             position: relative;
             width: 100%;
@@ -268,7 +253,7 @@
             opacity: 1;
             pointer-events: auto;
         }
-        .input-clear-btn:active, .input-clear-btn:hover {
+        .input-clear-btn:active {
             background: var(--danger);
             color: #ffffff;
             transform: scale(1.05);
@@ -276,8 +261,8 @@
 
         .field-input {
             width: 100%;
-            padding: 14px 16px;
-            background: rgba(255, 255, 255, 0.04);
+            padding: 13px 16px;
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-dim);
             border-radius: var(--radius-xs);
             color: #fff;
@@ -290,24 +275,22 @@
             background: var(--brand-subtle);
             box-shadow: 0 0 0 3px rgba(255, 94, 0, 0.18);
         }
-        .field-input::placeholder { color: var(--text-3); }
 
         .btn-primary {
             background: var(--brand-gradient);
             color: #000;
-            padding: 14px 20px;
+            padding: 13px 20px;
             border-radius: var(--radius-xs);
             font-size: 14px;
             font-weight: 800;
-            letter-spacing: 0.2px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
             box-shadow: 0 6px 24px var(--brand-glow);
             width: 100%;
+            transition: transform 0.15s ease;
         }
         .btn-primary:active { transform: scale(0.98); }
 
@@ -327,27 +310,22 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
-        .lobby-stage.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
+        .lobby-stage.hidden { opacity: 0; pointer-events: none; }
 
         .studio-container {
             width: 100%;
-            max-width: 980px;
+            max-width: 960px;
             display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 32px;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 28px;
             align-items: center;
             margin: auto;
-            position: relative;
-            z-index: 1;
         }
 
         .brand-panel {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 18px;
         }
         .brand-header {
             display: flex;
@@ -359,16 +337,11 @@
             align-items: center;
             gap: 12px;
         }
-        .logo-emblem svg {
-            width: 44px;
-            height: 44px;
-            filter: drop-shadow(0 6px 16px var(--brand-glow));
-        }
+        .logo-emblem svg { width: 42px; height: 42px; }
         .brand-title h1 {
             font-family: var(--font-head);
             font-size: 22px;
             font-weight: 800;
-            letter-spacing: 0.5px;
             color: #fff;
             display: flex;
             align-items: center;
@@ -383,7 +356,6 @@
             font-size: 11px;
             color: var(--text-2);
             font-weight: 600;
-            letter-spacing: 0.4px;
         }
 
         .user-profile-badge {
@@ -396,14 +368,9 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .user-profile-badge:active {
-            border-color: var(--brand);
-            background: var(--bg-elevated);
         }
         .user-profile-avatar {
             width: 22px;
@@ -420,17 +387,17 @@
 
         .hero-headline {
             font-family: var(--font-head);
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 800;
-            line-height: 1.2;
-            letter-spacing: -0.5px;
+            line-height: 1.25;
+            letter-spacing: -0.4px;
             color: #fff;
         }
         .hero-desc {
             font-size: 13px;
-            line-height: 1.6;
+            line-height: 1.55;
             color: var(--text-2);
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         .join-box-card {
@@ -439,11 +406,11 @@
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
-            padding: 20px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            gap: 12px;
+            box-shadow: 0 18px 45px rgba(0,0,0,0.6);
         }
 
         .btn-group {
@@ -455,14 +422,14 @@
             background: rgba(255, 255, 255, 0.05);
             color: #fff;
             border: 1px solid var(--border-subtle);
-            padding: 14px 16px;
+            padding: 13px 16px;
             border-radius: var(--radius-xs);
             font-size: 13px;
             font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             cursor: pointer;
             transition: all 0.15s ease;
         }
@@ -475,7 +442,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
+            padding: 11px 14px;
             background: rgba(255, 255, 255, 0.03);
             border: 1px dashed var(--border-subtle);
             border-radius: var(--radius-xs);
@@ -483,20 +450,8 @@
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .lobby-friends-btn:active {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: var(--brand);
-            color: #fff;
         }
 
-        /* Viewfinder Column */
-        .preview-column {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
         .viewfinder-shell {
             width: 100%;
             aspect-ratio: 4/3;
@@ -515,33 +470,29 @@
         }
         .vf-overlay-controls {
             position: absolute;
-            bottom: 14px;
+            bottom: 12px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             z-index: 10;
         }
         .vf-toggle-btn {
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             border-radius: var(--radius-full);
-            background: rgba(12, 12, 24, 0.88);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(14, 14, 24, 0.88);
             border: 1px solid rgba(255,255,255,0.18);
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.15s ease;
         }
         .vf-toggle-btn.off {
             background: var(--danger);
             border-color: transparent;
-            box-shadow: 0 4px 16px var(--danger-glow);
         }
 
         .vf-placeholder-state {
@@ -551,44 +502,37 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            background: radial-gradient(circle at center, #16122c 0%, #06060e 100%);
+            gap: 10px;
+            background: radial-gradient(circle at center, #151128 0%, #06060c 100%);
         }
         .vf-avatar-ring {
-            width: 72px;
-            height: 72px;
+            width: 68px;
+            height: 68px;
             border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 30px var(--brand-glow);
+            box-shadow: 0 8px 24px var(--brand-glow);
         }
         .btn-test-cam {
             background: rgba(255,255,255,0.08);
             border: 1px solid var(--border-subtle);
             color: #fff;
-            padding: 8px 18px;
+            padding: 8px 16px;
             border-radius: var(--radius-full);
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
-            transition: 0.15s;
-        }
-        .btn-test-cam:active {
-            background: var(--brand-subtle);
-            border-color: var(--brand);
         }
 
         .audio-eq-bars {
             position: absolute;
             bottom: 0; left: 0; right: 0;
-            height: 4px;
-            display: flex;
-            gap: 2px;
+            height: 3px;
             background: rgba(255,255,255,0.04);
         }
         .audio-eq-fill {
@@ -598,22 +542,8 @@
             transition: width 0.05s linear;
         }
 
-        .quality-pill-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(0, 240, 118, 0.12);
-            border: 1px solid rgba(0, 240, 118, 0.35);
-            color: var(--success);
-            font-size: 11px;
-            font-weight: 800;
-            padding: 4px 12px;
-            border-radius: var(--radius-full);
-            letter-spacing: 0.4px;
-        }
-
         /* ========================================================
-            ACTIVE CALL STAGE (STUDIO CANVAS)
+            ACTIVE CALL STAGE (AIRY & CLEAN FACETIME HUD)
            ======================================================== */
         .call-stage {
             display: none;
@@ -623,19 +553,19 @@
             flex-direction: column;
             position: relative;
             overflow: hidden;
-            background: #000000;
+            background: #020205;
         }
         .call-stage.active { display: flex; }
 
-        /* Top HUD Bar */
+        /* Clean Top Bar */
         .hud-topbar {
             position: absolute;
             top: 0; left: 0; right: 0;
-            padding: max(12px, var(--safe-top)) max(14px, var(--safe-right)) 10px max(14px, var(--safe-left));
+            padding: max(14px, var(--safe-top)) 16px 12px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: linear-gradient(180deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0) 100%);
+            background: linear-gradient(180deg, rgba(2,2,5,0.88) 0%, rgba(2,2,5,0) 100%);
             z-index: 100;
             pointer-events: none;
         }
@@ -648,7 +578,7 @@
         }
 
         .room-tag-pill {
-            background: var(--bg-glass);
+            background: rgba(18, 18, 30, 0.75);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-subtle);
@@ -658,19 +588,17 @@
             align-items: center;
             gap: 8px;
             cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
             transition: all 0.15s ease;
         }
-        .room-tag-pill:active {
-            border-color: var(--border-glow);
-            background: var(--bg-elevated);
-        }
+        .room-tag-pill:active { background: var(--bg-elevated); }
 
         .room-code-label {
             font-family: var(--font-mono);
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--brand-light);
-            letter-spacing: 0.8px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 0.5px;
         }
         .call-clock {
             font-family: var(--font-mono);
@@ -684,64 +612,60 @@
         .live-pulse-dot {
             width: 7px;
             height: 7px;
-            background: var(--danger);
+            background: var(--success);
             border-radius: 50%;
-            box-shadow: 0 0 10px var(--danger);
-            animation: pulseGlow 1.5s infinite;
+            box-shadow: 0 0 8px var(--success);
+            animation: pulseGlow 1.8s infinite;
         }
         @keyframes pulseGlow {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.3; transform: scale(1.2); }
+            50% { opacity: 0.4; transform: scale(1.15); }
         }
 
-        .hud-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-xs);
-            background: var(--bg-glass);
+        .hud-action-btn {
+            height: 38px;
+            padding: 0 14px;
+            border-radius: var(--radius-full);
+            background: rgba(18, 18, 30, 0.75);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-dim);
-            color: var(--text-1);
+            border: 1px solid var(--border-subtle);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            transition: all 0.15s ease;
+        }
+        .hud-action-btn:active { background: rgba(255,255,255,0.15); }
+
+        .hud-action-btn.share-cta {
+            background: rgba(37, 211, 102, 0.16);
+            border-color: rgba(37, 211, 102, 0.4);
+            color: var(--wa-green);
+        }
+
+        .hud-icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(18, 18, 30, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
+            color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.15s ease;
-            position: relative;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
         }
-        .hud-btn:active { background: rgba(255,255,255,0.15); }
+        .hud-icon-btn:active { background: rgba(255,255,255,0.15); }
 
-        .hud-btn.share-cta {
-            background: rgba(37, 211, 102, 0.16);
-            border-color: rgba(37, 211, 102, 0.4);
-            color: var(--wa-green);
-            gap: 6px;
-            padding: 0 12px;
-            width: auto;
-            font-size: 12px;
-            font-weight: 800;
-        }
-        .hud-btn.share-cta:active {
-            background: var(--wa-green);
-            color: #000;
-        }
-
-        .hud-btn .badge {
-            position: absolute;
-            top: -3px; right: -3px;
-            background: var(--brand);
-            color: #000;
-            font-size: 9px;
-            font-weight: 900;
-            width: 16px; height: 16px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Center Stage Video */
+        /* Video Stage */
         .video-canvas {
             flex: 1;
             position: relative;
@@ -755,7 +679,7 @@
         .main-hero-tile {
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at center, #151128 0%, #020206 100%);
+            background: radial-gradient(circle at center, #151128 0%, #030308 100%);
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -775,20 +699,35 @@
             filter: contrast(1.06) saturate(1.12) brightness(1.04);
         }
 
+        /* Large Centered Avatar */
         .tile-avatar-view {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
+        }
+        .tile-avatar-glow {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            background: var(--brand-gradient);
+            color: #000;
+            font-size: 32px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 40px var(--brand-glow);
         }
 
-        .user-tag {
+        /* Clean Non-Colliding User Tag at Bottom Left */
+        .stage-user-tag {
             position: absolute;
-            top: 68px;
-            left: 14px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            bottom: 84px;
+            left: 16px;
+            background: rgba(14, 14, 22, 0.75);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             border: 1px solid var(--border-dim);
             padding: 5px 12px;
             border-radius: var(--radius-full);
@@ -797,27 +736,29 @@
             gap: 6px;
             font-size: 11px;
             font-weight: 700;
+            color: #fff;
             z-index: 10;
         }
 
+        /* Airy Waiting Pill */
         .subtle-waiting-hub {
             position: absolute;
-            bottom: 105px;
+            bottom: 84px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            background: rgba(10, 10, 18, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            gap: 9px;
+            background: rgba(16, 16, 26, 0.88);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
             padding: 8px 18px;
             border-radius: var(--radius-full);
-            border: 1px solid var(--border-dim);
+            border: 1px solid var(--border-subtle);
             z-index: 5;
-            pointer-events: none;
             white-space: nowrap;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
         .subtle-waiting-hub.hidden { display: none; }
         .subtle-waiting-hub span {
@@ -826,8 +767,8 @@
             font-weight: 600;
         }
         .subtle-spinner {
-            width: 13px;
-            height: 13px;
+            width: 12px;
+            height: 12px;
             border: 2px solid rgba(255,255,255,0.2);
             border-top-color: var(--brand);
             border-radius: 50%;
@@ -838,9 +779,9 @@
         /* Draggable PiP Tile */
         .pip-card {
             position: absolute;
-            top: 70px;
+            top: 75px;
             right: 14px;
-            width: 120px;
+            width: 105px;
             aspect-ratio: 9/16;
             background: #000;
             border-radius: var(--radius-sm);
@@ -865,7 +806,7 @@
             position: absolute;
             bottom: 6px; left: 6px;
             background: rgba(0,0,0,0.75);
-            padding: 2px 7px;
+            padding: 2px 6px;
             border-radius: 4px;
             font-size: 9px;
             font-weight: 800;
@@ -874,43 +815,36 @@
         }
 
         /* ========================================================
-            BOTTOM LIQUID CONTROL DOCK
+            BALANCED 5-BUTTON LIQUID DOCK
            ======================================================== */
         .dock-wrapper {
             position: absolute;
-            bottom: max(14px, var(--safe-bottom));
+            bottom: max(16px, var(--safe-bottom));
             left: 50%;
             transform: translateX(-50%);
             z-index: 100;
             width: auto;
-            max-width: 95%;
+            max-width: 92%;
         }
 
         .control-dock {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
+            gap: 10px;
+            padding: 8px 14px;
             background: var(--bg-glass-dock);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--border-dim);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--border-subtle);
             border-radius: var(--radius-full);
-            box-shadow: 0 18px 45px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.1);
-        }
-
-        .dock-sep {
-            width: 1px;
-            height: 24px;
-            background: var(--border-dim);
-            margin: 0 2px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.85);
         }
 
         .dock-btn {
             width: 44px;
             height: 44px;
             border-radius: var(--radius-full);
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.08);
             color: var(--text-1);
             display: flex;
             align-items: center;
@@ -935,15 +869,12 @@
 
         .dock-btn.end-btn {
             width: 52px;
-            border-radius: var(--radius-full);
             background: var(--danger);
             color: #fff;
             box-shadow: 0 4px 18px var(--danger-glow);
         }
         .dock-btn.end-btn:active { background: #e00028; }
         .dock-btn.end-btn svg { transform: rotate(135deg); }
-
-        .mobile-hide { display: flex; }
 
         .reaction-menu {
             position: absolute;
@@ -971,7 +902,7 @@
         }
         .r-btn:active { transform: scale(1.35); }
 
-        /* Floating Message Banner */
+        /* Floating Heads-Up Banner */
         .floating-chat-banner {
             position: fixed;
             top: max(14px, var(--safe-top));
@@ -1009,12 +940,8 @@
             justify-content: center;
             font-size: 11px;
         }
-        .floating-text-content b { font-size: 11px; color: var(--brand-light); }
-        .floating-text-content span { font-size: 12px; color: #fff; }
 
-        /* ========================================================
-            SIDE DRAWER (CHAT / FRIENDS / PEOPLE)
-           ======================================================== */
+        /* Side Drawer (Chat / Friends / People) */
         .side-drawer {
             position: absolute;
             top: 0; right: 0; bottom: 0;
@@ -1110,26 +1037,6 @@
             border-radius: 16px 16px 16px 3px;
         }
 
-        .emoji-picker-tray {
-            display: none;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-            padding: 8px;
-            background: rgba(14, 14, 25, 0.98);
-            border-top: 1px solid var(--border-dim);
-            max-height: 140px;
-            overflow-y: auto;
-        }
-        .emoji-picker-tray.show { display: grid; }
-        .ep-btn {
-            font-size: 18px;
-            background: transparent;
-            padding: 4px;
-            border-radius: var(--radius-xs);
-            cursor: pointer;
-        }
-        .ep-btn:active { background: rgba(255,255,255,0.12); transform: scale(1.15); }
-
         .chat-bar {
             padding: 10px 16px max(10px, var(--safe-bottom)) 16px;
             border-top: 1px solid var(--border-dim);
@@ -1152,16 +1059,6 @@
             font-size: 13px;
             padding: 6px 0;
         }
-        .chat-icon-btn {
-            width: 30px; height: 30px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            color: var(--text-2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
         .chat-send-btn {
             width: 32px; height: 32px;
             border-radius: 50%;
@@ -1172,34 +1069,6 @@
             justify-content: center;
             cursor: pointer;
         }
-        .chat-send-btn:active { transform: scale(0.92); }
-
-        /* Friends & Contacts */
-        .friends-toolbar {
-            padding: 12px 16px;
-            display: flex;
-            gap: 8px;
-            border-bottom: 1px solid var(--border-dim);
-        }
-        .btn-add-friend {
-            width: 100%;
-            padding: 10px;
-            border-radius: var(--radius-xs);
-            background: rgba(255, 94, 0, 0.12);
-            border: 1px solid var(--border-glow);
-            color: var(--brand-light);
-            font-size: 12px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            cursor: pointer;
-        }
-        .btn-add-friend:active {
-            background: var(--brand);
-            color: #000;
-        }
 
         .friends-list {
             padding: 12px;
@@ -1208,9 +1077,7 @@
             gap: 8px;
             overflow-y: auto;
             flex: 1;
-            -webkit-overflow-scrolling: touch;
         }
-
         .friend-card {
             display: flex;
             align-items: center;
@@ -1236,11 +1103,6 @@
             justify-content: center;
             font-size: 13px;
         }
-        .friend-actions {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
         .btn-friend-call {
             padding: 6px 12px;
             border-radius: var(--radius-full);
@@ -1249,38 +1111,6 @@
             font-size: 11px;
             font-weight: 800;
             cursor: pointer;
-        }
-
-        .people-list {
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .person-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 14px;
-            background: rgba(255,255,255,0.04);
-            border-radius: var(--radius-xs);
-            border: 1px solid var(--border-dim);
-        }
-        .person-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .person-avatar {
-            width: 34px; height: 34px;
-            border-radius: 50%;
-            background: var(--brand-gradient);
-            color: #000;
-            font-weight: 900;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
         }
 
         /* Modals */
@@ -1310,7 +1140,6 @@
             box-shadow: 0 25px 65px rgba(0,0,0,0.9);
             position: relative;
         }
-
         .modal-header {
             display: flex;
             align-items: center;
@@ -1338,7 +1167,6 @@
             gap: 8px;
             margin-bottom: 10px;
         }
-
         .btn-grid-outline {
             padding: 11px 8px;
             border-radius: var(--radius-xs);
@@ -1353,8 +1181,6 @@
             border: 1px solid var(--border-subtle);
             color: #fff;
         }
-        .btn-grid-outline:active { background: rgba(255,255,255,0.15); }
-
         .share-btn-wa {
             width: 100%;
             padding: 12px;
@@ -1368,10 +1194,7 @@
             justify-content: center;
             gap: 8px;
             cursor: pointer;
-            box-shadow: 0 4px 18px rgba(37, 211, 102, 0.35);
-            border: none;
         }
-        .share-btn-wa:active { transform: scale(0.98); }
 
         .reaction-particle {
             position: fixed;
@@ -1404,7 +1227,7 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-glow);
-            padding: 9px 18px;
+            padding: 8px 16px;
             border-radius: var(--radius-full);
             color: #fff;
             font-size: 12px;
@@ -1413,24 +1236,14 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            animation: toastPop 0.25s var(--spring);
-        }
-        @keyframes toastPop {
-            0% { opacity: 0; transform: translateY(-12px) scale(0.95); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* Mobile Adjustments */
         @media (max-width: 900px) {
-            .studio-container {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
+            .studio-container { grid-template-columns: 1fr; gap: 16px; }
             .hero-headline { font-size: 22px; }
             .side-drawer {
                 width: 100%;
-                top: auto;
-                bottom: 0;
+                top: auto; bottom: 0;
                 height: 75vh;
                 border-left: none;
                 border-top: 1px solid var(--border-subtle);
@@ -1438,15 +1251,10 @@
                 transform: translateY(100%);
             }
             .side-drawer.open { transform: translateY(0); }
-            .pip-card {
-                width: 96px;
-                top: 64px;
-                right: 12px;
-            }
-            .control-dock { padding: 6px 10px; gap: 6px; }
-            .dock-btn { width: 40px; height: 40px; }
-            .dock-btn.end-btn { width: 48px; }
-            .mobile-hide { display: none !important; }
+            .pip-card { width: 95px; top: 68px; right: 12px; }
+            .control-dock { padding: 6px 12px; gap: 8px; }
+            .dock-btn { width: 42px; height: 42px; }
+            .dock-btn.end-btn { width: 50px; }
         }
     </style>
 </head>
@@ -1456,12 +1264,12 @@
 
 <div class="toast-shelf" id="toastShelf"></div>
 
-<!-- Incoming Chat Floating Banner -->
+<!-- Incoming Message Banner -->
 <div class="floating-chat-banner" id="chatBanner">
     <div class="floating-avatar" id="bannerAvatar">P</div>
-    <div class="floating-text-content">
-        <b id="bannerAuthor">Peer</b>
-        <span id="bannerText">Hey there!</span>
+    <div style="display:flex; flex-direction:column;">
+        <b style="font-size:11px; color:var(--brand-light);" id="bannerAuthor">Peer</b>
+        <span style="font-size:12px; color:#fff;" id="bannerText">Hey there!</span>
     </div>
 </div>
 
@@ -1475,16 +1283,14 @@
                 <rect width="48" height="48" rx="16" fill="url(#brandGradAuth)"/>
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM24 32C19.5817 32 16 28.4183 16 24C16 19.5817 19.5817 16 24 16C28.4183 16 32 19.5817 32 24C32 28.4183 28.4183 32 24 32ZM24 28C26.2091 28 28 26.2091 28 24C28 21.7909 26.2091 20 24 20C21.7909 20 20 21.7909 20 24C20 26.2091 21.7909 28 24 28Z" fill="#030307"/>
                 <defs>
-                    <linearGradient id="brandGradAuth" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#ff3b00"/>
-                        <stop offset="0.5" stop-color="#ff6a00"/>
-                        <stop offset="1" stop-color="#ff0055"/>
+                    <linearGradient id="brandGradAuth" x1="0" y1="0" x2="48" y2="48">
+                        <stop stop-color="#ff3b00"/><stop offset="0.5" stop-color="#ff6a00"/><stop offset="1" stop-color="#ff0055"/>
                     </linearGradient>
                 </defs>
             </svg>
         </div>
         <h2>Aura Identity</h2>
-        <p>Your studio-grade encrypted profile for crystal-clear HD meetings.</p>
+        <p>Your studio encrypted profile for crystal-clear HD meetings.</p>
 
         <div class="auth-input-group">
             <div class="field-label">
@@ -1499,19 +1305,15 @@
             </div>
         </div>
 
-        <button class="btn-primary" id="btnAuthCreate">
-            Enter Studio Suite
-        </button>
+        <button class="btn-primary" id="btnAuthCreate">Enter Studio</button>
     </div>
 </div>
 
 <!-- ========================================================
-     STUDIO LOBBY / LAUNCHPAD
+     STUDIO LOBBY
      ======================================================== -->
 <div class="lobby-stage hidden" id="lobbyView">
     <div class="studio-container">
-        
-        <!-- Left Side: Branding & Room Setup -->
         <div class="brand-panel">
             <div class="brand-header">
                 <div class="brand-header-left">
@@ -1520,10 +1322,8 @@
                             <rect width="48" height="48" rx="16" fill="url(#brandGradLobby)"/>
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM24 32C19.5817 32 16 28.4183 16 24C16 19.5817 19.5817 16 24 16C28.4183 16 32 19.5817 32 24C32 28.4183 28.4183 32 24 32ZM24 28C26.2091 28 28 26.2091 28 24C28 21.7909 26.2091 20 24 20C21.7909 20 20 21.7909 20 24C20 26.2091 21.7909 28 24 28Z" fill="#030307"/>
                             <defs>
-                                <linearGradient id="brandGradLobby" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-                                    <stop stop-color="#ff3b00"/>
-                                    <stop offset="0.5" stop-color="#ff6a00"/>
-                                    <stop offset="1" stop-color="#ff0055"/>
+                                <linearGradient id="brandGradLobby" x1="0" y1="0" x2="48" y2="48">
+                                    <stop stop-color="#ff3b00"/><stop offset="0.5" stop-color="#ff6a00"/><stop offset="1" stop-color="#ff0055"/>
                                 </linearGradient>
                             </defs>
                         </svg>
@@ -1540,19 +1340,15 @@
             </div>
 
             <div>
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <div class="quality-pill-indicator">⚡ 1080p 60FPS · 4.0 Mbps Ultra HD</div>
-                </div>
                 <h2 class="hero-headline">Studio Meetings.<br>Zero Latency Stream.</h2>
-                <p class="hero-desc">Hardware echo cancellation, live waveform visualizers, WhatsApp invites, and true end-to-end privacy.</p>
+                <p class="hero-desc">Hardware echo-cancellation, live voice visualizers, WhatsApp invites, and true end-to-end privacy.</p>
             </div>
 
-            <!-- Join / Create Controls -->
             <div class="join-box-card">
                 <div id="joinFields" style="display: none;">
                     <div>
-                        <label class="field-label">Meeting Access Code</label>
-                        <input class="field-input" id="roomCodeInput" placeholder="e.g. AUR-7890" style="text-transform: uppercase; font-family: var(--font-mono); letter-spacing: 1px;" autocomplete="off" autocorrect="off">
+                        <label class="field-label">Meeting Code</label>
+                        <input class="field-input" id="roomCodeInput" placeholder="e.g. AUR-7890" style="text-transform: uppercase; font-family: var(--font-mono);" autocomplete="off">
                     </div>
                     <div class="btn-group" style="margin-top: 10px;">
                         <button class="btn-primary" id="btnJoinRoom">Connect Stream</button>
@@ -1583,9 +1379,8 @@
             </div>
         </div>
 
-        <!-- Right Side: Viewfinder -->
         <div class="preview-column">
-            <div class="viewfinder-shell" id="viewfinderWrapper">
+            <div class="viewfinder-shell">
                 <div class="vf-placeholder-state" id="vfPlaceholder">
                     <div class="vf-avatar-ring" id="lobbyAvLetter">U</div>
                     <span style="font-size: 12px; color: var(--text-2); font-weight: 600;">Camera Disabled</span>
@@ -1601,26 +1396,18 @@
                         <svg class="icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
                     </button>
                 </div>
-                <div class="audio-eq-bars">
-                    <div class="audio-eq-fill" id="lAudioMeter"></div>
-                </div>
-            </div>
-
-            <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--text-2);">
-                <svg class="icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <span style="color: var(--success);">Direct P2P Encrypted</span> · Zero Echo
+                <div class="audio-eq-bars"><div class="audio-eq-fill" id="lAudioMeter"></div></div>
             </div>
         </div>
-
     </div>
 </div>
 
 <!-- ========================================================
-     ACTIVE CALL STAGE
+     AIRY & CLEAN ACTIVE CALL STAGE
      ======================================================== -->
 <div class="call-stage" id="callStage">
     
-    <!-- Top HUD Bar -->
+    <!-- Clean Top Bar -->
     <div class="hud-topbar">
         <div class="hud-left">
             <div class="room-tag-pill" id="btnCopyCode" title="Click to share meeting">
@@ -1628,39 +1415,31 @@
                 <span class="room-code-label" id="hudRoomText">AUR-XXXX</span>
                 <span class="call-clock" id="hudTimer">00:00</span>
             </div>
-            <button class="hud-btn share-cta" id="btnOpenShareModal" title="Share via WhatsApp / QR">
-                <svg class="icon-sm" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-                Share
-            </button>
         </div>
+
         <div class="hud-right">
-            <button class="hud-btn" id="btnStudioFilter" title="Studio Lighting Enhancer">
-                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <button class="hud-action-btn share-cta" id="btnOpenShareModal">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+                <span>Share</span>
             </button>
-            <button class="hud-btn" id="btnFlipCam" title="Flip Camera View">
-                <svg class="icon" viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
-            </button>
-            <button class="hud-btn" id="btnFriendsTabToggle" title="Friends & Contacts">
-                <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-            </button>
-            <button class="hud-btn" id="btnRoster" title="Participants">
-                <svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-                <div class="badge" id="rosterCount">1</div>
+            <button class="hud-icon-btn" id="btnFlipCam" title="Flip Camera">
+                <svg class="icon-sm" viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
             </button>
         </div>
     </div>
 
-    <!-- Center Main Video Canvas -->
+    <!-- Center Stage -->
     <div class="video-canvas" id="canvasArea">
         <div class="main-hero-tile" id="mainCard">
             <div class="tile-avatar-view" id="mainPlaceholder">
-                <div class="vf-avatar-ring" id="mainAvLetter">U</div>
+                <div class="tile-avatar-glow" id="mainAvLetter">U</div>
                 <span style="font-weight: 700; color: var(--text-2); font-size: 14px;" id="mainTileLabel">You</span>
             </div>
             <video id="mainVideo" autoplay playsinline webkit-playsinline style="display: none;"></video>
-            <div class="user-tag">
+            
+            <div class="stage-user-tag">
                 <svg class="icon-sm" style="color: var(--success);" id="mainMicIcon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg>
-                <span id="mainNameTag">You (Host)</span>
+                <span id="mainNameTag">You</span>
             </div>
         </div>
 
@@ -1669,14 +1448,13 @@
             <span>Waiting for peer to connect...</span>
         </div>
 
-        <!-- Draggable Touch-Friendly Picture-in-Picture -->
-        <div class="pip-card hidden" id="pipCard" title="Drag anywhere or double-click to swap view">
+        <div class="pip-card hidden" id="pipCard" title="Double-tap to swap">
             <video id="pipVideo" autoplay playsinline webkit-playsinline muted></video>
             <div class="pip-tag" id="pipTagLabel">You</div>
         </div>
     </div>
 
-    <!-- Bottom Liquid Control Dock -->
+    <!-- Clean Balanced Liquid Dock -->
     <div class="dock-wrapper">
         <div class="reaction-menu" id="reactionMenu">
             <button class="r-btn" data-e="🔥">🔥</button>
@@ -1684,50 +1462,38 @@
             <button class="r-btn" data-e="👏">👏</button>
             <button class="r-btn" data-e="😂">😂</button>
             <button class="r-btn" data-e="🚀">🚀</button>
-            <button class="r-btn" data-e="💯">💯</button>
-            <button class="r-btn" data-e="🎉">🎉</button>
             <button class="r-btn" data-e="👍">👍</button>
         </div>
 
         <div class="control-dock">
-            <button class="dock-btn active" id="dockMic" title="Mic (M)">
+            <button class="dock-btn active" id="dockMic" title="Mic">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
             </button>
             
-            <button class="dock-btn active" id="dockCam" title="Camera (V)">
+            <button class="dock-btn active" id="dockCam" title="Camera">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-            </button>
-
-            <button class="dock-btn mobile-hide" id="dockScreen" title="Share Screen">
-                <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-            </button>
-
-            <button class="dock-btn mobile-hide" id="dockRecord" title="Record Screen">
-                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
             </button>
 
             <button class="dock-btn" id="dockReact" title="Reactions">
                 <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
             </button>
 
-            <button class="dock-btn" id="dockChat" title="Chat (C)">
+            <button class="dock-btn" id="dockChat" title="Chat">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
             </button>
 
-            <div class="dock-sep"></div>
-
-            <!-- Instant 0ms End Call -->
+            <!-- Instant End Call -->
             <button class="dock-btn end-btn" id="dockEnd" title="End Call">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 2.59 3.4l1.27 1.27a2 2 0 0 1 .45-2.11 12.84 12.84 0 0 0-2.81-.7 2 2 0 0 1-1.72-2z"/></svg>
             </button>
         </div>
     </div>
 
-    <!-- Side Drawer (Chat / Friends / People) -->
+    <!-- Side Drawer -->
     <div class="side-drawer" id="sideDrawer">
         <div class="drawer-head">
             <h3 id="drawerTitle">Live Chat</h3>
-            <button class="close-btn" id="btnCloseDrawer" title="Close">
+            <button class="close-btn" id="btnCloseDrawer">
                 <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -1735,45 +1501,27 @@
         <div class="drawer-tabs">
             <button class="d-tab active" data-tab="chatTab">Chat</button>
             <button class="d-tab" data-tab="friendsTab">Friends</button>
-            <button class="d-tab" data-tab="rosterTab">In-Call</button>
         </div>
 
         <div class="drawer-content active" id="chatTab">
             <div class="chat-feed" id="chatMessages">
-                <div style="text-align: center; font-size: 11px; color: var(--text-3); margin-top: 6px;">
-                    End-to-End Encrypted Session
+                <div style="text-align: center; font-size: 11px; color: var(--text-3);">
+                    Encrypted Direct Session
                 </div>
-            </div>
-
-            <div class="emoji-picker-tray" id="emojiPickerTray">
-                <button class="ep-btn">😀</button><button class="ep-btn">😂</button><button class="ep-btn">🔥</button><button class="ep-btn">❤️</button><button class="ep-btn">🎉</button><button class="ep-btn">👏</button><button class="ep-btn">🚀</button>
-                <button class="ep-btn">💯</button><button class="ep-btn">😍</button><button class="ep-btn">😎</button><button class="ep-btn">🤩</button><button class="ep-btn">🥳</button><button class="ep-btn">🤔</button><button class="ep-btn">🫡</button>
-                <button class="ep-btn">👍</button><button class="ep-btn">🤝</button><button class="ep-btn">💪</button><button class="ep-btn">⚡</button><button class="ep-btn">✨</button><button class="ep-btn">👀</button><button class="ep-btn">🙏</button>
             </div>
 
             <div class="chat-bar">
                 <div class="chat-input-row">
-                    <button class="chat-icon-btn" id="btnToggleEmojiTray" title="Add Emoji">😊</button>
-                    <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off" autocorrect="off">
+                    <input type="text" id="chatInput" placeholder="Type message..." autocomplete="off">
                     <button class="chat-send-btn" id="btnSendChat">
-                        <svg class="icon-sm" viewBox="0 0 24 24" style="transform: rotate(45deg); margin-left:-2px; margin-bottom:2px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        <svg class="icon-sm" viewBox="0 0 24 24" style="transform: rotate(45deg);"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     </button>
                 </div>
             </div>
         </div>
 
         <div class="drawer-content" id="friendsTab">
-            <div class="friends-toolbar">
-                <button class="btn-add-friend" id="btnOpenAddFriendModal">
-                    <svg class="icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    Add New Friend
-                </button>
-            </div>
             <div class="friends-list" id="friendsContainer"></div>
-        </div>
-
-        <div class="drawer-content" id="rosterTab">
-            <div class="people-list" id="peopleList"></div>
         </div>
     </div>
 </div>
@@ -1781,65 +1529,29 @@
 <!-- ========================================================
      MODALS
      ======================================================== -->
-<div class="modal-backdrop" id="addFriendModal">
-    <div class="modal-card">
-        <div class="modal-header">
-            <h3>Add a New Contact</h3>
-            <button class="close-btn" id="btnCloseAddFriendModal" title="Close">
-                <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-            <div>
-                <label class="field-label">Friend's Name</label>
-                <input class="field-input" id="newFriendName" placeholder="e.g. Rahul Sharma" autocomplete="off" autocorrect="off">
-            </div>
-            <div>
-                <label class="field-label">Tag (Optional)</label>
-                <input class="field-input" id="newFriendRoom" placeholder="e.g. Work, Studio, Friend" autocomplete="off" autocorrect="off">
-            </div>
-            <button class="btn-primary" style="margin-top: 4px;" id="btnSaveFriend">
-                <svg class="icon-sm" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                Save to Contacts
-            </button>
-        </div>
-    </div>
-</div>
-
 <div class="modal-backdrop" id="shareModal">
     <div class="modal-card">
         <div class="modal-header">
-            <h3>Invite Friends</h3>
-            <button class="close-btn" id="btnCloseShareModal" title="Close">
+            <h3>Invite to Meeting</h3>
+            <button class="close-btn" id="btnCloseShareModal">
                 <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
 
-        <div class="qr-wrapper">
-            <canvas id="qrCanvas"></canvas>
-        </div>
+        <div class="qr-wrapper"><canvas id="qrCanvas"></canvas></div>
 
         <div class="share-actions-grid">
-            <button class="btn-grid-outline" id="btnCopyInviteCode" title="Copy Code">
-                <svg class="icon-sm" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-                Copy Code
-            </button>
-            <button class="btn-grid-outline" id="btnCopyInviteLink" title="Copy Link">
-                <svg class="icon-sm" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-                Copy Link
-            </button>
+            <button class="btn-grid-outline" id="btnCopyInviteCode">Copy Code</button>
+            <button class="btn-grid-outline" id="btnCopyInviteLink">Copy Link</button>
         </div>
         
-        <button class="share-btn-wa" id="btnShareWhatsApp" title="Share via WhatsApp">
-            <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-            Share on WhatsApp
-        </button>
+        <button class="share-btn-wa" id="btnShareWhatsApp">Share on WhatsApp</button>
     </div>
 </div>
 
 <script>
 /**
- * Aurastream Next-Gen Studio Ultra HD 60FPS Edition
+ * Aurastream Next-Gen Ultra HD Edition
  */
 (function() {
     'use strict';
@@ -1856,7 +1568,6 @@
         }
     }
 
-    // Natural Person Names Pool
     const RANDOM_NAMES = [
         'Aarav', 'Rohan', 'Kabir', 'Maya', 'Aisha', 'Zara', 'Aryan', 
         'Ananya', 'Leo', 'Sophia', 'Alex', 'Liam', 'Ryan', 'Zack', 'Elena',
@@ -1867,7 +1578,6 @@
         return RANDOM_NAMES[Math.floor(Math.random() * RANDOM_NAMES.length)];
     }
 
-    // Audio SFX Synthesizer
     const Sound = {
         ctx: null,
         init() {
@@ -1899,14 +1609,6 @@
                     gain.gain.setValueAtTime(0.06, now);
                     gain.gain.exponentialRampToValueAtTime(0.005, now + 0.05);
                     osc.start(now); osc.stop(now + 0.05);
-                } else if (type === 'chime') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(523.25, now);
-                    osc.frequency.setValueAtTime(659.25, now + 0.06);
-                    osc.frequency.setValueAtTime(783.99, now + 0.12);
-                    gain.gain.setValueAtTime(0.08, now);
-                    gain.gain.exponentialRampToValueAtTime(0.005, now + 0.22);
-                    osc.start(now); osc.stop(now + 0.22);
                 } else if (type === 'leave') {
                     osc.frequency.setValueAtTime(600, now);
                     osc.frequency.exponentialRampToValueAtTime(250, now + 0.14);
@@ -1918,20 +1620,15 @@
         }
     };
 
-    // Global State
     const App = {
         userName: getRandomName(),
         roomCode: '',
         isHost: false,
         mic: false,
         cam: false,
-        screen: false,
-        recording: false,
-        studioFilter: false,
         swappedViews: false,
         facing: 'user',
         localStream: null,
-        screenStream: null,
         remoteStream: null,
         peer: null,
         peerCall: null,
@@ -1943,26 +1640,20 @@
         analyser: null,
         analyserSrc: null,
         dataArr: null,
-        audioCtx: null,
-        recorder: null,
-        recChunks: []
+        audioCtx: null
     };
 
     function updateClearButtonState() {
         const input = $('authNameInput');
         const clearBtn = $('btnClearName');
         if (input && clearBtn) {
-            if (input.value.trim().length > 0) {
-                clearBtn.classList.add('show');
-            } else {
-                clearBtn.classList.remove('show');
-            }
+            if (input.value.trim().length > 0) clearBtn.classList.add('show');
+            else clearBtn.classList.remove('show');
         }
     }
 
-    // Account Manager
     const Account = {
-        key: 'aurastream_profile_v8',
+        key: 'aurastream_profile_v9',
         get() { return localStorage.getItem(this.key); },
         save(name) { localStorage.setItem(this.key, name); },
         check() {
@@ -1991,6 +1682,7 @@
         if ($('navAvatar')) $('navAvatar').textContent = initial;
         if ($('lobbyAvLetter')) $('lobbyAvLetter').textContent = initial;
         if ($('mainAvLetter')) $('mainAvLetter').textContent = initial;
+        if ($('mainNameTag')) $('mainNameTag').textContent = `${App.userName} (You)`;
     }
 
     function notify(msg, emoji = '✨') {
@@ -2000,56 +1692,24 @@
         item.className = 'toast-item';
         item.innerHTML = `<span>${emoji}</span> <span>${msg}</span>`;
         box.appendChild(item);
-        setTimeout(() => {
-            item.style.opacity = '0';
-            item.style.transform = 'translateY(-10px)';
-            item.style.transition = 'all 0.25s ease';
-            setTimeout(() => item.remove(), 250);
-        }, 2600);
+        setTimeout(() => item.remove(), 2200);
     }
 
-    // Friends Manager
     const Friends = {
-        key: 'aurastream_friends_list_v8',
+        key: 'aurastream_friends_list_v9',
         getAll() {
-            try {
-                const data = localStorage.getItem(this.key);
-                return data ? JSON.parse(data) : [];
-            } catch (e) { return []; }
+            try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
         save(list) {
-            try {
-                localStorage.setItem(this.key, JSON.stringify(list));
-                this.render();
-            } catch (e) {}
-        },
-        add(name, tag = '') {
-            const list = this.getAll();
-            list.push({ id: Date.now().toString(), name, tag: tag || 'Friend' });
-            this.save(list);
-            notify(`${name} saved to contacts`, '👥');
-        },
-        remove(id) {
-            const list = this.getAll().filter(f => f.id !== id);
-            this.save(list);
-            notify('Contact removed', '🗑️');
+            localStorage.setItem(this.key, JSON.stringify(list));
+            this.render();
         },
         render() {
             const list = this.getAll();
             if ($('lobbyFriendCount')) $('lobbyFriendCount').textContent = `${list.length} Friend${list.length === 1 ? '' : 's'}`;
-            
             const container = $('friendsContainer');
             if (!container) return;
-            container.innerHTML = '';
-            
-            if (list.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; color: var(--text-3); font-size: 12px; margin-top: 20px;">
-                        No contacts saved yet.<br>Tap "Add New Friend" to save contacts!
-                    </div>`;
-                return;
-            }
-
+            container.innerHTML = list.length === 0 ? '<div style="text-align:center; color:var(--text-3); font-size:12px; margin-top:20px;">No saved contacts.</div>' : '';
             list.forEach(f => {
                 const div = document.createElement('div');
                 div.className = 'friend-card';
@@ -2058,28 +1718,20 @@
                         <div class="friend-av">${f.name[0].toUpperCase()}</div>
                         <div>
                             <div style="font-weight: 800; font-size: 13px;">${f.name}</div>
-                            <div style="font-size: 11px; color: var(--text-3); font-weight:600;">${f.tag}</div>
+                            <div style="font-size: 11px; color: var(--text-3);">${f.tag || 'Friend'}</div>
                         </div>
                     </div>
-                    <div class="friend-actions">
-                        <button class="btn-friend-call" onclick="callFriend('${f.name}')">Call</button>
-                        <button class="chat-icon-btn" onclick="removeFriendItem('${f.id}')" title="Delete" style="width: 28px; height: 28px;">
-                            <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        </button>
-                    </div>`;
+                    <button class="btn-friend-call" onclick="callFriend('${f.name}')">Call</button>`;
                 container.appendChild(div);
             });
         }
     };
 
-    window.removeFriendItem = id => Friends.remove(id);
     window.callFriend = name => {
         const shareUrl = `${window.location.origin}${window.location.pathname}#${App.roomCode || 'AUR-LIVE'}`;
-        const waMsg = encodeURIComponent(`👋 Hey ${name}, join my live HD Aurastream meeting now!\n\nLink: ${shareUrl}`);
-        window.open(`https://api.whatsapp.com/send?text=${waMsg}`, '_blank');
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(`👋 Hey ${name}, join my live meeting: ${shareUrl}`)}`, '_blank');
     };
 
-    // Ultra HD 1080p 60FPS Video Constraints
     function getMediaConstraints() {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         return {
@@ -2097,17 +1749,14 @@
         };
     }
 
-    // 4.0 Mbps Bitrate Allocation for Crystal Clarity
     function tunePeerConnectionBitrate(peerConnection) {
         if (!peerConnection || !peerConnection.getSenders) return;
         peerConnection.getSenders().forEach(sender => {
             if (!sender.track) return;
             const params = sender.getParameters();
-            if (!params.encodings || params.encodings.length === 0) {
-                params.encodings = [{}];
-            }
+            if (!params.encodings || params.encodings.length === 0) params.encodings = [{}];
             if (sender.track.kind === 'video') {
-                params.encodings[0].maxBitrate = 4000000; // 4 Mbps Ultra HD
+                params.encodings[0].maxBitrate = 4000000;
                 params.encodings[0].maxFramerate = 60;
                 params.degradationPreference = 'maintain-resolution';
             } else if (sender.track.kind === 'audio') {
@@ -2125,7 +1774,7 @@
             
             if ($('lobbyVideo')) {
                 $('lobbyVideo').srcObject = App.localStream;
-                $('lobbyVideo').muted = true; // MUST BE MUTED TO STOP SELF-ECHO
+                $('lobbyVideo').muted = true;
                 $('lobbyVideo').style.display = 'block';
             }
             if ($('vfPlaceholder')) $('vfPlaceholder').style.display = 'none';
@@ -2137,23 +1786,19 @@
             initAudioMeter(App.localStream);
             Sound.init();
         } catch (e) {
-            console.log('Cam Preview Error:', e);
             notify('Camera & Mic permission needed', '⚠️');
         }
     }
 
     bind('btnTestCamera', 'click', initCamera);
 
-    // Audio Meter Analyzer (Zero Destination Output)
     function initAudioMeter(stream) {
         try {
             if (App.audioInterval) clearInterval(App.audioInterval);
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (!AudioCtx) return;
             
-            if (!App.audioCtx || App.audioCtx.state === 'closed') {
-                App.audioCtx = new AudioCtx();
-            }
+            if (!App.audioCtx || App.audioCtx.state === 'closed') App.audioCtx = new AudioCtx();
             if (App.audioCtx.state === 'suspended') App.audioCtx.resume();
 
             if (App.analyserSrc) {
@@ -2179,7 +1824,6 @@
                 }
                 
                 App.analyser.getByteFrequencyData(App.dataArr);
-                
                 let sum = 0;
                 for (let i = 0; i < App.dataArr.length; i++) sum += App.dataArr[i];
                 let avg = sum / App.dataArr.length;
@@ -2203,7 +1847,6 @@
     Account.check();
     Friends.render();
 
-    // Clear/Cut Name Button Logic
     bind('btnClearName', 'click', () => {
         const input = $('authNameInput');
         if (input) {
@@ -2216,7 +1859,6 @@
 
     bind('authNameInput', 'input', updateClearButtonState);
 
-    // Randomize Name Button
     bind('btnRandomizeName', 'click', () => {
         const newName = getRandomName();
         if ($('authNameInput')) {
@@ -2226,7 +1868,6 @@
         Sound.play('pop');
     });
 
-    // Enter Studio - Popup Removed completely
     bind('btnAuthCreate', 'click', () => {
         const name = $('authNameInput')?.value.trim() || getRandomName();
         Account.save(name);
@@ -2245,17 +1886,6 @@
         }
         $('lobbyView')?.classList.add('hidden');
         $('authView')?.classList.remove('hidden');
-        if (App.localStream) {
-            App.localStream.getTracks().forEach(t => t.stop());
-            App.localStream = null;
-            App.cam = false;
-            App.mic = false;
-            if ($('lobbyVideo')) $('lobbyVideo').style.display = 'none';
-            if ($('vfPlaceholder')) $('vfPlaceholder').style.display = 'flex';
-            if ($('btnTestCamera')) $('btnTestCamera').style.display = 'block';
-            $('lMicBtn')?.classList.add('off');
-            $('lCamBtn')?.classList.add('off');
-        }
     });
 
     bind('lMicBtn', 'click', () => {
@@ -2271,10 +1901,7 @@
         $('lCamBtn')?.classList.toggle('off', !App.cam);
         App.localStream.getVideoTracks().forEach(t => t.enabled = App.cam);
         if ($('lobbyVideo')) $('lobbyVideo').style.display = App.cam ? 'block' : 'none';
-        if ($('vfPlaceholder')) {
-            $('vfPlaceholder').style.display = App.cam ? 'none' : 'flex';
-            if ($('btnTestCamera')) $('btnTestCamera').style.display = 'none'; 
-        }
+        if ($('vfPlaceholder')) $('vfPlaceholder').style.display = App.cam ? 'none' : 'flex';
     });
 
     bind('btnShowJoin', 'click', () => {
@@ -2292,7 +1919,7 @@
         const code = window.location.hash.replace('#', '').toUpperCase();
         if ($('roomCodeInput')) $('roomCodeInput').value = code;
         if ($('btnShowJoin')) $('btnShowJoin').click();
-        setTimeout(() => { cleanUrlHash(); }, 100);
+        setTimeout(() => cleanUrlHash(), 100);
     }
 
     function genRoom() {
@@ -2310,7 +1937,7 @@
 
     bind('btnJoinRoom', 'click', () => {
         const c = $('roomCodeInput')?.value.trim().toUpperCase();
-        if (!c) return notify('Please enter a valid room code', '⚠️');
+        if (!c) return notify('Enter a meeting code', '⚠️');
         App.isHost = false;
         App.roomCode = c;
         startMeetingSession();
@@ -2327,14 +1954,10 @@
                 App.localStream = await navigator.mediaDevices.getUserMedia(getMediaConstraints());
                 App.mic = true;
                 App.cam = true;
-            } catch (e) {
-                console.log('Audio/Video stream fallback');
-            }
+            } catch (e) {}
         }
 
-        if (App.localStream) {
-            initAudioMeter(App.localStream);
-        }
+        if (App.localStream) initAudioMeter(App.localStream);
 
         updateVideoLayout();
         syncMediaState();
@@ -2342,8 +1965,6 @@
         if ($('pipCard')) makeTouchDraggable($('pipCard'));
         Sound.play('join');
 
-        renderPeopleRoster();
-        Friends.render();
         initP2PEngine();
     }
 
@@ -2386,7 +2007,6 @@
                 });
 
                 App.peer.on('open', id => {
-                    console.log('Peer active:', id);
                     if (!App.isHost) setTimeout(() => callHostPeer(hostPeerId), 400);
                 });
 
@@ -2402,17 +2022,14 @@
                     bindDataEvents(conn);
                 });
             }
-        } catch (e) {
-            console.log('P2P fallback active');
-        }
+        } catch (e) {}
 
         try {
             App.broadcast = new BroadcastChannel(`aurastream_${App.roomCode}`);
             App.broadcast.onmessage = e => {
                 const data = e.data;
-                if (data.type === 'chat') {
-                    handleIncomingChatMessage(data.text, data.author);
-                } else if (data.type === 'reaction') {
+                if (data.type === 'chat') handleIncomingChatMessage(data.text, data.author);
+                else if (data.type === 'reaction') {
                     triggerParticleBurst(data.emoji);
                     Sound.play('pop');
                 }
@@ -2437,16 +2054,12 @@
     function attachRemoteStream(stream) {
         App.remoteStream = stream;
         $('waitingHub')?.classList.add('hidden');
-        
         updateVideoLayout();
         $('pipCard')?.classList.remove('hidden');
-
         Sound.play('join');
-        notify('Peer connected in 1080p HD', '🟢');
-        updateRosterCount(2);
+        notify('Peer connected in HD', '🟢');
     }
 
-    // Local stream is ALWAYS MUTED to prevent echo/feedback loops
     function updateVideoLayout() {
         const mainVid = $('mainVideo');
         const pipVid = $('pipVideo');
@@ -2467,17 +2080,17 @@
         if (!App.swappedViews) {
             if (mainVid) {
                 mainVid.srcObject = App.remoteStream;
-                mainVid.muted = false; // LISTEN TO PEER AUDIO
+                mainVid.muted = false;
                 mainVid.style.transform = 'scaleX(1)';
                 mainVid.style.display = 'block';
                 mainVid.play().catch(()=>{});
             }
             if ($('mainPlaceholder')) $('mainPlaceholder').style.display = 'none';
-            if ($('mainNameTag')) $('mainNameTag').textContent = 'Connected Peer (HD)';
+            if ($('mainNameTag')) $('mainNameTag').textContent = 'Peer (HD)';
 
             if (pipVid && App.localStream) {
                 pipVid.srcObject = App.localStream;
-                pipVid.muted = true; // SELF IS MUTED
+                pipVid.muted = true;
                 pipVid.style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
             }
             if ($('pipTagLabel')) $('pipTagLabel').textContent = 'You';
@@ -2488,12 +2101,12 @@
                 mainVid.style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
                 mainVid.style.display = App.cam ? 'block' : 'none';
             }
-            if ($('mainPlaceholder')) $('mainPlaceholder').style.display = App.cam ? 'none' : 'flex';
+            if ($('mainPlaceholder')) $('mainPlaceholder').style.display = 'none';
             if ($('mainNameTag')) $('mainNameTag').textContent = `${App.userName} (You)`;
 
             if (pipVid && App.remoteStream) {
                 pipVid.srcObject = App.remoteStream;
-                pipVid.muted = false; // LISTEN TO PEER AUDIO ON PIP
+                pipVid.muted = false;
                 pipVid.style.transform = 'scaleX(1)';
                 pipVid.play().catch(()=>{});
             }
@@ -2501,20 +2114,10 @@
         }
     }
 
-    // Double-click or tap on PiP to swap views
     bind('pipCard', 'dblclick', () => {
         if (!App.remoteStream) return;
         App.swappedViews = !App.swappedViews;
         updateVideoLayout();
-        notify('Swapped video views', '🔀');
-    });
-
-    // Studio Lighting Filter Toggle
-    bind('btnStudioFilter', 'click', () => {
-        App.studioFilter = !App.studioFilter;
-        $('canvasArea')?.classList.toggle('studio-lighting', App.studioFilter);
-        $('btnStudioFilter')?.classList.toggle('active', App.studioFilter);
-        notify(App.studioFilter ? 'Studio Enhancer Active' : 'Natural Lighting', App.studioFilter ? '✨' : '💡');
     });
 
     function bindDataEvents(conn) {
@@ -2530,7 +2133,6 @@
     function handleIncomingChatMessage(text, author) {
         renderMsg(text, 'them', author);
         Sound.play('chime');
-        
         const drawer = $('sideDrawer');
         if (drawer && !drawer.classList.contains('open')) showChatBanner(author, text);
     }
@@ -2541,24 +2143,20 @@
         if ($('bannerAvatar')) $('bannerAvatar').textContent = author[0].toUpperCase();
         if ($('bannerAuthor')) $('bannerAuthor').textContent = author;
         if ($('bannerText')) $('bannerText').textContent = text.length > 30 ? text.substring(0, 28) + '...' : text;
-        
         banner.classList.add('show');
         setTimeout(() => banner.classList.remove('show'), 3500);
     }
 
-    window.openChatDrawer = function() {
+    bind('chatBanner', 'click', () => {
         $('chatBanner')?.classList.remove('show');
         toggleDrawer('chatTab');
-    };
+    });
 
-    bind('chatBanner', 'click', window.openChatDrawer);
-
-    // Call Controls
     bind('dockMic', 'click', () => {
         App.mic = !App.mic;
         if (App.localStream) App.localStream.getAudioTracks().forEach(t => t.enabled = App.mic);
         if ($('dockMic')) $('dockMic').className = `dock-btn ${App.mic ? 'active' : 'muted'}`;
-        notify(App.mic ? 'Microphone Active' : 'Microphone Muted', App.mic ? '🎤' : '🔇');
+        notify(App.mic ? 'Microphone On' : 'Microphone Muted', App.mic ? '🎤' : '🔇');
     });
 
     bind('dockCam', 'click', () => {
@@ -2572,106 +2170,23 @@
     bind('btnFlipCam', 'click', async () => {
         if (!App.localStream) return;
         App.facing = App.facing === 'user' ? 'environment' : 'user';
-        
         try {
-            const oldVideoTrack = App.localStream.getVideoTracks()[0];
-            if (oldVideoTrack) oldVideoTrack.stop();
-
+            const oldTrack = App.localStream.getVideoTracks()[0];
+            if (oldTrack) oldTrack.stop();
             const newStream = await navigator.mediaDevices.getUserMedia(getMediaConstraints());
             const newTrack = newStream.getVideoTracks()[0];
             
-            if (oldVideoTrack) App.localStream.removeTrack(oldVideoTrack);
+            if (oldTrack) App.localStream.removeTrack(oldTrack);
             App.localStream.addTrack(newTrack);
 
             if (App.peerCall && App.peerCall.peerConnection) {
                 const sender = App.peerCall.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
                 if (sender) sender.replaceTrack(newTrack);
             }
-
             updateVideoLayout();
             notify('Camera Switched', '🔄');
         } catch (e) {
             notify('Camera switch not supported', '⚠️');
-        }
-    });
-
-    bind('dockScreen', 'click', async () => {
-        if (App.screen) {
-            App.screenStream?.getTracks().forEach(t => t.stop());
-            App.screen = false;
-            $('dockScreen')?.classList.remove('active');
-            
-            const camTrack = App.localStream?.getVideoTracks()[0];
-            if (App.peerCall && App.peerCall.peerConnection && camTrack) {
-                const sender = App.peerCall.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
-                if (sender) sender.replaceTrack(camTrack);
-            }
-            notify('Screen Sharing Ended', '🖥️');
-        } else {
-            try {
-                App.screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
-                App.screen = true;
-                $('dockScreen')?.classList.add('active');
-                
-                const screenTrack = App.screenStream.getVideoTracks()[0];
-                if (App.peerCall && App.peerCall.peerConnection) {
-                    const sender = App.peerCall.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
-                    if (sender) sender.replaceTrack(screenTrack);
-                }
-
-                screenTrack.onended = () => $('dockScreen')?.click();
-                notify('Sharing your screen', '🖥️');
-            } catch (err) {
-                notify('Screen share cancelled', '⚠️');
-            }
-        }
-    });
-
-    bind('dockRecord', 'click', () => {
-        if (App.recording) {
-            if (App.recorder && App.recorder.state !== 'inactive') {
-                App.recorder.stop();
-            }
-            App.recording = false;
-            if ($('dockRecord')) $('dockRecord').classList.remove('active');
-            notify('Recording saved', '⏹️');
-        } else {
-            if (!App.localStream) return notify('Start camera/mic first', '⚠️');
-            
-            try {
-                App.recChunks = [];
-                let options = { mimeType: 'video/webm;codecs=vp9' };
-                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                    options = { mimeType: 'video/webm' };
-                }
-                
-                App.recorder = new MediaRecorder(App.localStream, options);
-                App.recorder.ondataavailable = e => {
-                    if (e.data && e.data.size > 0) App.recChunks.push(e.data);
-                };
-                
-                App.recorder.onstop = () => {
-                    const blob = new Blob(App.recChunks, { type: 'video/webm' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    document.body.appendChild(a);
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = `AuraStream_${Date.now()}.webm`;
-                    a.click();
-                    setTimeout(() => {
-                        document.body.removeChild(a);
-                        window.URL.revokeObjectURL(url);
-                    }, 100);
-                };
-                
-                App.recorder.start(1000);
-                App.recording = true;
-                if ($('dockRecord')) $('dockRecord').classList.add('active');
-                notify('Recording started', '⏺️');
-            } catch (e) {
-                notify('Recording not supported on this browser', '❌');
-            }
         }
     });
 
@@ -2682,7 +2197,6 @@
             const emoji = btn.dataset.e;
             triggerParticleBurst(emoji);
             $('reactionMenu')?.classList.remove('show');
-            
             if (App.dataConn && App.dataConn.open) App.dataConn.send({ type: 'reaction', emoji });
             if (App.broadcast) App.broadcast.postMessage({ type: 'reaction', emoji });
             Sound.play('pop');
@@ -2690,13 +2204,13 @@
     });
 
     function triggerParticleBurst(emoji) {
-        const count = window.innerWidth < 600 ? 8 : 14;
+        const count = window.innerWidth < 600 ? 8 : 12;
         for (let i = 0; i < count; i++) {
             const p = document.createElement('div');
             p.className = 'reaction-particle';
             p.textContent = emoji;
-            p.style.left = (30 + Math.random() * 40) + '%';
-            p.style.setProperty('--vx', (Math.random() * 180 - 90) + 'px');
+            p.style.left = (35 + Math.random() * 30) + '%';
+            p.style.setProperty('--vx', (Math.random() * 160 - 80) + 'px');
             document.body.appendChild(p);
             setTimeout(() => p.remove(), 2000);
         }
@@ -2706,9 +2220,7 @@
         const d = $('sideDrawer');
         if (!d) return;
         const isOpen = d.classList.contains('open');
-        const titles = { chatTab: 'Live Chat', friendsTab: 'Friends & Contacts', rosterTab: 'In-Call Participants' };
-
-        if (isOpen && $('drawerTitle')?.textContent === titles[tab]) {
+        if (isOpen) {
             d.classList.remove('open');
         } else {
             d.classList.add('open');
@@ -2717,8 +2229,6 @@
     }
 
     bind('dockChat', 'click', () => toggleDrawer('chatTab'));
-    bind('btnFriendsTabToggle', 'click', () => toggleDrawer('friendsTab'));
-    bind('btnRoster', 'click', () => toggleDrawer('rosterTab'));
     bind('btnLobbyOpenFriends', 'click', () => toggleDrawer('friendsTab'));
     bind('btnCloseDrawer', 'click', () => toggleDrawer());
 
@@ -2729,22 +2239,8 @@
     function switchTab(targetId) {
         document.querySelectorAll('.d-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === targetId));
         document.querySelectorAll('.drawer-content').forEach(c => c.classList.toggle('active', c.id === targetId));
-        
-        const titles = { chatTab: 'Live Chat', friendsTab: 'Friends & Contacts', rosterTab: 'In-Call Participants' };
-        if ($('drawerTitle')) $('drawerTitle').textContent = titles[targetId] || 'Panel';
         if (targetId === 'friendsTab') Friends.render();
     }
-
-    bind('btnToggleEmojiTray', 'click', () => $('emojiPickerTray')?.classList.toggle('show'));
-
-    document.querySelectorAll('.ep-btn').forEach(btn => {
-        btn.onclick = () => {
-            if ($('chatInput')) {
-                $('chatInput').value += btn.textContent;
-                $('chatInput').focus();
-            }
-        };
-    });
 
     function sendChat() {
         const input = $('chatInput');
@@ -2753,12 +2249,10 @@
         if (!txt) return;
         
         renderMsg(txt, 'me', 'You');
-        
         if (App.dataConn && App.dataConn.open) App.dataConn.send({ type: 'chat', text: txt, author: App.userName });
         if (App.broadcast) App.broadcast.postMessage({ type: 'chat', text: txt, author: App.userName });
 
         input.value = '';
-        $('emojiPickerTray')?.classList.remove('show');
         Sound.play('pop');
     }
 
@@ -2770,69 +2264,10 @@
         if (!feed) return;
         const el = document.createElement('div');
         el.className = `chat-msg ${side}`;
-        el.innerHTML = `
-            <span class="chat-author">${author}</span>
-            <div class="chat-bubble">${text}</div>
-        `;
+        el.innerHTML = `<span class="chat-author">${author}</span><div class="chat-bubble">${text}</div>`;
         feed.appendChild(el);
         feed.scrollTop = feed.scrollHeight;
     }
-
-    function renderPeopleRoster() {
-        const list = $('peopleList');
-        if (!list) return;
-        list.innerHTML = `
-            <div class="person-item">
-                <div class="person-info">
-                    <div class="person-avatar">${App.userName[0].toUpperCase()}</div>
-                    <div>
-                        <div style="font-weight: 800; font-size: 13px;">${App.userName} (You)</div>
-                        <div style="font-size: 11px; color: var(--brand); font-weight:700;">${App.isHost ? 'Host' : 'Guest'}</div>
-                    </div>
-                </div>
-                <div style="font-size: 12px; color: var(--success); font-weight:700;">Online</div>
-            </div>
-        `;
-    }
-
-    function updateRosterCount(count) {
-        if ($('rosterCount')) $('rosterCount').textContent = count;
-        if (count === 2) {
-            const list = $('peopleList');
-            if (!list) return;
-            const item = document.createElement('div');
-            item.className = 'person-item';
-            item.innerHTML = `
-                <div class="person-info">
-                    <div class="person-avatar" style="background: var(--purple); color: #fff;">P</div>
-                    <div>
-                        <div style="font-weight: 800; font-size: 13px;">Connected Peer</div>
-                        <div style="font-size: 11px; color: var(--text-2); font-weight:600;">Participant (HD)</div>
-                    </div>
-                </div>
-                <button class="btn-grid-outline" style="padding:4px 8px; font-size:10px;" onclick="savePeerAsFriend()">+ Friend</button>
-            `;
-            list.appendChild(item);
-        }
-    }
-
-    window.savePeerAsFriend = () => {
-        Friends.add('Connected Peer', App.roomCode);
-        notify('Saved to Friends list', '👥');
-    };
-
-    bind('btnOpenAddFriendModal', 'click', () => $('addFriendModal')?.classList.add('show'));
-    bind('btnCloseAddFriendModal', 'click', () => $('addFriendModal')?.classList.remove('show'));
-    
-    bind('btnSaveFriend', 'click', () => {
-        const name = $('newFriendName')?.value.trim();
-        if (!name) return notify('Please enter a friend name', '⚠️');
-        const tag = $('newFriendRoom')?.value.trim();
-        Friends.add(name, tag);
-        $('newFriendName').value = '';
-        if ($('newFriendRoom')) $('newFriendRoom').value = '';
-        $('addFriendModal')?.classList.remove('show');
-    });
 
     function renderQrCode(text) {
         const canvas = $('qrCanvas');
@@ -2873,26 +2308,23 @@
     bind('btnCloseShareModal', 'click', () => $('shareModal')?.classList.remove('show'));
 
     bind('btnCopyInviteCode', 'click', () => {
-        navigator.clipboard.writeText(App.roomCode).then(() => {
-            notify('Room Code copied', '📋');
-        });
+        navigator.clipboard.writeText(App.roomCode).then(() => notify('Room Code copied', '📋'));
     });
 
     bind('btnShareWhatsApp', 'click', () => {
         const shareUrl = `${window.location.origin}${window.location.pathname}#${App.roomCode}`;
-        const waMsg = encodeURIComponent(`🎥 Join my live HD Aurastream Studio meeting now!\n\nRoom Code: ${App.roomCode}\nLink: ${shareUrl}`);
+        const waMsg = encodeURIComponent(`🎥 Join my live Aurastream meeting now!\n\nRoom: ${App.roomCode}\nLink: ${shareUrl}`);
         window.open(`https://api.whatsapp.com/send?text=${waMsg}`, '_blank');
     });
 
     bind('btnCopyInviteLink', 'click', () => {
         const shareUrl = `${window.location.origin}${window.location.pathname}#${App.roomCode}`;
         navigator.clipboard.writeText(shareUrl).then(() => {
-            notify('Invite link copied to clipboard', '📋');
+            notify('Invite link copied', '📋');
             $('shareModal')?.classList.remove('show');
         });
     });
 
-    // Touch & Mouse Drag for PiP
     function makeTouchDraggable(el) {
         if (!el) return;
         let startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
@@ -2944,7 +2376,7 @@
     }
 
     // ========================================================
-    // INSTANT END CALL (NO RELOAD / ZERO FREEZING / ZERO DELAY)
+    // INSTANT 0ms END CALL TEARDOWN
     // ========================================================
     bind('dockEnd', 'click', () => {
         Sound.play('leave');
@@ -2952,14 +2384,6 @@
         if (App.localStream) {
             App.localStream.getTracks().forEach(t => t.stop());
             App.localStream = null;
-        }
-        if (App.screenStream) {
-            App.screenStream.getTracks().forEach(t => t.stop());
-            App.screenStream = null;
-        }
-        if (App.recording && App.recorder) {
-            try { App.recorder.stop(); } catch (e) {}
-            App.recording = false;
         }
 
         try { if (App.peerCall) App.peerCall.close(); } catch (e) {}
@@ -2992,14 +2416,12 @@
         App.remoteStream = null;
         App.mic = false;
         App.cam = false;
-        App.screen = false;
         App.swappedViews = false;
 
         $('callStage')?.classList.remove('active');
         $('sideDrawer')?.classList.remove('open');
         $('reactionMenu')?.classList.remove('show');
         $('shareModal')?.classList.remove('show');
-        $('addFriendModal')?.classList.remove('show');
         $('pipCard')?.classList.add('hidden');
         $('waitingHub')?.classList.remove('hidden');
         
@@ -3007,27 +2429,10 @@
         $('btnTestCamera') && ($('btnTestCamera').style.display = 'block');
         $('lMicBtn')?.classList.add('off');
         $('lCamBtn')?.classList.add('off');
-        $('dockRecord')?.classList.remove('active');
-        $('dockScreen')?.classList.remove('active');
 
         $('lobbyView')?.classList.remove('hidden');
-
         cleanUrlHash();
         notify('Meeting Ended', '⏹️');
-    });
-
-    // Keyboard Shortcuts (M = Mute, V = Cam, C = Chat, Esc = Close)
-    window.addEventListener('keydown', e => {
-        if (e.target.tagName === 'INPUT' || !$('callStage')?.classList.contains('active')) return;
-        if (e.key === 'm' || e.key === 'M') $('dockMic')?.click();
-        if (e.key === 'v' || e.key === 'V') $('dockCam')?.click();
-        if (e.key === 'c' || e.key === 'C') $('dockChat')?.click();
-        if (e.key === 'Escape') {
-            $('sideDrawer')?.classList.remove('open');
-            $('shareModal')?.classList.remove('show');
-            $('addFriendModal')?.classList.remove('show');
-            $('reactionMenu')?.classList.remove('show');
-        }
     });
 
 })();
