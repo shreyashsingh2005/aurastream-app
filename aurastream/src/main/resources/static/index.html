@@ -1,0 +1,2792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AURASTREAM — Studio P2P Video & Friends</title>
+    <meta name="description" content="Next-generation video meetings with studio lighting, friends list, WhatsApp sharing, particle reactions, and zero latency.">
+    
+    <!-- PeerJS for 100% Reliable Cross-Device P2P Connection -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Luxury OLED Night Color System */
+            --bg-canvas: #020205;
+            --bg-surface: #070710;
+            --bg-elevated: #0f0f1c;
+            --bg-glass: rgba(14, 14, 25, 0.78);
+            --bg-glass-heavy: rgba(8, 8, 16, 0.92);
+            --bg-glass-dock: rgba(10, 10, 20, 0.88);
+            
+            /* Electric Sunset Gold Gradient */
+            --brand: #ff6a00;
+            --brand-light: #ff8533;
+            --brand-glow: rgba(255, 106, 0, 0.45);
+            --brand-subtle: rgba(255, 106, 0, 0.12);
+            --brand-gradient: linear-gradient(135deg, #ff4500 0%, #ff6a00 50%, #ff0055 100%);
+            
+            /* UI System */
+            --danger: #ff2d55;
+            --danger-glow: rgba(255, 45, 85, 0.4);
+            --success: #00e676;
+            --success-glow: rgba(0, 230, 118, 0.35);
+            --cyan: #00e5ff;
+            --purple: #9d4edd;
+            --wa-green: #25d366;
+            
+            /* Glass Borders */
+            --border-dim: rgba(255, 255, 255, 0.07);
+            --border-subtle: rgba(255, 255, 255, 0.14);
+            --border-active: rgba(255, 106, 0, 0.45);
+            
+            /* Text */
+            --text-1: #ffffff;
+            --text-2: #9a9ab4;
+            --text-3: #56566e;
+            
+            /* Fonts */
+            --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-head: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            --radius-xs: 10px;
+            --radius-sm: 16px;
+            --radius-md: 24px;
+            --radius-lg: 32px;
+            --radius-full: 9999px;
+            
+            --spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --smooth: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-1);
+            font-family: var(--font-body);
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            position: relative;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Ambient Dynamic Light Orbs */
+        .ambient-mesh {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(140px);
+            opacity: 0.22;
+            animation: orbMorph 22s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 650px; height: 650px; background: var(--brand); top: -15%; left: -10%; }
+        .orb-2 { width: 500px; height: 500px; background: var(--purple); bottom: -15%; right: -10%; animation-delay: -7s; }
+
+        @keyframes orbMorph {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(50px, -40px) scale(1.12); }
+            100% { transform: translate(-40px, 40px) scale(0.92); }
+        }
+
+        button, input {
+            font-family: var(--font-body);
+            outline: none;
+            border: none;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.1;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+            transition: transform 0.2s var(--spring);
+        }
+        .icon-sm { width: 16px; height: 16px; stroke-width: 2.5; }
+        .icon-lg { width: 24px; height: 24px; }
+        
+        /* High-Visibility Close Button */
+        .close-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #ffffff;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        /* Increased stroke width for the cross specifically */
+        .close-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 3;
+            stroke: currentColor;
+        }
+        .close-btn:hover {
+            background: rgba(255, 45, 85, 0.25);
+            color: var(--danger);
+            border-color: var(--danger);
+            transform: scale(1.08);
+        }
+
+        /* ========================================================
+            AUTH / LOGIN SCREEN
+           ======================================================== */
+        .auth-stage {
+            position: fixed;
+            inset: 0;
+            z-index: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: var(--bg-canvas);
+            transition: opacity 0.4s var(--smooth), transform 0.4s var(--smooth);
+        }
+        .auth-stage.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-20px);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 400px;
+            background: var(--bg-glass-heavy);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            position: relative;
+        }
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: var(--brand-gradient);
+        }
+        .auth-logo {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Pro Lens SVG Logo */
+        .auth-logo svg {
+            width: 72px;
+            height: 72px;
+            filter: drop-shadow(0px 8px 16px rgba(255, 106, 0, 0.5));
+        }
+        .auth-card h2 {
+            font-family: var(--font-head);
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .auth-card p {
+            font-size: 14px;
+            color: var(--text-2);
+            margin-bottom: 30px;
+        }
+
+        .auth-input-group {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .field-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-3);
+            margin-bottom: 8px;
+            display: block;
+        }
+        .field-input {
+            width: 100%;
+            padding: 13px 18px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-xs);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .field-input:focus {
+            border-color: var(--brand);
+            background: var(--brand-subtle);
+            box-shadow: 0 0 0 3px var(--brand-subtle);
+        }
+        .field-input::placeholder { color: var(--text-3); }
+        
+        .btn-primary {
+            background: var(--brand-gradient);
+            color: #000;
+            padding: 14px 20px;
+            border-radius: var(--radius-xs);
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s var(--spring);
+            box-shadow: 0 6px 20px var(--brand-glow);
+            width: 100%;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--brand-glow);
+        }
+
+        /* ========================================================
+            LAUNCHPAD / STUDIO LOBBY 
+           ======================================================== */
+        .lobby-stage {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: radial-gradient(circle at 50% 20%, #150f24 0%, var(--bg-canvas) 85%);
+            transition: opacity 0.35s var(--smooth), transform 0.35s var(--smooth);
+            overflow-y: auto;
+        }
+        .lobby-stage.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.03);
+        }
+        .studio-container {
+            width: 100%;
+            max-width: 1020px;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 40px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Left Column: Branding & Controls */
+        .brand-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+        .brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .brand-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .logo-emblem {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .logo-emblem svg {
+            width: 50px;
+            height: 50px;
+            filter: drop-shadow(0px 4px 10px rgba(255, 106, 0, 0.4));
+        }
+        .brand-title h1 {
+            font-family: var(--font-head);
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .brand-title h1 span {
+            background: var(--brand-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .brand-title p {
+            font-size: 13px;
+            color: var(--text-2);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .user-profile-badge {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-dim);
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .user-profile-badge:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--brand);
+        }
+        .user-profile-avatar {
+            width: 24px;
+            height: 24px;
+            background: var(--brand);
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 12px;
+        }
+
+        .hero-headline {
+            font-family: var(--font-head);
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.25;
+            letter-spacing: -0.5px;
+            color: #fff;
+        }
+        .hero-desc {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-2);
+            margin-top: 8px;
+        }
+
+        /* Form Card */
+        .join-box-card {
+            background: var(--bg-glass-heavy);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid var(--border-subtle);
+            padding: 14px 20px;
+            border-radius: var(--radius-xs);
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s var(--spring);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Friends Quick Toolbar in Lobby */
+        .lobby-friends-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed var(--border-subtle);
+            border-radius: var(--radius-xs);
+            color: var(--text-2);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .lobby-friends-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            border-color: var(--brand);
+        }
+
+        /* Right Column: Viewfinder */
+        .preview-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .viewfinder-shell {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #000;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.85);
+        }
+        .viewfinder-shell video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            transition: filter 0.3s ease;
+        }
+        .vf-overlay-controls {
+            position: absolute;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 10;
+        }
+        .vf-toggle-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-full);
+            background: rgba(10, 10, 18, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s var(--spring);
+        }
+        .vf-toggle-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        .vf-toggle-btn.off { background: var(--danger); border-color: transparent; }
+
+        .vf-placeholder-state {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: radial-gradient(circle, #181428 0%, #06060c 100%);
+        }
+        .vf-avatar-ring {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--brand-gradient);
+            color: #000;
+            font-size: 32px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px var(--brand-glow);
+        }
+        .btn-test-cam {
+            margin-top: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--border-dim);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-test-cam:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: var(--brand);
+        }
+
+        .audio-wave-strip {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 3px;
+            background: rgba(255,255,255,0.05);
+        }
+        .audio-wave-progress {
+            height: 100%;
+            width: 0%;
+            background: var(--brand-gradient);
+            transition: width 0.08s ease;
+        }
+
+        .security-badge-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-2);
+        }
+        .security-badge-row span { color: var(--success); }
+
+        /* ========================================================
+            ACTIVE CALL STAGE
+           ======================================================== */
+        .call-stage {
+            display: none;
+            height: 100vh;
+            height: 100dvh;
+            width: 100vw;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-canvas);
+        }
+        .call-stage.active { display: flex; }
+
+        /* Top HUD Bar */
+        .hud-topbar {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(180deg, rgba(2,2,5,0.95) 0%, rgba(2,2,5,0) 100%);
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .hud-left, .hud-right {
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .room-tag-pill {
+            background: var(--bg-glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--border-subtle);
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .room-tag-pill:hover {
+            border-color: var(--border-active);
+            background: var(--bg-elevated);
+        }
+
+        .room-code-label {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--brand-light);
+            letter-spacing: 1px;
+        }
+        .call-clock {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-2);
+            border-left: 1px solid var(--border-dim);
+            padding-left: 10px;
+        }
+
+        .live-pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--danger);
+            animation: pulseGlow 1.5s infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.3); }
+        }
+
+        .hud-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-xs);
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-dim);
+            color: var(--text-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s var(--spring);
+            position: relative;
+        }
+        .hud-btn:hover {
+            background: rgba(255,255,255,0.12);
+            transform: translateY(-2px);
+        }
+
+        .hud-btn.share-cta {
+            background: linear-gradient(135deg, rgba(37, 211, 102, 0.15), rgba(37, 211, 102, 0.25));
+            border-color: rgba(37, 211, 102, 0.4);
+            color: var(--wa-green);
+            gap: 6px;
+            padding: 0 14px;
+            width: auto;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .hud-btn.share-cta:hover {
+            background: var(--wa-green);
+            color: #000;
+            box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+        }
+
+        .hud-btn .badge {
+            position: absolute;
+            top: -3px; right: -3px;
+            background: var(--brand);
+            color: #000;
+            font-size: 10px;
+            font-weight: 800;
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Center Video Canvas */
+        .video-canvas {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .main-hero-tile {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #151125 0%, #030307 100%);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 2px solid var(--border-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .main-hero-tile.speaking {
+            border-color: var(--brand);
+            box-shadow: 0 0 35px var(--brand-glow);
+        }
+        .main-hero-tile video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .tile-avatar-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .user-tag {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border-dim);
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        /* Subtle Waiting Indicator */
+        .subtle-waiting-hub {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--border-dim);
+            z-index: 5;
+            transition: opacity 0.3s ease;
+        }
+        .subtle-waiting-hub.hidden { display: none; }
+        .subtle-waiting-hub span {
+            font-size: 13px;
+            color: var(--text-2);
+            font-weight: 500;
+        }
+        .subtle-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Draggable PiP (Picture-in-Picture) */
+        .pip-card {
+            position: absolute;
+            bottom: 105px;
+            right: 24px;
+            width: 165px;
+            aspect-ratio: 9/16;
+            background: #000;
+            border-radius: var(--radius-xs);
+            overflow: hidden;
+            border: 2px solid var(--border-active);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.85), 0 0 25px rgba(255, 106, 0, 0.2);
+            z-index: 80;
+            cursor: grab;
+            transition: transform 0.25s var(--spring);
+            touch-action: none;
+        }
+        .pip-card:active { cursor: grabbing; }
+        .pip-card.hidden { display: none; }
+        .pip-card.drawer-open { right: 410px; }
+        .pip-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+        .pip-tag {
+            position: absolute;
+            bottom: 8px; left: 8px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* ========================================================
+            BOTTOM LIQUID CONTROL DOCK
+           ======================================================== */
+        .dock-wrapper {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+
+        .control-dock {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            background: var(--bg-glass-heavy);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-full);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 30px rgba(255, 106, 0, 0.08);
+        }
+
+        .dock-sep {
+            width: 1px;
+            height: 28px;
+            background: var(--border-dim);
+            margin: 0 4px;
+        }
+
+        .dock-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s var(--spring);
+            position: relative;
+        }
+        .dock-btn:hover {
+            background: rgba(255, 255, 255, 0.14);
+            transform: translateY(-4px);
+        }
+        .dock-btn:active { transform: translateY(0) scale(0.95); }
+
+        .dock-btn.active {
+            background: var(--brand-subtle);
+            color: var(--brand);
+            border: 1px solid var(--border-active);
+        }
+
+        .dock-btn.muted {
+            background: rgba(255, 51, 75, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(255, 51, 75, 0.3);
+        }
+
+        .dock-btn.end-btn {
+            width: 68px;
+            border-radius: var(--radius-full);
+            background: var(--danger);
+            color: #fff;
+            box-shadow: 0 6px 20px var(--danger-glow);
+        }
+        .dock-btn.end-btn:hover {
+            background: #e60020;
+            box-shadow: 0 10px 30px var(--danger-glow);
+        }
+        .dock-btn.end-btn svg { transform: rotate(135deg); }
+
+        /* Mobile specific hide class */
+        .mobile-hide {
+            display: flex;
+        }
+
+        /* Party Burst Reaction Menu */
+        .reaction-menu {
+            position: absolute;
+            bottom: 74px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(13, 13, 24, 0.95);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-full);
+            padding: 6px 12px;
+            display: none;
+            gap: 8px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+            z-index: 110;
+        }
+        .reaction-menu.show { display: flex; animation: dropIn 0.25s var(--spring); }
+        .r-btn {
+            font-size: 24px;
+            background: transparent;
+            padding: 6px;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: transform 0.15s var(--spring);
+        }
+        .r-btn:hover { transform: scale(1.35); }
+
+        /* Floating Chat Banner */
+        .floating-chat-banner {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(18, 18, 30, 0.96);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--border-active);
+            border-radius: var(--radius-full);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.85);
+            z-index: 9999;
+            cursor: pointer;
+            transition: transform 0.4s var(--spring), opacity 0.3s ease;
+            opacity: 0;
+            max-width: 90%;
+        }
+        .floating-chat-banner.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .floating-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--brand-gradient);
+            color: #000;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+        .floating-text-content b { font-size: 12px; color: var(--brand-light); }
+        .floating-text-content span { font-size: 13px; color: #fff; }
+
+        /* ========================================================
+            SIDE DRAWER (CHAT / FRIENDS / PEOPLE)
+           ======================================================== */
+        .side-drawer {
+            position: absolute;
+            top: 0; right: 0; bottom: 0;
+            width: 380px;
+            background: var(--bg-glass-heavy);
+            backdrop-filter: blur(40px);
+            border-left: 1px solid var(--border-dim);
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.4s var(--smooth);
+            z-index: 150;
+        }
+        .side-drawer.open { transform: translateX(0); }
+
+        .drawer-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-dim);
+        }
+        .drawer-head h3 { font-size: 16px; font-weight: 700; font-family: var(--font-head); }
+
+        .drawer-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-dim);
+            padding: 0 8px;
+        }
+        .d-tab {
+            flex: 1;
+            padding: 12px 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-2);
+            background: transparent;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        .d-tab.active {
+            color: var(--brand);
+            border-bottom-color: var(--brand);
+        }
+
+        .drawer-content {
+            flex: 1;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+        }
+        .drawer-content.active { display: flex; }
+
+        /* Chat Stream */
+        .chat-feed {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-msg {
+            display: flex;
+            flex-direction: column;
+            max-width: 82%;
+            animation: msgPop 0.25s var(--spring);
+        }
+        @keyframes msgPop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .chat-msg.me { align-self: flex-end; align-items: flex-end; }
+        .chat-msg.them { align-self: flex-start; align-items: flex-start; }
+
+        .chat-author { font-size: 11px; font-weight: 700; color: var(--text-2); margin-bottom: 4px; padding: 0 4px; }
+        .chat-bubble {
+            padding: 11px 16px;
+            font-size: 14px;
+            line-height: 1.45;
+            word-wrap: break-word;
+        }
+        .chat-msg.me .chat-bubble {
+            background: var(--brand-gradient);
+            color: #000;
+            border-radius: 18px 18px 4px 18px;
+            font-weight: 500;
+        }
+        .chat-msg.them .chat-bubble {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid var(--border-dim);
+            color: #fff;
+            border-radius: 18px 18px 18px 4px;
+        }
+
+        /* Emoji Tray for Chat */
+        .emoji-picker-tray {
+            display: none;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            padding: 10px;
+            background: rgba(14, 14, 25, 0.98);
+            border-top: 1px solid var(--border-dim);
+            max-height: 160px;
+            overflow-y: auto;
+        }
+        .emoji-picker-tray.show { display: grid; }
+        .ep-btn {
+            font-size: 20px;
+            background: transparent;
+            padding: 6px;
+            border-radius: var(--radius-xs);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        .ep-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.2); }
+
+        .chat-bar {
+            padding: 14px 16px;
+            border-top: 1px solid var(--border-dim);
+            background: rgba(0,0,0,0.3);
+        }
+        .chat-input-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-full);
+            padding: 4px 6px 4px 12px;
+            transition: border-color 0.2s ease;
+        }
+        .chat-input-row:focus-within { border-color: var(--brand); }
+        .chat-input-row input {
+            flex: 1;
+            background: transparent;
+            color: #fff;
+            font-size: 14px;
+            padding: 8px 0;
+        }
+        .chat-icon-btn {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            color: var(--text-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .chat-icon-btn:hover { color: #fff; background: rgba(255,255,255,0.12); }
+        .chat-send-btn {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--brand-gradient);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s var(--spring);
+        }
+        .chat-send-btn:hover { transform: scale(1.1); }
+
+        /* Friends & Contacts */
+        .friends-toolbar {
+            padding: 14px 16px;
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-dim);
+        }
+        .btn-add-friend {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--radius-xs);
+            background: rgba(255, 106, 0, 0.12);
+            border: 1px solid var(--border-active);
+            color: var(--brand-light);
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s var(--spring);
+        }
+        .btn-add-friend:hover {
+            background: var(--brand);
+            color: #000;
+        }
+
+        .friends-list {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .friend-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.03);
+            border-radius: var(--radius-xs);
+            border: 1px solid var(--border-dim);
+            transition: all 0.2s ease;
+        }
+        .friend-card:hover { background: rgba(255,255,255,0.06); border-color: var(--border-subtle); }
+        .friend-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .friend-av {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7928ca, var(--brand));
+            color: #fff;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .friend-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-friend-call {
+            padding: 6px 12px;
+            border-radius: var(--radius-full);
+            background: var(--brand);
+            color: #000;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s var(--spring);
+        }
+        .btn-friend-call:hover { transform: scale(1.05); }
+
+        /* People Roster */
+        .people-list {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .person-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.03);
+            border-radius: var(--radius-xs);
+            border: 1px solid var(--border-dim);
+        }
+        .person-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .person-avatar {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: var(--brand-gradient);
+            color: #000;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Modals (Share & Add Friend) */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(15px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-backdrop.show { display: flex; }
+
+        .modal-card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--bg-glass-heavy);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border-active);
+            border-radius: var(--radius-md);
+            padding: 30px 24px;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.9);
+            position: relative;
+            animation: dropIn 0.3s var(--spring);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .modal-header h3 { font-size: 20px; font-weight: 800; font-family: var(--font-head); }
+
+        .qr-wrapper {
+            background: #fff;
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .qr-wrapper canvas { width: 100%; height: 100%; }
+
+        /* Share Modal New 50/50 Grid Layout */
+        .share-actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .btn-grid-outline {
+            padding: 14px 12px;
+            border-radius: var(--radius-xs);
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-subtle);
+            color: #fff;
+        }
+        .btn-grid-outline:hover {
+            background: rgba(255,255,255,0.12);
+            border-color: var(--text-2);
+        }
+
+        .share-btn-wa {
+            width: 100%;
+            padding: 14px;
+            border-radius: var(--radius-xs);
+            background: var(--wa-green);
+            color: #000;
+            font-size: 14px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.35);
+            transition: all 0.2s var(--spring);
+            border: none;
+        }
+        .share-btn-wa:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(37, 211, 102, 0.45); }
+
+        .share-copy-row {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-xs);
+            padding: 6px 6px 6px 14px;
+        }
+        .share-copy-row span {
+            flex: 1;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--brand-light);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .btn-copy-chip {
+            padding: 8px 14px;
+            border-radius: var(--radius-xs);
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        .btn-copy-chip:hover { background: var(--brand); color: #000; }
+
+        /* Floating Reaction Particles */
+        .reaction-particle {
+            position: fixed;
+            bottom: 100px;
+            font-size: 36px;
+            pointer-events: none;
+            z-index: 9990;
+            animation: particleFly 2.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+        @keyframes particleFly {
+            0% { opacity: 1; transform: translate(0, 0) scale(0.6) rotate(0deg); }
+            70% { opacity: 1; }
+            100% { opacity: 0; transform: translate(var(--vx), -420px) scale(1.5) rotate(var(--rot)); }
+        }
+
+        /* Toast Shelf */
+        .toast-shelf {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .toast-item {
+            background: rgba(15, 15, 26, 0.96);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-active);
+            padding: 10px 20px;
+            border-radius: var(--radius-full);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: dropIn 0.35s var(--spring) forwards;
+        }
+        @keyframes dropIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 900px) {
+            .studio-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .hero-headline { font-size: 26px; }
+            .side-drawer {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid var(--border-dim);
+                border-radius: 28px 28px 0 0;
+            }
+            .pip-card {
+                width: 125px;
+                bottom: 100px;
+                right: 16px;
+            }
+            .pip-card.drawer-open { display: none; }
+            .control-dock { padding: 8px 12px; gap: 6px; }
+            .dock-btn { width: 44px; height: 44px; }
+            .dock-btn.end-btn { width: 58px; }
+            
+            /* Hide unsupported PC features on mobile */
+            .mobile-hide { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="ambient-mesh">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+</div>
+
+<div class="toast-shelf" id="toastShelf"></div>
+
+<!-- Incoming Message Floating Banner -->
+<div class="floating-chat-banner" id="chatBanner">
+    <div class="floating-avatar" id="bannerAvatar">P</div>
+    <div class="floating-text-content">
+        <b id="bannerAuthor">Peer</b>
+        <span id="bannerText">Hey there!</span>
+    </div>
+</div>
+
+<!-- ========================================================
+     AUTH / LOGIN SCREEN
+     ======================================================== -->
+<div class="auth-stage" id="authView">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <!-- Sleek Premium Lens Squircle Logo -->
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="48" height="48" rx="14" fill="url(#brandGrad)"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM24 32C19.5817 32 16 28.4183 16 24C16 19.5817 19.5817 16 24 16C28.4183 16 32 19.5817 32 24C32 28.4183 28.4183 32 24 32ZM24 28C26.2091 28 28 26.2091 28 24C28 21.7909 26.2091 20 24 20C21.7909 20 20 21.7909 20 24C20 26.2091 21.7909 28 24 28Z" fill="#020205"/>
+                <defs>
+                    <linearGradient id="brandGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#ff4500"/>
+                        <stop offset="0.5" stop-color="#ff6a00"/>
+                        <stop offset="1" stop-color="#ff0055"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+        <h2>Create Aura Identity</h2>
+        <p>Your encrypted profile for instant calling.</p>
+
+        <div class="auth-input-group">
+            <label class="field-label">Display Name</label>
+            <input class="field-input" id="authNameInput" placeholder="E.g. Shrey" value="Shrey" autocomplete="off">
+        </div>
+
+        <button class="btn-primary" id="btnAuthCreate">
+            Setup Profile & Enter
+        </button>
+    </div>
+</div>
+
+<!-- ========================================================
+     LAUNCHPAD / STUDIO LOBBY 
+     ======================================================== -->
+<div class="lobby-stage hidden" id="lobbyView">
+    <div class="studio-container">
+        
+        <!-- Left Side: Branding & Quick Action Panel -->
+        <div class="brand-panel">
+            <div class="brand-header">
+                <div class="brand-header-left">
+                    <div class="logo-emblem">
+                        <!-- Sleek Premium Lens Squircle Logo -->
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="48" height="48" rx="14" fill="url(#brandGradLobby)"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM24 32C19.5817 32 16 28.4183 16 24C16 19.5817 19.5817 16 24 16C28.4183 16 32 19.5817 32 24C32 28.4183 28.4183 32 24 32ZM24 28C26.2091 28 28 26.2091 28 24C28 21.7909 26.2091 20 24 20C21.7909 20 20 21.7909 20 24C20 26.2091 21.7909 28 24 28Z" fill="#020205"/>
+                            <defs>
+                                <linearGradient id="brandGradLobby" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#ff4500"/>
+                                    <stop offset="0.5" stop-color="#ff6a00"/>
+                                    <stop offset="1" stop-color="#ff0055"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="brand-title">
+                        <h1>AURA<span>STREAM</span></h1>
+                        <p>Studio Pro Suite · Mobile & Desktop</p>
+                    </div>
+                </div>
+                <!-- Profile Badge -->
+                <div class="user-profile-badge" id="btnEditProfile" title="Edit Profile">
+                    <div class="user-profile-avatar" id="navAvatar">S</div>
+                    <span id="navName">Shrey</span>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="hero-headline">Studio-Quality Meetings.<br>Instant P2P Stream.</h2>
+                <p class="hero-desc">Crystal-clear peer-to-peer audio and video with dynamic reaction bursts, screen sharing, friends manager, and 1-click WhatsApp invites.</p>
+            </div>
+
+            <!-- Join / Create Card -->
+            <div class="join-box-card">
+                <div id="joinFields" style="display: none;">
+                    <div>
+                        <label class="field-label">Room Access Code</label>
+                        <input class="field-input" id="roomCodeInput" placeholder="e.g. AUR-7890" style="text-transform: uppercase; font-family: var(--font-mono); letter-spacing: 1px;">
+                    </div>
+                    <div class="btn-group" style="margin-top: 14px;">
+                        <button class="btn-primary" id="btnJoinRoom">Connect Stream</button>
+                        <button class="btn-secondary" id="btnBack">Back</button>
+                    </div>
+                </div>
+
+                <div id="createFields">
+                    <div class="btn-group">
+                        <button class="btn-primary" id="btnCreateRoom">
+                            <svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            New Meeting
+                        </button>
+                        <button class="btn-secondary" id="btnShowJoin">
+                            <svg class="icon" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+                            Join with Code
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Friends Book in Lobby -->
+                <div class="lobby-friends-btn" id="btnLobbyOpenFriends">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <svg class="icon-sm" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                        <span>Saved Friends & Contacts</span>
+                    </div>
+                    <span style="font-size: 11px; color: var(--brand); font-weight: 700;" id="lobbyFriendCount">0 Friends</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Preview Viewfinder -->
+        <div class="preview-column">
+            <div class="viewfinder-shell" id="viewfinderWrapper">
+                <div class="vf-placeholder-state" id="vfPlaceholder">
+                    <div class="vf-avatar-ring" id="lobbyAvLetter">S</div>
+                    <span style="font-size: 13px; color: var(--text-2); font-weight: 500;">Camera Disabled</span>
+                    <button class="btn-test-cam" id="btnTestCamera">Preview Camera</button>
+                </div>
+                <video id="lobbyVideo" autoplay playsinline muted style="display: none;"></video>
+                
+                <div class="vf-overlay-controls">
+                    <button class="vf-toggle-btn off" id="lMicBtn" title="Toggle Mic">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
+                    </button>
+                    <button class="vf-toggle-btn off" id="lCamBtn" title="Toggle Camera">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                    </button>
+                </div>
+                <div class="audio-wave-strip">
+                    <div class="audio-wave-progress" id="lAudioMeter"></div>
+                </div>
+            </div>
+
+            <div class="security-badge-row">
+                <svg class="icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>End-to-End Encrypted</span> · Zero Server Storage
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ========================================================
+     ACTIVE CALL STAGE
+     ======================================================== -->
+<div class="call-stage" id="callStage">
+    
+    <!-- Top HUD Bar -->
+    <div class="hud-topbar">
+        <div class="hud-left">
+            <div class="room-tag-pill" id="btnCopyCode" title="Click to share meeting">
+                <div class="live-pulse-dot"></div>
+                <span class="room-code-label" id="hudRoomText">AUR-XXXX</span>
+                <span class="call-clock" id="hudTimer">00:00</span>
+            </div>
+            <button class="hud-btn share-cta" id="btnOpenShareModal" title="Share via WhatsApp / QR">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+                Share
+            </button>
+        </div>
+        <div class="hud-right">
+            <button class="hud-btn" id="btnFlipCam" title="Flip Camera View">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+            </button>
+            <button class="hud-btn" id="btnFriendsTabToggle" title="Friends & Contacts">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            </button>
+            <button class="hud-btn" id="btnRoster" title="Participants">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                <div class="badge" id="rosterCount">1</div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Center Video Stage -->
+    <div class="video-canvas">
+        <div class="main-hero-tile" id="mainCard">
+            <div class="tile-avatar-view" id="mainPlaceholder">
+                <div class="vf-avatar-ring" id="mainAvLetter">Y</div>
+                <span style="font-weight: 700; color: var(--text-2); font-size: 15px;" id="mainTileLabel">You</span>
+            </div>
+            <video id="mainVideo" autoplay playsinline style="display: none;"></video>
+            <div class="user-tag">
+                <svg class="icon-sm" style="color: var(--success);" id="mainMicIcon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg>
+                <span id="mainNameTag">You (Host)</span>
+            </div>
+        </div>
+
+        <!-- Subtle Waiting Indicator -->
+        <div class="subtle-waiting-hub" id="waitingHub">
+            <div class="subtle-spinner"></div>
+            <span>Waiting for peer to join...</span>
+        </div>
+
+        <!-- Draggable Floating PiP (Picture-in-Picture) -->
+        <div class="pip-card hidden" id="pipCard">
+            <video id="pipVideo" autoplay playsinline muted></video>
+            <div class="pip-tag">You</div>
+        </div>
+    </div>
+
+    <!-- Bottom Liquid Dock -->
+    <div class="dock-wrapper">
+        <div class="reaction-menu" id="reactionMenu">
+            <button class="r-btn" data-e="🔥">🔥</button>
+            <button class="r-btn" data-e="❤️">❤️</button>
+            <button class="r-btn" data-e="👏">👏</button>
+            <button class="r-btn" data-e="😂">😂</button>
+            <button class="r-btn" data-e="🚀">🚀</button>
+            <button class="r-btn" data-e="💯">💯</button>
+            <button class="r-btn" data-e="🎉">🎉</button>
+            <button class="r-btn" data-e="👍">👍</button>
+        </div>
+
+        <div class="control-dock">
+            <button class="dock-btn active" id="dockMic" title="Mic">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
+            </button>
+            
+            <button class="dock-btn active" id="dockCam" title="Camera">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+            </button>
+
+            <!-- Hide on Mobile -->
+            <button class="dock-btn mobile-hide" id="dockScreen" title="Share Screen">
+                <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </button>
+
+            <!-- Hide on Mobile -->
+            <button class="dock-btn mobile-hide" id="dockRecord" title="Record Screen">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
+            </button>
+
+            <button class="dock-btn" id="dockReact" title="Party Reaction">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
+            </button>
+
+            <button class="dock-btn" id="dockChat" title="Chat">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            </button>
+
+            <div class="dock-sep"></div>
+
+            <button class="dock-btn end-btn" id="dockEnd" title="End Call">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 2.59 3.4l1.27 1.27a2 2 0 0 1 .45-2.11 12.84 12.84 0 0 0-2.81-.7 2 2 0 0 1-1.72-2z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Side Drawer (Chat / Friends / People) -->
+    <div class="side-drawer" id="sideDrawer">
+        <div class="drawer-head">
+            <h3 id="drawerTitle">Live Chat</h3>
+            <button class="close-btn" id="btnCloseDrawer" title="Close">
+                <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+
+        <div class="drawer-tabs">
+            <button class="d-tab active" data-tab="chatTab">Chat</button>
+            <button class="d-tab" data-tab="friendsTab">Friends</button>
+            <button class="d-tab" data-tab="rosterTab">In-Call</button>
+        </div>
+
+        <!-- Chat Panel -->
+        <div class="drawer-content active" id="chatTab">
+            <div class="chat-feed" id="chatMessages">
+                <div style="text-align: center; font-size: 11px; color: var(--text-3); margin-top: 10px;">
+                    End-to-End Encrypted Session
+                </div>
+            </div>
+
+            <div class="emoji-picker-tray" id="emojiPickerTray">
+                <button class="ep-btn">😀</button><button class="ep-btn">😂</button><button class="ep-btn">🔥</button><button class="ep-btn">❤️</button><button class="ep-btn">🎉</button><button class="ep-btn">👏</button><button class="ep-btn">🚀</button>
+                <button class="ep-btn">💯</button><button class="ep-btn">😍</button><button class="ep-btn">😎</button><button class="ep-btn">🤩</button><button class="ep-btn">🥳</button><button class="ep-btn">🤔</button><button class="ep-btn">🫡</button>
+                <button class="ep-btn">👍</button><button class="ep-btn">🤝</button><button class="ep-btn">💪</button><button class="ep-btn">⚡</button><button class="ep-btn">✨</button><button class="ep-btn">👀</button><button class="ep-btn">🙏</button>
+                <button class="ep-btn">👑</button><button class="ep-btn">🌟</button><button class="ep-btn">💡</button><button class="ep-btn">🎯</button><button class="ep-btn">🍕</button><button class="ep-btn">🍻</button><button class="ep-btn">🍿</button>
+            </div>
+
+            <div class="chat-bar">
+                <div class="chat-input-row">
+                    <button class="chat-icon-btn" id="btnToggleEmojiTray" title="Add Emoji">😊</button>
+                    <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off">
+                    <button class="chat-send-btn" id="btnSendChat">
+                        <svg class="icon-sm" viewBox="0 0 24 24" style="transform: rotate(45deg); margin-left:-2px; margin-bottom:2px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Friends Panel -->
+        <div class="drawer-content" id="friendsTab">
+            <div class="friends-toolbar">
+                <button class="btn-add-friend" id="btnOpenAddFriendModal">
+                    <svg class="icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add New Friend
+                </button>
+            </div>
+            <div class="friends-list" id="friendsContainer"></div>
+        </div>
+
+        <!-- Roster Panel -->
+        <div class="drawer-content" id="rosterTab">
+            <div class="people-list" id="peopleList"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================
+     MODALS
+     ======================================================== -->
+<div class="modal-backdrop" id="addFriendModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Add a New Friend</h3>
+            <button class="close-btn" id="btnCloseAddFriendModal" title="Close">
+                <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div>
+                <label class="field-label">Friend's Name</label>
+                <input class="field-input" id="newFriendName" placeholder="e.g. Rahul Sharma" autocomplete="off">
+            </div>
+            <div>
+                <label class="field-label">Friend's Room Tag (Optional)</label>
+                <input class="field-input" id="newFriendRoom" placeholder="e.g. AUR-XXXX or Personal Note" autocomplete="off">
+            </div>
+            <button class="btn-primary" style="margin-top: 10px;" id="btnSaveFriend">
+                <svg class="icon-sm" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save to Friends
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-backdrop" id="shareModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Invite Friends</h3>
+            <button class="close-btn" id="btnCloseShareModal" title="Close">
+                <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+
+        <div class="qr-wrapper">
+            <canvas id="qrCanvas"></canvas>
+        </div>
+
+        <!-- Grid Layout for Buttons -->
+        <div class="share-actions-grid">
+            <button class="btn-grid-outline" id="btnCopyInviteCode" title="Copy Code">
+                <svg class="icon-sm" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                Copy Code
+            </button>
+            <button class="btn-grid-outline" id="btnCopyInviteLink" title="Copy Link">
+                <svg class="icon-sm" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                Copy Link
+            </button>
+        </div>
+        
+        <button class="share-btn-wa" id="btnShareWhatsApp" title="Share via WhatsApp">
+            <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+            Share on WhatsApp
+        </button>
+    </div>
+</div>
+
+<script>
+/**
+ * Aurastream Studio Ultra Pro Max (100% Crash-Proof Version)
+ */
+(function() {
+    'use strict';
+
+    // Safe DOM Selector
+    const $ = id => document.getElementById(id);
+    
+    // Bulletproof Event Binder
+    const bind = (id, event, handler) => {
+        const el = $(id);
+        if (el) el.addEventListener(event, handler);
+        else console.warn(`Element #${id} not found to bind ${event}.`);
+    };
+
+    // Remove window hash function for cleanup
+    function cleanUrlHash() {
+        if(window.location.hash) {
+            history.replaceState(null, null, window.location.pathname);
+        }
+    }
+
+    // Audio SFX Synthesizer
+    const Sound = {
+        ctx: null,
+        init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+        play(type) {
+            try {
+                this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                if (type === 'join') {
+                    osc.frequency.setValueAtTime(350, now);
+                    osc.frequency.exponentialRampToValueAtTime(700, now + 0.2);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now); osc.stop(now + 0.2);
+                } else if (type === 'pop') {
+                    osc.frequency.setValueAtTime(500, now);
+                    osc.frequency.exponentialRampToValueAtTime(1000, now + 0.08);
+                    gain.gain.setValueAtTime(0.09, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now); osc.stop(now + 0.08);
+                } else if (type === 'chime') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now); osc.stop(now + 0.4);
+                }
+            } catch (e) {}
+        }
+    };
+
+    // State
+    const App = {
+        userName: 'Shrey',
+        roomCode: '',
+        isHost: false,
+        mic: false, // Default to OFF for lobby
+        cam: false, // Default to OFF for lobby
+        screen: false,
+        recording: false,
+        facing: 'user',
+        localStream: null,
+        screenStream: null,
+        remoteStream: null,
+        peer: null,
+        peerCall: null,
+        dataConn: null,
+        broadcast: null,
+        timer: null,
+        t0: null,
+        analyser: null,
+        dataArr: null,
+        recorder: null,
+        recChunks: []
+    };
+
+    // Account Manager (localStorage)
+    const Account = {
+        key: 'aurastream_profile',
+        get() { return localStorage.getItem(this.key); },
+        save(name) { localStorage.setItem(this.key, name); },
+        check() {
+            const savedName = this.get();
+            if (savedName) {
+                App.userName = savedName;
+                $('authView')?.classList.add('hidden');
+                $('lobbyView')?.classList.remove('hidden');
+                updateProfileUI();
+            } else {
+                $('authView')?.classList.remove('hidden');
+            }
+        }
+    };
+
+    function updateProfileUI() {
+        if ($('navName')) $('navName').textContent = App.userName;
+        if ($('navAvatar')) $('navAvatar').textContent = App.userName[0].toUpperCase();
+        if ($('lobbyAvLetter')) $('lobbyAvLetter').textContent = App.userName[0].toUpperCase();
+    }
+
+    // Toast Function
+    function notify(msg, emoji = '✨') {
+        const box = $('toastShelf');
+        if (!box) return;
+        const item = document.createElement('div');
+        item.className = 'toast-item';
+        item.innerHTML = `<span>${emoji}</span> <span>${msg}</span>`;
+        box.appendChild(item);
+        setTimeout(() => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(-15px)';
+            item.style.transition = 'all 0.3s ease';
+            setTimeout(() => item.remove(), 350);
+        }, 3200);
+    }
+
+    // Friends Manager
+    const Friends = {
+        key: 'aurastream_friends_list',
+        getAll() {
+            try {
+                const data = localStorage.getItem(this.key);
+                return data ? JSON.parse(data) : [];
+            } catch (e) { return []; }
+        },
+        save(list) {
+            try {
+                localStorage.setItem(this.key, JSON.stringify(list));
+                this.render();
+            } catch (e) {}
+        },
+        add(name, tag = '') {
+            const list = this.getAll();
+            list.push({ id: Date.now().toString(), name, tag: tag || 'Friend' });
+            this.save(list);
+            notify(`${name} added to Friends!`, '👥');
+        },
+        remove(id) {
+            const list = this.getAll().filter(f => f.id !== id);
+            this.save(list);
+            notify('Friend removed', '🗑️');
+        },
+        render() {
+            const list = this.getAll();
+            if ($('lobbyFriendCount')) $('lobbyFriendCount').textContent = `${list.length} Friend${list.length === 1 ? '' : 's'}`;
+            
+            const container = $('friendsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: var(--text-3); font-size: 13px; margin-top: 20px;">
+                        No friends added yet.<br>Click "Add New Friend" to save contacts!
+                    </div>`;
+                return;
+            }
+
+            list.forEach(f => {
+                const div = document.createElement('div');
+                div.className = 'friend-card';
+                div.innerHTML = `
+                    <div class="friend-meta">
+                        <div class="friend-av">${f.name[0].toUpperCase()}</div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 14px;">${f.name}</div>
+                            <div style="font-size: 11px; color: var(--text-3);">${f.tag}</div>
+                        </div>
+                    </div>
+                    <div class="friend-actions">
+                        <button class="btn-friend-call" onclick="callFriend('${f.name}')">Call</button>
+                        <button class="chat-icon-btn" onclick="removeFriendItem('${f.id}')" title="Delete" style="width: 28px; height: 28px;">
+                            <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>`;
+                container.appendChild(div);
+            });
+        }
+    };
+
+    window.removeFriendItem = id => Friends.remove(id);
+    window.callFriend = name => {
+        const shareUrl = `${window.location.origin}${window.location.pathname}#${App.roomCode || 'AURA-ROOM'}`;
+        const waMsg = encodeURIComponent(`👋 Hey ${name}, join my live Aurastream meeting now!\n\nLink: ${shareUrl}`);
+        window.open(`https://api.whatsapp.com/send?text=${waMsg}`, '_blank');
+    };
+
+    // Camera Preview 
+    async function initCamera() {
+        try {
+            App.localStream = await navigator.mediaDevices.getUserMedia({
+                video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: App.facing },
+                audio: { echoCancellation: true, noiseSuppression: true }
+            });
+            App.mic = true;
+            App.cam = true;
+            
+            if ($('lobbyVideo')) {
+                $('lobbyVideo').srcObject = App.localStream;
+                $('lobbyVideo').style.display = 'block';
+            }
+            if ($('vfPlaceholder')) $('vfPlaceholder').style.display = 'none';
+            if ($('btnTestCamera')) $('btnTestCamera').style.display = 'none';
+            
+            $('lMicBtn')?.classList.remove('off');
+            $('lCamBtn')?.classList.remove('off');
+            
+            initAudioMeter(App.localStream);
+        } catch (e) {
+            console.log('Cam Preview Error:', e);
+            notify('Camera access denied or unavailable', '⚠️');
+        }
+    }
+
+    bind('btnTestCamera', 'click', initCamera);
+
+    function initAudioMeter(stream) {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const src = ctx.createMediaStreamSource(stream);
+            App.analyser = ctx.createAnalyser();
+            App.analyser.fftSize = 64;
+            src.connect(App.analyser);
+            App.dataArr = new Uint8Array(App.analyser.frequencyBinCount);
+            
+            function loop() {
+                if (!App.localStream) return;
+                requestAnimationFrame(loop);
+                App.analyser.getByteFrequencyData(App.dataArr);
+                let sum = 0;
+                for (let i = 0; i < App.dataArr.length; i++) sum += App.dataArr[i];
+                let avg = sum / App.dataArr.length;
+                
+                const meter = $('lAudioMeter');
+                if (meter) meter.style.width = Math.min(100, avg * 2.6) + '%';
+
+                const card = $('mainCard');
+                if (card) {
+                    if (avg > 25 && App.mic) card.classList.add('speaking');
+                    else card.classList.remove('speaking');
+                }
+            }
+            loop();
+        } catch (e) {}
+    }
+
+    // Setup Boot Sequence
+    Account.check();
+    Friends.render();
+
+    bind('btnAuthCreate', 'click', () => {
+        const name = $('authNameInput')?.value.trim();
+        if (!name) return notify('Please enter a display name', '⚠️');
+        Account.save(name);
+        App.userName = name;
+        $('authView')?.classList.add('hidden');
+        $('lobbyView')?.classList.remove('hidden');
+        updateProfileUI();
+        notify(`Welcome, ${name}!`, '🎉');
+    });
+
+    bind('btnEditProfile', 'click', () => {
+        localStorage.removeItem(Account.key);
+        if ($('authNameInput')) $('authNameInput').value = App.userName;
+        $('lobbyView')?.classList.add('hidden');
+        $('authView')?.classList.remove('hidden');
+        if (App.localStream) {
+            App.localStream.getTracks().forEach(t => t.stop());
+            App.localStream = null;
+            App.cam = false;
+            App.mic = false;
+            if($('lobbyVideo')) $('lobbyVideo').style.display = 'none';
+            if($('vfPlaceholder')) $('vfPlaceholder').style.display = 'flex';
+            if($('btnTestCamera')) $('btnTestCamera').style.display = 'block';
+            $('lMicBtn')?.classList.add('off');
+            $('lCamBtn')?.classList.add('off');
+        }
+    });
+
+    bind('lMicBtn', 'click', () => {
+        if (!App.localStream) return notify('Start camera preview first', '⚠️');
+        App.mic = !App.mic;
+        $('lMicBtn')?.classList.toggle('off', !App.mic);
+        App.localStream.getAudioTracks().forEach(t => t.enabled = App.mic);
+    });
+
+    bind('lCamBtn', 'click', () => {
+        if (!App.localStream) return notify('Start camera preview first', '⚠️');
+        App.cam = !App.cam;
+        $('lCamBtn')?.classList.toggle('off', !App.cam);
+        App.localStream.getVideoTracks().forEach(t => t.enabled = App.cam);
+        if ($('lobbyVideo')) $('lobbyVideo').style.display = App.cam ? 'block' : 'none';
+        if ($('vfPlaceholder')) {
+            $('vfPlaceholder').style.display = App.cam ? 'none' : 'flex';
+            if($('btnTestCamera')) $('btnTestCamera').style.display = 'none'; 
+        }
+    });
+
+    bind('btnShowJoin', 'click', () => {
+        if ($('createFields')) $('createFields').style.display = 'none';
+        if ($('joinFields')) $('joinFields').style.display = 'block';
+    });
+
+    bind('btnBack', 'click', () => {
+        cleanUrlHash(); // Clean URL hash when going back
+        if ($('joinFields')) $('joinFields').style.display = 'none';
+        if ($('createFields')) $('createFields').style.display = 'block';
+    });
+
+    if (window.location.hash && window.location.hash.length > 3) {
+        const code = window.location.hash.replace('#', '').toUpperCase();
+        if ($('roomCodeInput')) $('roomCodeInput').value = code;
+        if ($('btnShowJoin')) $('btnShowJoin').click();
+        
+        // IMPORTANT: Clear the hash immediately so reloads/new tabs don't auto-join
+        setTimeout(() => { cleanUrlHash(); }, 100);
+    }
+
+    function genRoom() {
+        const c = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+        let r = 'AUR-';
+        for (let i = 0; i < 4; i++) r += c.charAt(Math.floor(Math.random() * c.length));
+        return r;
+    }
+
+    bind('btnCreateRoom', 'click', () => {
+        App.isHost = true;
+        App.roomCode = genRoom();
+        startMeetingSession();
+    });
+
+    bind('btnJoinRoom', 'click', () => {
+        const c = $('roomCodeInput')?.value.trim().toUpperCase();
+        if (!c) return notify('Please enter a valid room code', '⚠️');
+        App.isHost = false;
+        App.roomCode = c;
+        startMeetingSession();
+    });
+
+    async function startMeetingSession() {
+        $('lobbyView')?.classList.add('hidden');
+        $('callStage')?.classList.add('active');
+        if ($('hudRoomText')) $('hudRoomText').textContent = App.roomCode;
+        window.location.hash = App.roomCode;
+
+        if (!App.localStream) {
+            try {
+                App.localStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: App.facing },
+                    audio: { echoCancellation: true, noiseSuppression: true }
+                });
+                App.mic = true;
+                App.cam = true;
+            } catch (e) {
+                console.log('Audio/Video fallback initiated');
+            }
+        }
+
+        if (App.localStream) {
+            if ($('mainVideo')) {
+                $('mainVideo').srcObject = App.localStream;
+                $('mainVideo').style.transform = 'scaleX(-1)';
+                $('mainVideo').style.display = App.cam ? 'block' : 'none';
+            }
+            if ($('pipVideo')) $('pipVideo').srcObject = App.localStream;
+            initAudioMeter(App.localStream);
+        }
+
+        if ($('mainNameTag')) $('mainNameTag').textContent = `${App.userName} (${App.isHost ? 'Host' : 'Guest'})`;
+        if ($('mainAvLetter')) $('mainAvLetter').textContent = App.userName[0].toUpperCase();
+
+        syncMediaState();
+        startCallTimer();
+        if ($('pipCard')) makeDraggable($('pipCard'));
+        Sound.play('join');
+        notify(`Room ${App.roomCode} Created`, '🚀');
+
+        renderPeopleRoster();
+        Friends.render();
+        initP2PEngine();
+    }
+
+    function syncMediaState() {
+        if (App.localStream) {
+            App.localStream.getAudioTracks().forEach(t => t.enabled = App.mic);
+            App.localStream.getVideoTracks().forEach(t => t.enabled = App.cam);
+        }
+        if ($('dockMic')) $('dockMic').className = `dock-btn ${App.mic ? 'active' : 'muted'}`;
+        if ($('dockCam')) $('dockCam').className = `dock-btn ${App.cam ? 'active' : 'muted'}`;
+        
+        if (!App.remoteStream) {
+            if ($('mainVideo')) $('mainVideo').style.display = App.cam ? 'block' : 'none';
+            if ($('mainPlaceholder')) $('mainPlaceholder').style.display = App.cam ? 'none' : 'flex';
+        }
+    }
+
+    function startCallTimer() {
+        App.t0 = Date.now();
+        App.timer = setInterval(() => {
+            const diff = Math.floor((Date.now() - App.t0) / 1000);
+            const m = String(Math.floor(diff / 60)).padStart(2, '0');
+            const s = String(diff % 60).padStart(2, '0');
+            if ($('hudTimer')) $('hudTimer').textContent = `${m}:${s}`;
+        }, 1000);
+    }
+
+    function initP2PEngine() {
+        const cleanRoom = App.roomCode.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const hostPeerId = `aurastream_${cleanRoom}_host`;
+        const myPeerId = App.isHost ? hostPeerId : `aurastream_${cleanRoom}_guest_${Math.floor(Math.random()*9000+1000)}`;
+
+        try {
+            if (typeof Peer !== 'undefined') {
+                App.peer = new Peer(myPeerId, {
+                    debug: 0,
+                    config: {
+                        iceServers: [
+                            { urls: 'stun:stun1.l.google.com:19302' },
+                            { urls: 'stun:stun2.l.google.com:19302' }
+                        ]
+                    }
+                });
+
+                App.peer.on('open', id => {
+                    console.log('Peer connected with ID:', id);
+                    if (!App.isHost) setTimeout(() => callHostPeer(hostPeerId), 800);
+                });
+
+                App.peer.on('call', call => {
+                    App.peerCall = call;
+                    if (App.localStream) call.answer(App.localStream);
+                    call.on('stream', remoteStream => attachRemoteStream(remoteStream));
+                });
+
+                App.peer.on('connection', conn => {
+                    App.dataConn = conn;
+                    bindDataEvents(conn);
+                });
+            }
+        } catch (e) {
+            console.log('P2P Engine fallback active');
+        }
+
+        try {
+            App.broadcast = new BroadcastChannel(`aurastream_${App.roomCode}`);
+            App.broadcast.onmessage = e => {
+                const data = e.data;
+                if (data.type === 'chat') {
+                    handleIncomingChatMessage(data.text, data.author);
+                } else if (data.type === 'reaction') {
+                    triggerParticleBurst(data.emoji);
+                    Sound.play('pop');
+                }
+            };
+        } catch (e) {}
+    }
+
+    function callHostPeer(hostId) {
+        if (!App.peer || !App.localStream) return;
+        try {
+            const call = App.peer.call(hostId, App.localStream);
+            App.peerCall = call;
+            call.on('stream', remoteStream => attachRemoteStream(remoteStream));
+
+            const conn = App.peer.connect(hostId);
+            App.dataConn = conn;
+            bindDataEvents(conn);
+        } catch (e) { console.log('Call Host Error:', e); }
+    }
+
+    function attachRemoteStream(stream) {
+        App.remoteStream = stream;
+        $('waitingHub')?.classList.add('hidden');
+        
+        if ($('mainVideo')) {
+            $('mainVideo').srcObject = stream;
+            $('mainVideo').style.transform = 'scaleX(1)';
+            $('mainVideo').style.display = 'block';
+        }
+        if ($('mainPlaceholder')) $('mainPlaceholder').style.display = 'none';
+        if ($('mainNameTag')) $('mainNameTag').textContent = 'Connected Peer';
+
+        $('pipCard')?.classList.remove('hidden');
+
+        Sound.play('join');
+        notify('Peer connected to stream!', '🟢');
+        updateRosterCount(2);
+    }
+
+    function bindDataEvents(conn) {
+        conn.on('data', data => {
+            if (data.type === 'chat') handleIncomingChatMessage(data.text, data.author);
+            else if (data.type === 'reaction') {
+                triggerParticleBurst(data.emoji);
+                Sound.play('pop');
+            }
+        });
+    }
+
+    function handleIncomingChatMessage(text, author) {
+        renderMsg(text, 'them', author);
+        Sound.play('chime');
+        
+        const drawer = $('sideDrawer');
+        if (drawer && !drawer.classList.contains('open')) showChatBanner(author, text);
+    }
+
+    function showChatBanner(author, text) {
+        const banner = $('chatBanner');
+        if (!banner) return;
+        if ($('bannerAvatar')) $('bannerAvatar').textContent = author[0].toUpperCase();
+        if ($('bannerAuthor')) $('bannerAuthor').textContent = author;
+        if ($('bannerText')) $('bannerText').textContent = text.length > 35 ? text.substring(0, 32) + '...' : text;
+        
+        banner.classList.add('show');
+        setTimeout(() => banner.classList.remove('show'), 4000);
+    }
+
+    window.openChatDrawer = function() {
+        $('chatBanner')?.classList.remove('show');
+        toggleDrawer('chatTab');
+    };
+
+    bind('chatBanner', 'click', window.openChatDrawer);
+
+    // Call Controls
+    bind('dockMic', 'click', () => {
+        App.mic = !App.mic;
+        if (App.localStream) App.localStream.getAudioTracks().forEach(t => t.enabled = App.mic);
+        if ($('dockMic')) $('dockMic').className = `dock-btn ${App.mic ? 'active' : 'muted'}`;
+        notify(App.mic ? 'Mic On' : 'Mic Muted', App.mic ? '🎤' : '🔇');
+    });
+
+    bind('dockCam', 'click', () => {
+        App.cam = !App.cam;
+        if (App.localStream) App.localStream.getVideoTracks().forEach(t => t.enabled = App.cam);
+        if ($('dockCam')) $('dockCam').className = `dock-btn ${App.cam ? 'active' : 'muted'}`;
+        
+        if (!App.remoteStream) {
+            if ($('mainVideo')) $('mainVideo').style.display = App.cam ? 'block' : 'none';
+            if ($('mainPlaceholder')) $('mainPlaceholder').style.display = App.cam ? 'none' : 'flex';
+        }
+        notify(App.cam ? 'Camera Active' : 'Camera Disabled', App.cam ? '📹' : '📷');
+    });
+
+    bind('btnFlipCam', 'click', async () => {
+        if (!App.localStream) return;
+        App.facing = App.facing === 'user' ? 'environment' : 'user';
+        App.localStream.getVideoTracks().forEach(t => t.stop());
+        try {
+            const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: App.facing } });
+            const newTrack = newStream.getVideoTracks()[0];
+            
+            App.localStream.removeTrack(App.localStream.getVideoTracks()[0]);
+            App.localStream.addTrack(newTrack);
+
+            if (App.peerCall && App.peerCall.peerConnection) {
+                const sender = App.peerCall.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+                if (sender) sender.replaceTrack(newTrack);
+            }
+
+            if ($('mainVideo')) $('mainVideo').style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+            if ($('pipVideo')) $('pipVideo').style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+            notify('Camera Angle Flipped', '🔄');
+        } catch (e) { notify('Cannot flip camera', '⚠️'); }
+    });
+
+    bind('dockScreen', 'click', async () => {
+        if (App.screen) {
+            App.screenStream.getTracks().forEach(t => t.stop());
+            App.screen = false;
+            $('dockScreen')?.classList.remove('active');
+            
+            const camTrack = App.localStream.getVideoTracks()[0];
+            if (App.peerCall && App.peerCall.peerConnection && camTrack) {
+                const sender = App.peerCall.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+                if (sender) sender.replaceTrack(camTrack);
+            }
+            notify('Screen Sharing Ended', '🖥️');
+        } else {
+            try {
+                App.screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                App.screen = true;
+                $('dockScreen')?.classList.add('active');
+                
+                const screenTrack = App.screenStream.getVideoTracks()[0];
+                if (App.peerCall && App.peerCall.peerConnection) {
+                    const sender = App.peerCall.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+                    if (sender) sender.replaceTrack(screenTrack);
+                }
+
+                screenTrack.onended = () => $('dockScreen')?.click();
+                notify('Sharing your screen', '🖥️');
+            } catch (err) { notify('Screen share cancelled', '⚠️'); }
+        }
+    });
+
+    // Recording Implementation
+    bind('dockRecord', 'click', () => {
+        if (App.recording) {
+            if (App.recorder && App.recorder.state !== 'inactive') {
+                App.recorder.stop();
+            }
+            App.recording = false;
+            if ($('dockRecord')) $('dockRecord').classList.remove('active');
+            notify('Recording saved successfully', '⏹️');
+        } else {
+            if (!App.localStream) return notify('Start camera/mic to record', '⚠️');
+            
+            try {
+                App.recChunks = [];
+                let options = { mimeType: 'video/webm;codecs=vp9' };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    options = { mimeType: 'video/webm;codecs=vp8' };
+                }
+                
+                App.recorder = new MediaRecorder(App.localStream, options);
+                
+                App.recorder.ondataavailable = e => {
+                    if (e.data && e.data.size > 0) App.recChunks.push(e.data);
+                };
+                
+                App.recorder.onstop = () => {
+                    const blob = new Blob(App.recChunks, { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    document.body.appendChild(a);
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `AuraStream_${Date.now()}.webm`;
+                    a.click();
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                    }, 100);
+                };
+                
+                App.recorder.start(1000);
+                App.recording = true;
+                if ($('dockRecord')) $('dockRecord').classList.add('active');
+                notify('Recording started', '⏺️');
+            } catch (e) {
+                notify('Browser does not support recording', '❌');
+            }
+        }
+    });
+
+    bind('dockReact', 'click', () => $('reactionMenu')?.classList.toggle('show'));
+
+    document.querySelectorAll('.r-btn').forEach(btn => {
+        btn.onclick = () => {
+            const emoji = btn.dataset.e;
+            triggerParticleBurst(emoji);
+            $('reactionMenu')?.classList.remove('show');
+            
+            if (App.dataConn && App.dataConn.open) App.dataConn.send({ type: 'reaction', emoji });
+            if (App.broadcast) App.broadcast.postMessage({ type: 'reaction', emoji });
+            Sound.play('pop');
+        };
+    });
+
+    function triggerParticleBurst(emoji) {
+        for (let i = 0; i < 16; i++) {
+            const p = document.createElement('div');
+            p.className = 'reaction-particle';
+            p.textContent = emoji;
+            p.style.left = (35 + Math.random() * 30) + '%';
+            p.style.setProperty('--vx', (Math.random() * 260 - 130) + 'px');
+            p.style.setProperty('--rot', (Math.random() * 80 - 40) + 'deg');
+            p.style.animationDelay = (Math.random() * 0.25) + 's';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 2700);
+        }
+    }
+
+    function toggleDrawer(tab = 'chatTab') {
+        const d = $('sideDrawer');
+        if (!d) return;
+        const isOpen = d.classList.contains('open');
+        const titles = { chatTab: 'Live Chat', friendsTab: 'Friends & Contacts', rosterTab: 'In-Call Participants' };
+
+        if (isOpen && $('drawerTitle')?.textContent === titles[tab]) {
+            d.classList.remove('open');
+            $('pipCard')?.classList.remove('drawer-open');
+        } else {
+            d.classList.add('open');
+            $('pipCard')?.classList.add('drawer-open');
+            switchTab(tab);
+        }
+    }
+
+    bind('dockChat', 'click', () => toggleDrawer('chatTab'));
+    bind('btnFriendsTabToggle', 'click', () => toggleDrawer('friendsTab'));
+    bind('btnRoster', 'click', () => toggleDrawer('rosterTab'));
+    bind('btnLobbyOpenFriends', 'click', () => toggleDrawer('friendsTab'));
+    bind('btnCloseDrawer', 'click', () => toggleDrawer());
+
+    document.querySelectorAll('.d-tab').forEach(tab => {
+        tab.onclick = () => switchTab(tab.dataset.tab);
+    });
+
+    function switchTab(targetId) {
+        document.querySelectorAll('.d-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === targetId));
+        document.querySelectorAll('.drawer-content').forEach(c => c.classList.toggle('active', c.id === targetId));
+        
+        const titles = { chatTab: 'Live Chat', friendsTab: 'Friends & Contacts', rosterTab: 'In-Call Participants' };
+        if ($('drawerTitle')) $('drawerTitle').textContent = titles[targetId] || 'Panel';
+        if (targetId === 'friendsTab') Friends.render();
+    }
+
+    bind('btnToggleEmojiTray', 'click', () => $('emojiPickerTray')?.classList.toggle('show'));
+
+    document.querySelectorAll('.ep-btn').forEach(btn => {
+        btn.onclick = () => {
+            if ($('chatInput')) {
+                $('chatInput').value += btn.textContent;
+                $('chatInput').focus();
+            }
+        };
+    });
+
+    function sendChat() {
+        const input = $('chatInput');
+        if (!input) return;
+        const txt = input.value.trim();
+        if (!txt) return;
+        
+        renderMsg(txt, 'me', 'You');
+        
+        if (App.dataConn && App.dataConn.open) App.dataConn.send({ type: 'chat', text: txt, author: App.userName });
+        if (App.broadcast) App.broadcast.postMessage({ type: 'chat', text: txt, author: App.userName });
+
+        input.value = '';
+        $('emojiPickerTray')?.classList.remove('show');
+        Sound.play('pop');
+    }
+
+    bind('btnSendChat', 'click', sendChat);
+    bind('chatInput', 'keydown', e => { if (e.key === 'Enter') sendChat(); });
+
+    function renderMsg(text, side, author) {
+        const feed = $('chatMessages');
+        if (!feed) return;
+        const el = document.createElement('div');
+        el.className = `chat-msg ${side}`;
+        el.innerHTML = `
+            <span class="chat-author">${author}</span>
+            <div class="chat-bubble">${text}</div>
+        `;
+        feed.appendChild(el);
+        feed.scrollTop = feed.scrollHeight;
+    }
+
+    function renderPeopleRoster() {
+        const list = $('peopleList');
+        if (!list) return;
+        list.innerHTML = `
+            <div class="person-item">
+                <div class="person-info">
+                    <div class="person-avatar">${App.userName[0].toUpperCase()}</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 14px;">${App.userName} (You)</div>
+                        <div style="font-size: 11px; color: var(--brand);">${App.isHost ? 'Host' : 'Guest'}</div>
+                    </div>
+                </div>
+                <div style="font-size: 13px; color: var(--success);">Online</div>
+            </div>
+        `;
+    }
+
+    function updateRosterCount(count) {
+        if ($('rosterCount')) $('rosterCount').textContent = count;
+        if (count === 2) {
+            const list = $('peopleList');
+            if (!list) return;
+            const item = document.createElement('div');
+            item.className = 'person-item';
+            item.innerHTML = `
+                <div class="person-info">
+                    <div class="person-avatar" style="background: var(--purple); color: #fff;">P</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 14px;">Connected Peer</div>
+                        <div style="font-size: 11px; color: var(--text-2);">Participant</div>
+                    </div>
+                </div>
+                <button class="btn-copy-chip" onclick="savePeerAsFriend()">+ Add Friend</button>
+            `;
+            list.appendChild(item);
+        }
+    }
+
+    window.savePeerAsFriend = () => {
+        Friends.add('Connected Peer', App.roomCode);
+        notify('Peer saved to your Friends list!', '👥');
+    };
+
+    bind('btnOpenAddFriendModal', 'click', () => $('addFriendModal')?.classList.add('show'));
+    bind('btnCloseAddFriendModal', 'click', () => $('addFriendModal')?.classList.remove('show'));
+    
+    bind('btnSaveFriend', 'click', () => {
+        const name = $('newFriendName')?.value.trim();
+        if (!name) return notify('Please enter a friend name', '⚠️');
+        const tag = $('newFriendRoom')?.value.trim();
+        Friends.add(name, tag);
+        $('newFriendName').value = '';
+        if($('newFriendRoom')) $('newFriendRoom').value = '';
+        $('addFriendModal')?.classList.remove('show');
+    });
+
+    function renderQrCode(text) {
+        const canvas = $('qrCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        canvas.width = 160; canvas.height = 160;
+
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 160, 160);
+        ctx.fillStyle = '#000000';
+
+        function drawQrCorner(cx, x, y) {
+            cx.fillRect(x, y, 54, 54);
+            cx.fillStyle = '#ffffff'; cx.fillRect(x + 9, y + 9, 36, 36);
+            cx.fillStyle = '#000000'; cx.fillRect(x + 18, y + 18, 18, 18);
+        }
+
+        drawQrCorner(ctx, 8, 8); drawQrCorner(ctx, 98, 8); drawQrCorner(ctx, 8, 98);
+
+        let hash = 0;
+        for (let i = 0; i < text.length; i++) hash = (hash << 5) - hash + text.charCodeAt(i);
+        
+        for (let r = 0; r < 14; r++) {
+            for (let c = 0; c < 14; c++) {
+                if ((r < 5 && c < 5) || (r < 5 && c > 8) || (r > 8 && c < 5)) continue;
+                if ((hash ^ (r * 17 + c * 31)) % 3 === 0) ctx.fillRect(14 + c * 9.5, 14 + r * 9.5, 7.5, 7.5);
+            }
+        }
+    }
+
+    function openShareModal() {
+        const shareUrl = `${window.location.origin}${window.location.pathname}#${App.roomCode}`;
+        if ($('shareUrlDisplay')) $('shareUrlDisplay').textContent = shareUrl;
+        renderQrCode(shareUrl);
+        $('shareModal')?.classList.add('show');
+    }
+
+    bind('btnOpenShareModal', 'click', openShareModal);
+    bind('btnCopyCode', 'click', openShareModal);
+    bind('btnCloseShareModal', 'click', () => $('shareModal')?.classList.remove('show'));
+
+    bind('btnCopyInviteCode', 'click', () => {
+        navigator.clipboard.writeText(App.roomCode).then(() => {
+            notify('Room Code copied!', '📋');
+        });
+    });
+
+    bind('btnShareWhatsApp', 'click', () => {
+        const shareUrl = `${window.location.origin}${window.location.pathname}#${App.roomCode}`;
+        const waMsg = encodeURIComponent(`🎥 Join my live Aurastream Studio meeting now!\n\nRoom Code: ${App.roomCode}\nLink: ${shareUrl}`);
+        window.open(`https://api.whatsapp.com/send?text=${waMsg}`, '_blank');
+    });
+
+    bind('btnCopyInviteLink', 'click', () => {
+        const shareUrl = `${window.location.origin}${window.location.pathname}#${App.roomCode}`;
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            notify('Invite link copied!', '📋');
+            $('shareModal')?.classList.remove('show');
+        });
+    });
+
+    function makeDraggable(el) {
+        if (!el) return;
+        let posX = 0, posY = 0, mouseX = 0, mouseY = 0;
+        
+        el.onmousedown = dragMouseDown;
+        el.ontouchstart = dragTouchStart;
+
+        function dragMouseDown(e) {
+            e.preventDefault();
+            mouseX = e.clientX; mouseY = e.clientY;
+            document.onmouseup = closeDrag; document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e.preventDefault();
+            posX = mouseX - e.clientX; posY = mouseY - e.clientY;
+            mouseX = e.clientX; mouseY = e.clientY;
+            el.style.top = (el.offsetTop - posY) + "px"; el.style.left = (el.offsetLeft - posX) + "px";
+            el.style.bottom = 'auto'; el.style.right = 'auto';
+        }
+
+        function dragTouchStart(e) {
+            const touch = e.touches[0];
+            mouseX = touch.clientX; mouseY = touch.clientY;
+            document.ontouchend = closeDrag; document.ontouchmove = touchDrag;
+        }
+
+        function touchDrag(e) {
+            const touch = e.touches[0];
+            posX = mouseX - touch.clientX; posY = mouseY - touch.clientY;
+            mouseX = touch.clientX; mouseY = touch.clientY;
+            el.style.top = (el.offsetTop - posY) + "px"; el.style.left = (el.offsetLeft - posX) + "px";
+            el.style.bottom = 'auto'; el.style.right = 'auto';
+        }
+
+        function closeDrag() {
+            document.onmouseup = null; document.onmousemove = null;
+            document.ontouchend = null; document.ontouchmove = null;
+        }
+    }
+
+    bind('dockEnd', 'click', () => {
+        Sound.play('leave');
+        if (App.localStream) App.localStream.getTracks().forEach(t => t.stop());
+        if (App.screenStream) App.screenStream.getTracks().forEach(t => t.stop());
+        if (App.recording) App.recorder?.stop();
+        if (App.peer) App.peer.destroy();
+        if (App.broadcast) App.broadcast.close();
+        if (App.timer) clearInterval(App.timer);
+        
+        cleanUrlHash();
+        window.location.reload();
+    });
+
+})();
+</script>
+</body>
+</html>
