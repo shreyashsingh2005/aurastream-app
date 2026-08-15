@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>AURASTREAM — Studio HD P2P Video & Friends</title>
-    <meta name="description" content="Next-generation HD 1080p video meetings with studio lighting, friends list, WhatsApp sharing, particle reactions, and zero latency.">
+    <meta name="description" content="Next-generation HD 1080p video meetings with studio lighting, noise cancellation, friends list, WhatsApp sharing, and zero latency.">
     
     <!-- PeerJS for 100% Reliable Cross-Device P2P Connection -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -83,7 +83,6 @@
             touch-action: manipulation;
         }
 
-        /* Pure CSS Hardware-Accelerated Ambient Light */
         .ambient-mesh {
             position: fixed;
             inset: 0;
@@ -201,7 +200,16 @@
             letter-spacing: 0.8px;
             color: var(--text-3);
             margin-bottom: 6px;
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .field-label-action {
+            color: var(--brand);
+            cursor: pointer;
+            font-size: 11px;
+            text-transform: none;
+            letter-spacing: 0;
         }
         .field-input {
             width: 100%;
@@ -679,7 +687,6 @@
             object-fit: cover;
         }
 
-        /* Studio Lighting Filter */
         .studio-lighting video {
             filter: contrast(1.05) saturate(1.1) brightness(1.03);
         }
@@ -1266,7 +1273,6 @@
         }
         .share-btn-wa:active { transform: scale(0.98); }
 
-        /* Floating Reaction Particles */
         .reaction-particle {
             position: fixed;
             bottom: 80px;
@@ -1282,7 +1288,6 @@
             100% { opacity: 0; transform: translate3d(var(--vx), -320px, 0) scale(1.3); }
         }
 
-        /* Toast Shelf */
         .toast-shelf {
             position: fixed;
             top: max(14px, var(--safe-top));
@@ -1372,11 +1377,14 @@
             </svg>
         </div>
         <h2>Create Aura Identity</h2>
-        <p>Your encrypted profile for instant HD calling.</p>
+        <p>Your encrypted profile for crystal-clear HD calling.</p>
 
         <div class="auth-input-group">
-            <label class="field-label">Display Name</label>
-            <input class="field-input" id="authNameInput" placeholder="E.g. Shrey" value="Shrey" autocomplete="off" autocorrect="off">
+            <div class="field-label">
+                <span>Display Name</span>
+                <span class="field-label-action" id="btnRandomizeName">🎲 New Random</span>
+            </div>
+            <input class="field-input" id="authNameInput" placeholder="E.g. Maya" autocomplete="off" autocorrect="off">
         </div>
 
         <button class="btn-primary" id="btnAuthCreate">
@@ -1414,17 +1422,17 @@
                     </div>
                 </div>
                 <div class="user-profile-badge" id="btnEditProfile" title="Edit Profile">
-                    <div class="user-profile-avatar" id="navAvatar">S</div>
-                    <span id="navName">Shrey</span>
+                    <div class="user-profile-avatar" id="navAvatar">U</div>
+                    <span id="navName">User</span>
                 </div>
             </div>
 
             <div>
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                    <div class="quality-pill-indicator">⚡ HD 1080p Studio Quality</div>
+                    <div class="quality-pill-indicator">⚡ HD 1080p Studio · Noise Filtered</div>
                 </div>
                 <h2 class="hero-headline">Studio-Quality Meetings.<br>Instant P2P Stream.</h2>
-                <p class="hero-desc">Ultra low latency, crystal-clear 1080p studio audio & video, friends list, and 1-click WhatsApp invites.</p>
+                <p class="hero-desc">Ultra low latency, crystal-clear noise-cancelled audio, zero echo, and 1-click WhatsApp invites.</p>
             </div>
 
             <!-- Join / Create Card -->
@@ -1468,7 +1476,7 @@
         <div class="preview-column">
             <div class="viewfinder-shell" id="viewfinderWrapper">
                 <div class="vf-placeholder-state" id="vfPlaceholder">
-                    <div class="vf-avatar-ring" id="lobbyAvLetter">S</div>
+                    <div class="vf-avatar-ring" id="lobbyAvLetter">U</div>
                     <span style="font-size: 12px; color: var(--text-2); font-weight: 500;">Camera Disabled</span>
                     <button class="btn-test-cam" id="btnTestCamera">Preview Camera</button>
                 </div>
@@ -1489,7 +1497,7 @@
 
             <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--text-2);">
                 <svg class="icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <span style="color: var(--success);">100% P2P Encrypted</span> · Zero Server Lag
+                <span style="color: var(--success);">Zero Self-Echo</span> · P2P Direct Connect
             </div>
         </div>
 
@@ -1536,7 +1544,7 @@
     <div class="video-canvas" id="canvasArea">
         <div class="main-hero-tile" id="mainCard">
             <div class="tile-avatar-view" id="mainPlaceholder">
-                <div class="vf-avatar-ring" id="mainAvLetter">Y</div>
+                <div class="vf-avatar-ring" id="mainAvLetter">U</div>
                 <span style="font-weight: 700; color: var(--text-2); font-size: 14px;" id="mainTileLabel">You</span>
             </div>
             <video id="mainVideo" autoplay playsinline webkit-playsinline style="display: none;"></video>
@@ -1601,7 +1609,7 @@
 
             <div class="dock-sep"></div>
 
-            <!-- Instant End Call Button (No Lag / No Reload) -->
+            <!-- Instant End Call Button (Zero Lag / No Reload) -->
             <button class="dock-btn end-btn" id="dockEnd" title="End Call Immediately">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 2.59 3.4l1.27 1.27a2 2 0 0 1 .45-2.11 12.84 12.84 0 0 0-2.81-.7 2 2 0 0 1-1.72-2z"/></svg>
             </button>
@@ -1727,7 +1735,7 @@
 
 <script>
 /**
- * Aurastream Studio Ultra Pro Max — Instant End Call & 1080p HD Edition
+ * Aurastream Studio Ultra Pro Max — Echo-Free & Noise-Filtered 1080p Edition
  */
 (function() {
     'use strict';
@@ -1742,6 +1750,17 @@
         if (window.location.hash) {
             history.replaceState(null, null, window.location.pathname);
         }
+    }
+
+    // Natural Person Names Pool for Instant Profile Setup
+    const RANDOM_NAMES = [
+        'Aarav', 'Rohan', 'Kabir', 'Maya', 'Aisha', 'Zara', 'Aryan', 
+        'Ananya', 'Leo', 'Sophia', 'Alex', 'Liam', 'Ryan', 'Zack', 'Elena',
+        'Ishaan', 'Tara', 'Dev', 'Mira', 'Sam', 'Kunal', 'Aditya', 'Rhea'
+    ];
+
+    function getRandomName() {
+        return RANDOM_NAMES[Math.floor(Math.random() * RANDOM_NAMES.length)];
     }
 
     // Audio SFX Synthesizer
@@ -1767,29 +1786,29 @@
                 if (type === 'join') {
                     osc.frequency.setValueAtTime(360, now);
                     osc.frequency.exponentialRampToValueAtTime(720, now + 0.12);
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.005, now + 0.12);
                     osc.start(now); osc.stop(now + 0.12);
                 } else if (type === 'pop') {
                     osc.frequency.setValueAtTime(520, now);
                     osc.frequency.exponentialRampToValueAtTime(980, now + 0.05);
-                    gain.gain.setValueAtTime(0.08, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    gain.gain.setValueAtTime(0.06, now);
+                    gain.gain.exponentialRampToValueAtTime(0.005, now + 0.05);
                     osc.start(now); osc.stop(now + 0.05);
                 } else if (type === 'chime') {
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(523.25, now);
                     osc.frequency.setValueAtTime(659.25, now + 0.06);
                     osc.frequency.setValueAtTime(783.99, now + 0.12);
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.005, now + 0.22);
                     osc.start(now); osc.stop(now + 0.22);
                 } else if (type === 'leave') {
                     osc.frequency.setValueAtTime(600, now);
-                    osc.frequency.exponentialRampToValueAtTime(250, now + 0.15);
-                    gain.gain.setValueAtTime(0.12, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-                    osc.start(now); osc.stop(now + 0.15);
+                    osc.frequency.exponentialRampToValueAtTime(250, now + 0.14);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.005, now + 0.14);
+                    osc.start(now); osc.stop(now + 0.14);
                 }
             } catch (e) {}
         }
@@ -1797,7 +1816,7 @@
 
     // Global State
     const App = {
-        userName: 'Shrey',
+        userName: getRandomName(),
         roomCode: '',
         isHost: false,
         mic: false,
@@ -1818,6 +1837,7 @@
         t0: null,
         audioInterval: null,
         analyser: null,
+        analyserSrc: null,
         dataArr: null,
         audioCtx: null,
         recorder: null,
@@ -1826,7 +1846,7 @@
 
     // Account Manager
     const Account = {
-        key: 'aurastream_profile_v3',
+        key: 'aurastream_profile_v5',
         get() { return localStorage.getItem(this.key); },
         save(name) { localStorage.setItem(this.key, name); },
         check() {
@@ -1837,15 +1857,23 @@
                 $('lobbyView')?.classList.remove('hidden');
                 updateProfileUI();
             } else {
+                App.userName = getRandomName();
+                if ($('authNameInput')) {
+                    $('authNameInput').value = App.userName;
+                    $('authNameInput').placeholder = `E.g. ${App.userName}`;
+                }
+                updateProfileUI();
                 $('authView')?.classList.remove('hidden');
             }
         }
     };
 
     function updateProfileUI() {
+        const initial = App.userName ? App.userName[0].toUpperCase() : 'U';
         if ($('navName')) $('navName').textContent = App.userName;
-        if ($('navAvatar')) $('navAvatar').textContent = App.userName[0].toUpperCase();
-        if ($('lobbyAvLetter')) $('lobbyAvLetter').textContent = App.userName[0].toUpperCase();
+        if ($('navAvatar')) $('navAvatar').textContent = initial;
+        if ($('lobbyAvLetter')) $('lobbyAvLetter').textContent = initial;
+        if ($('mainAvLetter')) $('mainAvLetter').textContent = initial;
     }
 
     function notify(msg, emoji = '✨') {
@@ -1865,7 +1893,7 @@
 
     // Friends Manager
     const Friends = {
-        key: 'aurastream_friends_list_v3',
+        key: 'aurastream_friends_list_v5',
         getAll() {
             try {
                 const data = localStorage.getItem(this.key);
@@ -1934,7 +1962,7 @@
         window.open(`https://api.whatsapp.com/send?text=${waMsg}`, '_blank');
     };
 
-    // Full HD Studio Media Constraints
+    // Full HD Studio Constraints with Strict Noise Cancellation
     function getMediaConstraints() {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         return {
@@ -1945,16 +1973,13 @@
                 frameRate: { ideal: 30, max: 60 }
             },
             audio: {
-                echoCancellation: true,
-                noiseSuppression: true,
-                autoGainControl: true,
-                sampleRate: 48000,
-                channelCount: 2
+                echoCancellation: { ideal: true },
+                noiseSuppression: { ideal: true },
+                autoGainControl: { ideal: true }
             }
         };
     }
 
-    // High-Bitrate WebRTC Sender Tuning
     function tunePeerConnectionBitrate(peerConnection) {
         if (!peerConnection || !peerConnection.getSenders) return;
         peerConnection.getSenders().forEach(sender => {
@@ -1964,14 +1989,12 @@
                 params.encodings = [{}];
             }
             if (sender.track.kind === 'video') {
-                params.encodings[0].maxBitrate = 2500000; // 2.5 Mbps crisp HD
+                params.encodings[0].maxBitrate = 2500000;
                 params.encodings[0].maxFramerate = 30;
             } else if (sender.track.kind === 'audio') {
-                params.encodings[0].maxBitrate = 128000; // 128 kbps Studio Sound
+                params.encodings[0].maxBitrate = 96000;
             }
-            try {
-                sender.setParameters(params);
-            } catch (e) {}
+            try { sender.setParameters(params); } catch (e) {}
         });
     }
 
@@ -1983,6 +2006,7 @@
             
             if ($('lobbyVideo')) {
                 $('lobbyVideo').srcObject = App.localStream;
+                $('lobbyVideo').muted = true; // MUST BE MUTED TO STOP SELF-ECHO
                 $('lobbyVideo').style.display = 'block';
             }
             if ($('vfPlaceholder')) $('vfPlaceholder').style.display = 'none';
@@ -2001,7 +2025,7 @@
 
     bind('btnTestCamera', 'click', initCamera);
 
-    // Highly Optimized Audio Visualizer
+    // Audio Meter without Destination Output (Zero Echo / Zero Static Noise)
     function initAudioMeter(stream) {
         try {
             if (App.audioInterval) clearInterval(App.audioInterval);
@@ -2011,16 +2035,31 @@
             if (!App.audioCtx || App.audioCtx.state === 'closed') {
                 App.audioCtx = new AudioCtx();
             }
-            const src = App.audioCtx.createMediaStreamSource(stream);
+            if (App.audioCtx.state === 'suspended') App.audioCtx.resume();
+
+            if (App.analyserSrc) {
+                try { App.analyserSrc.disconnect(); } catch (e) {}
+            }
+
             App.analyser = App.audioCtx.createAnalyser();
             App.analyser.fftSize = 32;
-            src.connect(App.analyser);
+            App.analyser.smoothingTimeConstant = 0.5;
+
+            App.analyserSrc = App.audioCtx.createMediaStreamSource(stream);
+            // Connect ONLY to Analyser (NEVER to audioCtx.destination to prevent speaker loopback)
+            App.analyserSrc.connect(App.analyser);
             App.dataArr = new Uint8Array(App.analyser.frequencyBinCount);
             
             let lastSpeakingState = false;
 
             App.audioInterval = setInterval(() => {
-                if (!App.localStream || !App.analyser) return;
+                if (!App.localStream || !App.analyser || !App.mic) {
+                    const meter = $('lAudioMeter');
+                    if (meter) meter.style.width = '0%';
+                    $('mainCard')?.classList.remove('speaking');
+                    return;
+                }
+                
                 App.analyser.getByteFrequencyData(App.dataArr);
                 
                 let sum = 0;
@@ -2028,13 +2067,9 @@
                 let avg = sum / App.dataArr.length;
                 
                 const meter = $('lAudioMeter');
-                if (meter && App.mic) {
-                    meter.style.width = Math.min(100, avg * 2.5) + '%';
-                } else if (meter) {
-                    meter.style.width = '0%';
-                }
+                if (meter) meter.style.width = Math.min(100, avg * 2.8) + '%';
 
-                const isSpeaking = avg > 25 && App.mic;
+                const isSpeaking = avg > 26;
                 if (isSpeaking !== lastSpeakingState) {
                     lastSpeakingState = isSpeaking;
                     const card = $('mainCard');
@@ -2050,9 +2085,15 @@
     Account.check();
     Friends.render();
 
+    // Randomize Name Button
+    bind('btnRandomizeName', 'click', () => {
+        const newName = getRandomName();
+        if ($('authNameInput')) $('authNameInput').value = newName;
+        Sound.play('pop');
+    });
+
     bind('btnAuthCreate', 'click', () => {
-        const name = $('authNameInput')?.value.trim();
-        if (!name) return notify('Please enter a display name', '⚠️');
+        const name = $('authNameInput')?.value.trim() || getRandomName();
         Account.save(name);
         App.userName = name;
         $('authView')?.classList.add('hidden');
@@ -2155,18 +2196,10 @@
         }
 
         if (App.localStream) {
-            if ($('mainVideo')) {
-                $('mainVideo').srcObject = App.localStream;
-                $('mainVideo').style.transform = 'scaleX(-1)';
-                $('mainVideo').style.display = App.cam ? 'block' : 'none';
-            }
-            if ($('pipVideo')) $('pipVideo').srcObject = App.localStream;
             initAudioMeter(App.localStream);
         }
 
-        if ($('mainNameTag')) $('mainNameTag').textContent = `${App.userName} (${App.isHost ? 'Host' : 'Guest'})`;
-        if ($('mainAvLetter')) $('mainAvLetter').textContent = App.userName[0].toUpperCase();
-
+        updateVideoLayout();
         syncMediaState();
         startCallTimer();
         if ($('pipCard')) makeTouchDraggable($('pipCard'));
@@ -2185,11 +2218,6 @@
         }
         if ($('dockMic')) $('dockMic').className = `dock-btn ${App.mic ? 'active' : 'muted'}`;
         if ($('dockCam')) $('dockCam').className = `dock-btn ${App.cam ? 'active' : 'muted'}`;
-        
-        if (!App.remoteStream) {
-            if ($('mainVideo')) $('mainVideo').style.display = App.cam ? 'block' : 'none';
-            if ($('mainPlaceholder')) $('mainPlaceholder').style.display = App.cam ? 'none' : 'flex';
-        }
     }
 
     function startCallTimer() {
@@ -2282,12 +2310,17 @@
         updateRosterCount(2);
     }
 
+    // Local stream is ALWAYS MUTED to prevent echo/feedback squeals
     function updateVideoLayout() {
+        const mainVid = $('mainVideo');
+        const pipVid = $('pipVideo');
+
         if (!App.remoteStream) {
-            if ($('mainVideo')) {
-                $('mainVideo').srcObject = App.localStream;
-                $('mainVideo').style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
-                $('mainVideo').style.display = App.cam ? 'block' : 'none';
+            if (mainVid && App.localStream) {
+                mainVid.srcObject = App.localStream;
+                mainVid.muted = true; // MUST BE MUTED TO AVOID SELF-ECHO
+                mainVid.style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+                mainVid.style.display = App.cam ? 'block' : 'none';
             }
             if ($('mainPlaceholder')) $('mainPlaceholder').style.display = App.cam ? 'none' : 'flex';
             if ($('mainNameTag')) $('mainNameTag').textContent = `${App.userName} (${App.isHost ? 'Host' : 'Guest'})`;
@@ -2296,33 +2329,37 @@
         }
 
         if (!App.swappedViews) {
-            // Normal View: Remote on Main Tile, Local on PiP
-            if ($('mainVideo')) {
-                $('mainVideo').srcObject = App.remoteStream;
-                $('mainVideo').style.transform = 'scaleX(1)';
-                $('mainVideo').style.display = 'block';
+            if (mainVid) {
+                mainVid.srcObject = App.remoteStream;
+                mainVid.muted = false; // LISTEN TO PEER AUDIO
+                mainVid.style.transform = 'scaleX(1)';
+                mainVid.style.display = 'block';
+                mainVid.play().catch(()=>{});
             }
             if ($('mainPlaceholder')) $('mainPlaceholder').style.display = 'none';
             if ($('mainNameTag')) $('mainNameTag').textContent = 'Connected Peer (HD)';
 
-            if ($('pipVideo')) {
-                $('pipVideo').srcObject = App.localStream;
-                $('pipVideo').style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+            if (pipVid && App.localStream) {
+                pipVid.srcObject = App.localStream;
+                pipVid.muted = true; // SELF IS MUTED
+                pipVid.style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
             }
             if ($('pipTagLabel')) $('pipTagLabel').textContent = 'You';
         } else {
-            // Swapped View: Local on Main Tile, Remote on PiP
-            if ($('mainVideo')) {
-                $('mainVideo').srcObject = App.localStream;
-                $('mainVideo').style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
-                $('mainVideo').style.display = App.cam ? 'block' : 'none';
+            if (mainVid && App.localStream) {
+                mainVid.srcObject = App.localStream;
+                mainVid.muted = true; // SELF IS MUTED
+                mainVid.style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+                mainVid.style.display = App.cam ? 'block' : 'none';
             }
             if ($('mainPlaceholder')) $('mainPlaceholder').style.display = App.cam ? 'none' : 'flex';
             if ($('mainNameTag')) $('mainNameTag').textContent = `${App.userName} (You)`;
 
-            if ($('pipVideo')) {
-                $('pipVideo').srcObject = App.remoteStream;
-                $('pipVideo').style.transform = 'scaleX(1)';
+            if (pipVid && App.remoteStream) {
+                pipVid.srcObject = App.remoteStream;
+                pipVid.muted = false; // LISTEN TO PEER AUDIO ON PIP
+                pipVid.style.transform = 'scaleX(1)';
+                pipVid.play().catch(()=>{});
             }
             if ($('pipTagLabel')) $('pipTagLabel').textContent = 'Peer';
         }
@@ -2776,7 +2813,6 @@
     bind('dockEnd', 'click', () => {
         Sound.play('leave');
 
-        // 1. Terminate all media tracks immediately
         if (App.localStream) {
             App.localStream.getTracks().forEach(t => t.stop());
             App.localStream = null;
@@ -2790,22 +2826,33 @@
             App.recording = false;
         }
 
-        // 2. Destroy P2P peer connection cleanly
         try { if (App.peerCall) App.peerCall.close(); } catch (e) {}
         try { if (App.dataConn) App.dataConn.close(); } catch (e) {}
         try { if (App.peer) App.peer.destroy(); } catch (e) {}
         try { if (App.broadcast) App.broadcast.close(); } catch (e) {}
 
-        // 3. Clear audio interval & timers
         if (App.timer) { clearInterval(App.timer); App.timer = null; }
         if (App.audioInterval) { clearInterval(App.audioInterval); App.audioInterval = null; }
+        if (App.analyserSrc) {
+            try { App.analyserSrc.disconnect(); } catch (e) {}
+            App.analyserSrc = null;
+        }
 
-        // 4. Detach video elements
-        if ($('mainVideo')) { $('mainVideo').srcObject = null; $('mainVideo').style.display = 'none'; }
-        if ($('pipVideo')) { $('pipVideo').srcObject = null; }
-        if ($('lobbyVideo')) { $('lobbyVideo').srcObject = null; $('lobbyVideo').style.display = 'none'; }
+        if ($('mainVideo')) { 
+            $('mainVideo').srcObject = null; 
+            $('mainVideo').muted = true;
+            $('mainVideo').style.display = 'none'; 
+        }
+        if ($('pipVideo')) { 
+            $('pipVideo').srcObject = null; 
+            $('pipVideo').muted = true;
+        }
+        if ($('lobbyVideo')) { 
+            $('lobbyVideo').srcObject = null; 
+            $('lobbyVideo').muted = true;
+            $('lobbyVideo').style.display = 'none'; 
+        }
 
-        // 5. Reset UI State back to Lobby cleanly
         App.remoteStream = null;
         App.mic = false;
         App.cam = false;
@@ -2833,7 +2880,7 @@
         notify('Call Ended', '⏹️');
     });
 
-    // Keyboard Shortcuts for Laptops (M = Mute, V = Cam, C = Chat, Esc = Close)
+    // Keyboard Shortcuts (M = Mute, V = Cam, C = Chat, Esc = Close)
     window.addEventListener('keydown', e => {
         if (e.target.tagName === 'INPUT' || !$('callStage')?.classList.contains('active')) return;
         if (e.key === 'm' || e.key === 'M') $('dockMic')?.click();
