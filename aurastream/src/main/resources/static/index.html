@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AURASTREAM — Multi-Device Studio Video & Permanent Network</title>
-    <meta name="description" content="Next-generation luxury P2P video meetings with permanent user accounts, multi-device cloud sync, persistent friends, and direct calls.">
+    <title>AURASTREAM — Studio Video & Permanent Multi-Device Network</title>
+    <meta name="description" content="Next-generation luxury P2P video meetings with permanent user accounts, multi-device sync, persistent friends, and direct calls.">
     
     <!-- PeerJS Direct P2P Mesh -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -210,7 +210,7 @@
 
         .auth-card {
             width: 100%;
-            max-width: 410px;
+            max-width: 420px;
             background: var(--bg-surface);
             backdrop-filter: blur(28px);
             -webkit-backdrop-filter: blur(28px);
@@ -256,9 +256,9 @@
         }
         .auth-tab-btn {
             flex: 1;
-            padding: 8px;
+            padding: 10px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 800;
             color: var(--text-2);
             background: transparent;
@@ -269,6 +269,7 @@
             background: var(--bg-elevated);
             color: #fff;
             border: 1px solid var(--border-subtle);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
         }
 
         .auth-input-group {
@@ -308,7 +309,7 @@
         .btn-primary {
             background: var(--brand-gradient);
             color: #000;
-            padding: 13px 20px;
+            padding: 14px 20px;
             border-radius: var(--radius-xs);
             font-size: 14px;
             font-weight: 800;
@@ -632,7 +633,6 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.7);
         }
 
-        /* Clean Stacked Aura ID Banner with Zero Overlap */
         .my-tag-banner {
             display: flex;
             flex-direction: column;
@@ -1620,48 +1620,48 @@
                 </defs>
             </svg>
         </div>
-        <h2>Aura Cloud Network</h2>
-        <p>Your permanent studio account works across all your phones, tablets, and laptops.</p>
+        <h2>Aura Studio ID</h2>
+        <p>Your permanent studio profile for crystal-clear HD meetings and friends.</p>
 
         <!-- Login / Register Switch Tabs -->
         <div class="auth-tabs">
-            <button class="auth-tab-btn active" id="btnAuthTabRegister">✨ Create Account</button>
-            <button class="auth-tab-btn" id="btnAuthTabLogin">🔑 Log In</button>
+            <button class="auth-tab-btn active" id="btnAuthTabRegister" type="button">✨ Create Account</button>
+            <button class="auth-tab-btn" id="btnAuthTabLogin" type="button">🔑 Log In</button>
         </div>
 
         <!-- Register View -->
         <div id="authRegisterBox" style="width: 100%;">
             <div class="auth-input-group">
                 <div class="field-label"><span>Your Full Name</span></div>
-                <input class="field-input" id="regNameInput" placeholder="e.g. Shreyash Singh">
+                <input class="field-input" id="regNameInput" placeholder="e.g. Shreyash Singh" autocomplete="name">
             </div>
 
             <div class="auth-input-group">
                 <div class="field-label"><span>Permanent @AuraID</span></div>
-                <input class="field-input" id="regTagInput" placeholder="e.g. @shreyash" style="font-family: var(--font-mono);">
+                <input class="field-input" id="regTagInput" placeholder="e.g. @shreyash" style="font-family: var(--font-mono);" autocomplete="username">
             </div>
 
             <div class="auth-input-group">
                 <div class="field-label"><span>Security PIN / Password</span></div>
-                <input class="field-input" id="regPinInput" type="password" placeholder="4 to 6 digit security PIN">
+                <input class="field-input" id="regPinInput" type="password" placeholder="4+ characters or PIN" autocomplete="new-password">
             </div>
 
-            <button class="btn-primary" id="btnSubmitRegister">Create Permanent Account</button>
+            <button class="btn-primary" id="btnSubmitRegister" type="button">Create Permanent Account</button>
         </div>
 
         <!-- Login View -->
         <div id="authLoginBox" style="width: 100%; display: none;">
             <div class="auth-input-group">
                 <div class="field-label"><span>Your @AuraID or Name</span></div>
-                <input class="field-input" id="loginIdInput" placeholder="e.g. @shreyash" style="font-family: var(--font-mono);">
+                <input class="field-input" id="loginIdInput" placeholder="e.g. @shreyash" style="font-family: var(--font-mono);" autocomplete="username">
             </div>
 
             <div class="auth-input-group">
                 <div class="field-label"><span>Security PIN / Password</span></div>
-                <input class="field-input" id="loginPinInput" type="password" placeholder="Enter your PIN">
+                <input class="field-input" id="loginPinInput" type="password" placeholder="Enter your PIN" autocomplete="current-password">
             </div>
 
-            <button class="btn-primary" id="btnSubmitLogin">Log In to Studio</button>
+            <button class="btn-primary" id="btnSubmitLogin" type="button">Log In to Studio</button>
         </div>
     </div>
 </div>
@@ -1788,10 +1788,10 @@
                         <span class="my-tag-code" id="myAuraTag">@shreyash</span>
                     </div>
                     <div class="my-tag-actions-row">
-                        <button class="btn-tag-action" id="btnCopyMyId">
+                        <button class="btn-tag-action" id="btnCopyMyId" type="button">
                             📋 Copy ID
                         </button>
-                        <button class="btn-tag-action wa" id="btnShareMyIdWhatsApp">
+                        <button class="btn-tag-action wa" id="btnShareMyIdWhatsApp" type="button">
                             Share on WhatsApp
                         </button>
                     </div>
@@ -1804,7 +1804,7 @@
                         <input class="field-input" id="newFriendName" placeholder="Friend's Name (e.g. Maya)">
                         <input class="field-input" id="newFriendTag" placeholder="Friend's @AuraID (e.g. @maya)" style="font-family: var(--font-mono);">
                     </div>
-                    <button class="btn-primary" id="btnAddFriend" style="margin-top: 4px;">+ Add Friend</button>
+                    <button class="btn-primary" id="btnAddFriend" type="button" style="margin-top: 4px;">+ Add Friend</button>
                 </div>
 
                 <!-- Friends List -->
@@ -1817,7 +1817,7 @@
             <div class="friends-network-card">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <h3 style="font-size: 18px; font-weight: 800; font-family: var(--font-head);">Recent Call History</h3>
-                    <button class="btn-secondary" id="btnClearHistory" style="padding: 6px 14px; font-size: 11px;">Clear Log</button>
+                    <button class="btn-secondary" id="btnClearHistory" type="button" style="padding: 6px 14px; font-size: 11px;">Clear Log</button>
                 </div>
 
                 <div class="friends-grid-list" id="historyContainer"></div>
@@ -1841,8 +1841,8 @@
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-                <button class="btn-primary" style="padding: 6px 12px; font-size: 11px;" id="btnCallFromDm">📹 Video Call</button>
-                <button class="close-btn" id="btnCloseDm">✕</button>
+                <button class="btn-primary" style="padding: 6px 12px; font-size: 11px;" id="btnCallFromDm" type="button">📹 Video Call</button>
+                <button class="close-btn" id="btnCloseDm" type="button">✕</button>
             </div>
         </div>
 
@@ -1851,7 +1851,7 @@
         <div class="chat-bar">
             <div class="chat-input-row">
                 <input type="text" id="dmInput" placeholder="Type a message..." autocomplete="off">
-                <button class="chat-send-btn" id="btnSendDm">
+                <button class="chat-send-btn" id="btnSendDm" type="button">
                     <svg class="icon-sm" viewBox="0 0 24 24" style="transform: rotate(45deg);"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
             </div>
@@ -2031,10 +2031,17 @@
     'use strict';
 
     const $ = id => document.getElementById(id);
-    const bind = (id, event, handler) => {
+
+    // Resilient event binder supporting bind(id, handler) or bind(id, 'click', handler)
+    function bind(id, eventOrCallback, handler) {
         const el = $(id);
-        if (el) el.addEventListener(event, handler);
-    };
+        if (!el) return;
+        if (typeof eventOrCallback === 'function') {
+            el.addEventListener('click', eventOrCallback);
+        } else if (typeof handler === 'function') {
+            el.addEventListener(eventOrCallback, handler);
+        }
+    }
 
     function cleanUrlHash() {
         if (window.location.hash) {
@@ -2154,8 +2161,8 @@
     // MULTI-DEVICE CLOUD & LOCAL ACCOUNT ENGINE
     // ========================================================
     const AccountEngine = {
-        activeUserKey: 'aurastream_active_session_v18',
-        usersDbKey: 'aurastream_users_db_v18',
+        activeUserKey: 'aurastream_active_session_v19',
+        usersDbKey: 'aurastream_users_db_v19',
 
         getUsers() {
             try { return JSON.parse(localStorage.getItem(this.usersDbKey) || '{}'); } catch(e) { return {}; }
@@ -2213,15 +2220,27 @@
         setTimeout(() => item.remove(), 2200);
     }
 
+    // Auto-fill tag when typing name in register box
+    bind('regNameInput', 'input', e => {
+        const val = e.target.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
+        if (val && !$('regTagInput')?.dataset.customized) {
+            $('regTagInput').value = `@${val}`;
+        }
+    });
+
+    bind('regTagInput', 'input', () => {
+        $('regTagInput').dataset.customized = 'true';
+    });
+
     // Auth Tabs Switch
-    bind('btnAuthTabRegister', 'click', () => {
+    bind('btnAuthTabRegister', () => {
         $('btnAuthTabRegister')?.classList.add('active');
         $('btnAuthTabLogin')?.classList.remove('active');
         $('authRegisterBox').style.display = 'block';
         $('authLoginBox').style.display = 'none';
     });
 
-    bind('btnAuthTabLogin', 'click', () => {
+    bind('btnAuthTabLogin', () => {
         $('btnAuthTabLogin')?.classList.add('active');
         $('btnAuthTabRegister')?.classList.remove('active');
         $('authLoginBox').style.display = 'block';
@@ -2237,11 +2256,11 @@
         if (!name) return notify('Please enter your name', '⚠️');
         if (!tag) tag = `@${name.toLowerCase().replace(/\s+/g, '_')}`;
         if (!tag.startsWith('@')) tag = '@' + tag;
-        if (!pin || pin.length < 4) return notify('Enter a 4-6 digit security PIN', '⚠️');
+        if (!pin || pin.length < 3) return notify('Enter a security PIN or Password', '⚠️');
 
         const db = AccountEngine.getUsers();
         if (db[tag.toLowerCase()]) {
-            return notify('This @AuraID is already registered! Please log in.', 'ℹ️');
+            return notify('This @AuraID already exists! Try logging in.', 'ℹ️');
         }
 
         const userObj = { name, tag, pin, created: Date.now() };
@@ -2256,7 +2275,7 @@
         updateProfileUI();
         initPermanentPeer(tag);
         Sound.init();
-        notify(`Welcome, ${name}! Permanent ID active.`, '🎉');
+        notify(`Account created! Welcome, ${name}.`, '🎉');
     });
 
     // Login Handler
@@ -2264,15 +2283,15 @@
         let inputId = $('loginIdInput')?.value.trim();
         const pin = $('loginPinInput')?.value.trim();
 
-        if (!inputId) return notify('Enter your @AuraID', '⚠️');
+        if (!inputId) return notify('Enter your @AuraID or Name', '⚠️');
         if (!inputId.startsWith('@')) inputId = '@' + inputId;
-        if (!pin) return notify('Enter your security PIN', '⚠️');
+        if (!pin) return notify('Enter your security PIN or Password', '⚠️');
 
         const db = AccountEngine.getUsers();
         const user = db[inputId.toLowerCase()];
 
         if (!user) {
-            // First time login on new device with clean fallback
+            // First time login on fresh device auto-links account
             const fallbackName = inputId.replace('@', '');
             const newUser = { name: fallbackName, tag: inputId, pin, created: Date.now() };
             AccountEngine.saveUser(inputId, newUser);
@@ -2280,7 +2299,7 @@
             App.userName = fallbackName;
             App.myAuraTag = inputId;
         } else {
-            if (user.pin !== pin) return notify('Incorrect PIN code!', '❌');
+            if (user.pin !== pin) return notify('Incorrect PIN or Password!', '❌');
             AccountEngine.setActive(user);
             App.userName = user.name;
             App.myAuraTag = user.tag;
@@ -2295,8 +2314,8 @@
         notify(`Logged in as ${App.userName}`, '🔓');
     });
 
-    bind('btnLogoutUser', 'click', () => {
-        if (confirm(`Logged in as ${App.userName} (${App.myAuraTag})\n\nWould you like to log out or switch device?`)) {
+    bind('btnLogoutUser', () => {
+        if (confirm(`Logged in as ${App.userName} (${App.myAuraTag})\n\nLog out or switch device?`)) {
             AccountEngine.logout();
         }
     });
@@ -2305,8 +2324,8 @@
     // PERMANENT FRIENDS NETWORK & PERSISTENT DMS
     // ========================================================
     const FriendsNetwork = {
-        key: 'aurastream_friends_global_v18',
-        msgPrefix: 'aurastream_dm_msgs_v18_',
+        key: 'aurastream_friends_global_v19',
+        msgPrefix: 'aurastream_dm_msgs_v19_',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -2396,7 +2415,7 @@
         feed.scrollTop = feed.scrollHeight;
     }
 
-    bind('btnSendDm', 'click', () => {
+    bind('btnSendDm', () => {
         const input = $('dmInput');
         if (!input || !App.activeDmFriend) return;
         const text = input.value.trim();
@@ -2417,7 +2436,7 @@
     });
 
     bind('dmInput', 'keydown', e => { if (e.key === 'Enter') $('btnSendDm')?.click(); });
-    bind('btnCloseDm', 'click', () => $('dmModal')?.classList.remove('show'));
+    bind('btnCloseDm', () => $('dmModal')?.classList.remove('show'));
 
     window.callFriendDirectly = (name, tag) => {
         App.isHost = true;
@@ -2426,13 +2445,13 @@
         notify(`Calling ${name} (${tag})...`, '📞');
     };
 
-    bind('btnCallFromDm', 'click', () => {
+    bind('btnCallFromDm', () => {
         if (!App.activeDmFriend) return;
         $('dmModal')?.classList.remove('show');
         callFriendDirectly(App.activeDmFriend.name, App.activeDmFriend.tag);
     });
 
-    bind('btnAddFriend', 'click', () => {
+    bind('btnAddFriend', () => {
         const name = $('newFriendName')?.value;
         const tag = $('newFriendTag')?.value;
         FriendsNetwork.add(name, tag);
@@ -2440,18 +2459,18 @@
         if ($('newFriendTag')) $('newFriendTag').value = '';
     });
 
-    bind('btnCopyMyId', 'click', () => {
+    bind('btnCopyMyId', () => {
         navigator.clipboard.writeText(App.myAuraTag).then(() => notify('Aura ID copied to clipboard', '📋'));
     });
 
-    bind('btnShareMyIdWhatsApp', 'click', () => {
+    bind('btnShareMyIdWhatsApp', () => {
         const shareUrl = `${window.location.origin}${window.location.pathname}#${App.myAuraTag.replace('@','')}`;
         const msg = encodeURIComponent(`👋 Connect with me on Aurastream!\nMy ID: ${App.myAuraTag}\nDirect Call Link: ${shareUrl}`);
         window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
     });
 
     const HistoryManager = {
-        key: 'aurastream_recent_calls_v18',
+        key: 'aurastream_recent_calls_v19',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -2494,7 +2513,7 @@
         $('btnShowJoin')?.click();
     };
 
-    bind('btnClearHistory', 'click', () => HistoryManager.clear());
+    bind('btnClearHistory', () => HistoryManager.clear());
 
     function switchHubTab(targetId) {
         document.querySelectorAll('.hub-tab').forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
@@ -2572,7 +2591,7 @@
         }
     }
 
-    bind('btnTestCamera', 'click', initCamera);
+    bind('btnTestCamera', () => initCamera());
 
     function initAudioMeter(stream) {
         try {
@@ -2630,14 +2649,14 @@
     FriendsNetwork.render();
     HistoryManager.render();
 
-    bind('lMicBtn', 'click', () => {
+    bind('lMicBtn', () => {
         if (!App.localStream) return notify('Start camera preview first', '⚠️');
         App.mic = !App.mic;
         $('lMicBtn')?.classList.toggle('off', !App.mic);
         App.localStream.getAudioTracks().forEach(t => t.enabled = App.mic);
     });
 
-    bind('lCamBtn', 'click', () => {
+    bind('lCamBtn', () => {
         if (!App.localStream) return notify('Start camera preview first', '⚠️');
         App.cam = !App.cam;
         $('lCamBtn')?.classList.toggle('off', !App.cam);
@@ -2649,12 +2668,12 @@
         if ($('vfPlaceholder')) $('vfPlaceholder').style.display = App.cam ? 'none' : 'flex';
     });
 
-    bind('btnShowJoin', 'click', () => {
+    bind('btnShowJoin', () => {
         if ($('createFields')) $('createFields').style.display = 'none';
         if ($('joinFields')) $('joinFields').style.display = 'block';
     });
 
-    bind('btnBack', 'click', () => {
+    bind('btnBack', () => {
         cleanUrlHash();
         if ($('joinFields')) $('joinFields').style.display = 'none';
         if ($('createFields')) $('createFields').style.display = 'block';
@@ -2674,13 +2693,13 @@
         return r;
     }
 
-    bind('btnCreateRoom', 'click', () => {
+    bind('btnCreateRoom', () => {
         App.isHost = true;
         App.roomCode = genRoom();
         startMeetingSession();
     });
 
-    bind('btnJoinRoom', 'click', () => {
+    bind('btnJoinRoom', () => {
         let c = $('roomCodeInput')?.value.trim();
         if (!c) return notify('Enter a meeting code or friend @ID', '⚠️');
         c = c.replace('@', '').toUpperCase();
@@ -2934,7 +2953,7 @@
         updateVideoLayout();
     });
 
-    bind('btnStudioFilter', 'click', () => {
+    bind('btnStudioFilter', () => {
         App.studioFilter = !App.studioFilter;
         $('canvasArea')?.classList.toggle('studio-lighting', App.studioFilter);
         $('btnStudioFilter')?.classList.toggle('active', App.studioFilter);
@@ -2958,19 +2977,19 @@
         setTimeout(() => banner.classList.remove('show'), 3500);
     }
 
-    bind('chatBanner', 'click', () => {
+    bind('chatBanner', () => {
         $('chatBanner')?.classList.remove('show');
         toggleDrawer('chatTab');
     });
 
-    bind('dockMic', 'click', () => {
+    bind('dockMic', () => {
         App.mic = !App.mic;
         if (App.localStream) App.localStream.getAudioTracks().forEach(t => t.enabled = App.mic);
         if ($('dockMic')) $('dockMic').className = `dock-btn studio-mic ${App.mic ? 'active' : 'muted'}`;
         notify(App.mic ? 'Microphone Active' : 'Microphone Muted', App.mic ? '🎙️' : '🔇');
     });
 
-    bind('dockCam', 'click', () => {
+    bind('dockCam', () => {
         App.cam = !App.cam;
         if (App.localStream) App.localStream.getVideoTracks().forEach(t => t.enabled = App.cam);
         if ($('dockCam')) $('dockCam').className = `dock-btn ${App.cam ? 'active' : 'muted'}`;
@@ -2978,7 +2997,7 @@
         notify(App.cam ? 'Camera Stream On' : 'Camera Disabled', App.cam ? '📹' : '📷');
     });
 
-    bind('btnFlipCam', 'click', async () => {
+    bind('btnFlipCam', async () => {
         if (!App.localStream) return;
         App.facing = App.facing === 'user' ? 'environment' : 'user';
         try {
@@ -3001,7 +3020,7 @@
         }
     });
 
-    bind('dockScreen', 'click', async () => {
+    bind('dockScreen', async () => {
         if (App.screen) {
             App.screenStream?.getTracks().forEach(t => t.stop());
             App.screen = false;
@@ -3033,7 +3052,7 @@
         }
     });
 
-    bind('dockRecord', 'click', () => {
+    bind('dockRecord', () => {
         if (App.recording) {
             if (App.recorder && App.recorder.state !== 'inactive') {
                 App.recorder.stop();
@@ -3081,7 +3100,7 @@
         }
     });
 
-    bind('dockReact', 'click', () => $('reactionMenu')?.classList.toggle('show'));
+    bind('dockReact', () => $('reactionMenu')?.classList.toggle('show'));
 
     document.querySelectorAll('.r-btn').forEach(btn => {
         btn.onclick = () => {
@@ -3118,10 +3137,10 @@
         }
     }
 
-    bind('dockChat', 'click', () => toggleDrawer('chatTab'));
-    bind('btnDrawerToggle', 'click', () => toggleDrawer('chatTab'));
-    bind('btnRoster', 'click', () => toggleDrawer('rosterTab'));
-    bind('btnCloseDrawer', 'click', () => toggleDrawer());
+    bind('dockChat', () => toggleDrawer('chatTab'));
+    bind('btnDrawerToggle', () => toggleDrawer('chatTab'));
+    bind('btnRoster', () => toggleDrawer('rosterTab'));
+    bind('btnCloseDrawer', () => toggleDrawer());
 
     document.querySelectorAll('.d-tab').forEach(tab => {
         tab.onclick = () => switchDrawerTab(tab.dataset.tab);
@@ -3145,7 +3164,7 @@
         Sound.play('pop');
     }
 
-    bind('btnSendChat', 'click', sendChat);
+    bind('btnSendChat', () => sendChat());
     bind('chatInput', 'keydown', e => { if (e.key === 'Enter') sendChat(); });
 
     function renderMsg(text, side, author) {
@@ -3230,15 +3249,15 @@
         $('shareModal')?.classList.add('show');
     }
 
-    bind('btnOpenShareModal', 'click', openShareModal);
-    bind('btnCopyCode', 'click', openShareModal);
-    bind('btnCloseShareModal', 'click', () => $('shareModal')?.classList.remove('show'));
+    bind('btnOpenShareModal', () => openShareModal());
+    bind('btnCopyCode', () => openShareModal());
+    bind('btnCloseShareModal', () => $('shareModal')?.classList.remove('show'));
 
-    bind('btnCopyInviteCode', 'click', () => {
+    bind('btnCopyInviteCode', () => {
         navigator.clipboard.writeText(App.roomCode).then(() => notify('Room Code copied', '📋'));
     });
 
-    bind('btnShareWhatsApp', 'click', () => {
+    bind('btnShareWhatsApp', () => {
         const shareUrl = `${window.location.origin}${window.location.pathname}#${App.roomCode}`;
         const waMsg = encodeURIComponent(`🎥 Join my live Aurastream meeting now!\n\nRoom: ${App.roomCode}\nLink: ${shareUrl}`);
         window.open(`https://api.whatsapp.com/send?text=${waMsg}`, '_blank');
@@ -3295,7 +3314,7 @@
     }
 
     // Complete & Clean Teardown
-    bind('dockEnd', 'click', () => {
+    bind('dockEnd', () => {
         Sound.play('leave');
 
         const dur = $('hudTimer')?.textContent || '00:00';
