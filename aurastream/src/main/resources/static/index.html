@@ -289,6 +289,13 @@
             justify-content: space-between;
         }
 
+        .input-wrapper-with-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
         .field-input {
             width: 100%;
             padding: 12px 14px;
@@ -305,6 +312,19 @@
             background: var(--brand-subtle);
             box-shadow: 0 0 0 3px rgba(255, 94, 0, 0.18);
         }
+
+        .toggle-pin-btn {
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            color: var(--text-2);
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .toggle-pin-btn:hover { color: #fff; }
 
         .btn-primary {
             background: var(--brand-gradient);
@@ -1579,10 +1599,10 @@
 
 <!-- Incoming Call Full Screen Notification -->
 <div class="incoming-call-modal" id="incomingCallModal">
-    <div class="incoming-avatar" id="incomingAv">P</div>
+    <div class="incoming-avatar" id="incomingAv">A</div>
     <div style="text-align: center;">
-        <h2 style="font-size: 26px; font-family: var(--font-head); color: #fff;" id="incomingCallerName">Friend</h2>
-        <p style="font-size: 13px; color: var(--brand-light); font-family: var(--font-mono); margin-top: 4px;" id="incomingCallerTag">@friend_123</p>
+        <h2 style="font-size: 26px; font-family: var(--font-head); color: #fff;" id="incomingCallerName">Alex</h2>
+        <p style="font-size: 13px; color: var(--brand-light); font-family: var(--font-mono); margin-top: 4px;" id="incomingCallerTag">@alex</p>
         <span style="font-size: 13px; color: var(--text-2); display: block; margin-top: 8px;">Incoming Studio HD Video Call...</span>
     </div>
     <div class="incoming-actions">
@@ -1597,9 +1617,9 @@
 
 <!-- Incoming Message Banner -->
 <div class="floating-chat-banner" id="chatBanner">
-    <div class="floating-avatar" id="bannerAvatar">P</div>
+    <div class="floating-avatar" id="bannerAvatar">A</div>
     <div style="display:flex; flex-direction:column;">
-        <b style="font-size:11px; color:var(--brand-light);" id="bannerAuthor">Peer</b>
+        <b style="font-size:11px; color:var(--brand-light);" id="bannerAuthor">Alex</b>
         <span style="font-size:12px; color:#fff;" id="bannerText">Hey there!</span>
     </div>
 </div>
@@ -1633,17 +1653,20 @@
         <div id="authRegisterBox" style="width: 100%;">
             <div class="auth-input-group">
                 <div class="field-label"><span>Your Full Name</span></div>
-                <input class="field-input" id="regNameInput" placeholder="e.g. Shreyash Singh" autocomplete="name">
+                <input class="field-input" id="regNameInput" placeholder="e.g. John Doe" autocomplete="name">
             </div>
 
             <div class="auth-input-group">
                 <div class="field-label"><span>Permanent @AuraID</span></div>
-                <input class="field-input" id="regTagInput" placeholder="e.g. @shreyash" style="font-family: var(--font-mono);" autocomplete="username">
+                <input class="field-input" id="regTagInput" placeholder="e.g. @john" style="font-family: var(--font-mono);" autocomplete="username">
             </div>
 
             <div class="auth-input-group">
                 <div class="field-label"><span>Security PIN / Password</span></div>
-                <input class="field-input" id="regPinInput" type="password" placeholder="4+ characters or PIN" autocomplete="new-password">
+                <div class="input-wrapper-with-btn">
+                    <input class="field-input" id="regPinInput" type="password" placeholder="4+ characters or PIN" autocomplete="new-password">
+                    <button class="toggle-pin-btn" id="btnToggleRegPin" type="button" title="Show/Hide PIN">👁️</button>
+                </div>
             </div>
 
             <button class="btn-primary" id="btnSubmitRegister" type="button">Create Permanent Account</button>
@@ -1653,12 +1676,15 @@
         <div id="authLoginBox" style="width: 100%; display: none;">
             <div class="auth-input-group">
                 <div class="field-label"><span>Your @AuraID or Name</span></div>
-                <input class="field-input" id="loginIdInput" placeholder="e.g. @shreyash" style="font-family: var(--font-mono);" autocomplete="username">
+                <input class="field-input" id="loginIdInput" placeholder="e.g. @john" style="font-family: var(--font-mono);" autocomplete="username">
             </div>
 
             <div class="auth-input-group">
                 <div class="field-label"><span>Security PIN / Password</span></div>
-                <input class="field-input" id="loginPinInput" type="password" placeholder="Enter your PIN" autocomplete="current-password">
+                <div class="input-wrapper-with-btn">
+                    <input class="field-input" id="loginPinInput" type="password" placeholder="Enter your PIN" autocomplete="current-password">
+                    <button class="toggle-pin-btn" id="btnToggleLoginPin" type="button" title="Show/Hide PIN">👁️</button>
+                </div>
             </div>
 
             <button class="btn-primary" id="btnSubmitLogin" type="button">Log In to Studio</button>
@@ -1686,8 +1712,8 @@
         </div>
 
         <div class="hub-profile-chip" id="btnLogoutUser" title="Click to Switch Account or Log Out">
-            <div class="hub-avatar" id="navAvatar">S</div>
-            <span id="navName">Shreyash</span>
+            <div class="hub-avatar" id="navAvatar">J</div>
+            <span id="navName">John</span>
             <span style="font-size: 10px; color: var(--text-3);">▼</span>
         </div>
     </div>
@@ -1725,7 +1751,7 @@
                         <div id="joinFields" style="display: none;">
                             <div>
                                 <label class="field-label">Meeting Code or Friend ID</label>
-                                <input class="field-input" id="roomCodeInput" placeholder="e.g. AUR-7890 or @maya" style="text-transform: uppercase; font-family: var(--font-mono);" autocomplete="off">
+                                <input class="field-input" id="roomCodeInput" placeholder="e.g. AUR-7890 or @alex" style="text-transform: uppercase; font-family: var(--font-mono);" autocomplete="off">
                             </div>
                             <div class="btn-group" style="margin-top: 10px;">
                                 <button class="btn-primary" id="btnJoinRoom">Connect Stream</button>
@@ -1757,7 +1783,7 @@
                         </div>
 
                         <div class="vf-placeholder-state" id="vfPlaceholder">
-                            <div class="vf-avatar-ring" id="lobbyAvLetter">S</div>
+                            <div class="vf-avatar-ring" id="lobbyAvLetter">J</div>
                             <span style="font-size: 12px; color: var(--text-2); font-weight: 600;">Camera Disabled</span>
                             <button class="btn-test-cam" id="btnTestCamera">Preview Camera</button>
                         </div>
@@ -1785,7 +1811,7 @@
                 <div class="my-tag-banner">
                     <div class="my-tag-top">
                         <span class="my-tag-label">YOUR PERMANENT AURA ID</span>
-                        <span class="my-tag-code" id="myAuraTag">@shreyash</span>
+                        <span class="my-tag-code" id="myAuraTag">@john</span>
                     </div>
                     <div class="my-tag-actions-row">
                         <button class="btn-tag-action" id="btnCopyMyId" type="button">
@@ -1801,8 +1827,8 @@
                 <div class="add-friend-box">
                     <label class="field-label">ADD FRIEND TO NETWORK</label>
                     <div class="add-friend-inputs">
-                        <input class="field-input" id="newFriendName" placeholder="Friend's Name (e.g. Maya)">
-                        <input class="field-input" id="newFriendTag" placeholder="Friend's @AuraID (e.g. @maya)" style="font-family: var(--font-mono);">
+                        <input class="field-input" id="newFriendName" placeholder="Friend's Name (e.g. Alex)">
+                        <input class="field-input" id="newFriendTag" placeholder="Friend's @AuraID (e.g. @alex)" style="font-family: var(--font-mono);">
                     </div>
                     <button class="btn-primary" id="btnAddFriend" type="button" style="margin-top: 4px;">+ Add Friend</button>
                 </div>
@@ -1834,10 +1860,10 @@
     <div class="dm-modal-card">
         <div class="dm-modal-header">
             <div class="dm-header-left">
-                <div class="dm-header-av" id="dmTargetAv">M</div>
+                <div class="dm-header-av" id="dmTargetAv">A</div>
                 <div>
-                    <div style="font-weight: 800; font-size: 14px;" id="dmTargetName">Maya</div>
-                    <div style="font-size: 10px; color: var(--brand-light); font-family: var(--font-mono);" id="dmTargetTag">@maya</div>
+                    <div style="font-weight: 800; font-size: 14px;" id="dmTargetName">Alex</div>
+                    <div style="font-size: 10px; color: var(--brand-light); font-family: var(--font-mono);" id="dmTargetTag">@alex</div>
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
@@ -1899,7 +1925,7 @@
     <div class="video-canvas" id="canvasArea">
         <div class="main-hero-tile" id="mainCard">
             <div class="tile-avatar-view" id="mainPlaceholder">
-                <div class="tile-avatar-glow" id="mainAvLetter">S</div>
+                <div class="tile-avatar-glow" id="mainAvLetter">J</div>
                 <div class="tile-avatar-meta">
                     <span class="tile-avatar-name" id="mainTileLabel">You</span>
                     <span class="tile-avatar-role" id="mainRoleTag">Host · 1080p Studio</span>
@@ -2037,7 +2063,10 @@
         const el = $(id);
         if (!el) return;
         if (typeof eventOrCallback === 'function') {
-            el.addEventListener('click', eventOrCallback);
+            el.addEventListener('click', (e) => {
+                if (navigator.vibrate) try { navigator.vibrate(15); } catch(err){}
+                eventOrCallback(e);
+            });
         } else if (typeof handler === 'function') {
             el.addEventListener(eventOrCallback, handler);
         }
@@ -2126,8 +2155,8 @@
     };
 
     const App = {
-        userName: 'Shreyash',
-        myAuraTag: '@shreyash',
+        userName: 'John',
+        myAuraTag: '@john',
         roomCode: '',
         isHost: false,
         mic: false,
@@ -2219,6 +2248,19 @@
         box.appendChild(item);
         setTimeout(() => item.remove(), 2200);
     }
+
+    // Toggle PIN Visibility
+    bind('btnToggleRegPin', () => {
+        const input = $('regPinInput');
+        if (!input) return;
+        input.type = input.type === 'password' ? 'text' : 'password';
+    });
+
+    bind('btnToggleLoginPin', () => {
+        const input = $('loginPinInput');
+        if (!input) return;
+        input.type = input.type === 'password' ? 'text' : 'password';
+    });
 
     // Auto-fill tag when typing name in register box
     bind('regNameInput', 'input', e => {
@@ -2932,7 +2974,7 @@
             if (mainPlace) {
                 mainPlace.style.opacity = App.cam ? '0' : '1';
                 mainPlace.style.visibility = App.cam ? 'hidden' : 'visible';
-                mainPlace.style.display = App.cam ? 'none' : 'flex';
+                mainPlace.style.display = 'none';
             }
 
             if (pipVid && App.remoteStream) {
@@ -3203,13 +3245,13 @@
             item.className = 'person-item';
             item.innerHTML = `
                 <div class="person-info">
-                    <div class="person-avatar" style="background: var(--accent-purple); color: #fff;">P</div>
+                    <div class="person-avatar" style="background: var(--accent-purple); color: #fff;">A</div>
                     <div>
-                        <div style="font-weight: 800; font-size: 13px;">Connected Friend</div>
+                        <div style="font-weight: 800; font-size: 13px;">Alex (Peer)</div>
                         <div style="font-size: 11px; color: var(--text-2); font-weight:600;">Adaptive Stream</div>
                     </div>
                 </div>
-                <button class="btn-grid-outline" style="padding:4px 8px; font-size:10px;" onclick="FriendsNetwork.add('Connected Friend', App.roomCode)">+ Friend</button>
+                <button class="btn-grid-outline" style="padding:4px 8px; font-size:10px;" onclick="FriendsNetwork.add('Alex', '@alex')">+ Friend</button>
             `;
             list.appendChild(item);
         }
