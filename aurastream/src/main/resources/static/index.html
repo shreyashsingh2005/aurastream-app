@@ -3,46 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AURASTREAM — Studio HD P2P Video & Friends</title>
-    <meta name="description" content="Next-generation HD 1080p video meetings with studio lighting, noise cancellation, friends list, WhatsApp sharing, and zero latency.">
+    <title>AURASTREAM — Studio HD Video & Private Rooms</title>
+    <meta name="description" content="Next-generation luxury P2P 1080p video meetings with studio lighting, voice isolation, friends list, and zero latency.">
     
-    <!-- PeerJS for 100% Reliable Cross-Device P2P Connection -->
+    <!-- PeerJS Direct P2P Mesh -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-canvas: #040408;
-            --bg-surface: #0a0a14;
-            --bg-elevated: #121224;
-            --bg-glass: rgba(16, 16, 28, 0.78);
-            --bg-glass-heavy: rgba(10, 10, 18, 0.92);
-            --bg-glass-dock: rgba(12, 12, 24, 0.88);
+            --bg-canvas: #030307;
+            --bg-surface: rgba(14, 14, 24, 0.75);
+            --bg-elevated: rgba(22, 22, 38, 0.85);
+            --bg-glass: rgba(18, 18, 32, 0.65);
+            --bg-glass-dock: rgba(12, 12, 22, 0.85);
             
-            --brand: #ff6a00;
-            --brand-light: #ff8c3b;
-            --brand-glow: rgba(255, 106, 0, 0.35);
-            --brand-subtle: rgba(255, 106, 0, 0.12);
-            --brand-gradient: linear-gradient(135deg, #ff4500 0%, #ff6a00 50%, #ff0055 100%);
+            --brand: #ff5e00;
+            --brand-light: #ff7e29;
+            --brand-glow: rgba(255, 94, 0, 0.35);
+            --brand-subtle: rgba(255, 94, 0, 0.12);
+            --brand-gradient: linear-gradient(135deg, #ff3b00 0%, #ff6a00 50%, #ff0055 100%);
             
-            --danger: #ff2d55;
-            --danger-glow: rgba(255, 45, 85, 0.35);
-            --success: #00e676;
-            --success-glow: rgba(0, 230, 118, 0.3);
+            --danger: #ff2a55;
+            --danger-glow: rgba(255, 42, 85, 0.4);
+            --success: #00f076;
+            --success-glow: rgba(0, 240, 118, 0.3);
             --wa-green: #25d366;
-            --purple: #9d4edd;
-            --cyan: #00e5ff;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
             
-            --border-dim: rgba(255, 255, 255, 0.08);
+            --border-dim: rgba(255, 255, 255, 0.07);
             --border-subtle: rgba(255, 255, 255, 0.14);
-            --border-active: rgba(255, 106, 0, 0.5);
+            --border-glow: rgba(255, 94, 0, 0.45);
             
             --text-1: #ffffff;
-            --text-2: #a0a0ba;
-            --text-3: #5c5c77;
+            --text-2: #9da3be;
+            --text-3: #585d78;
             
             --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-head: 'Space Grotesk', sans-serif;
@@ -50,12 +49,10 @@
             
             --radius-xs: 10px;
             --radius-sm: 16px;
-            --radius-md: 22px;
+            --radius-md: 24px;
             --radius-full: 9999px;
             
-            --spring: cubic-bezier(0.175, 0.885, 0.32, 1.2);
-            --smooth: cubic-bezier(0.16, 1, 0.3, 1);
-            
+            --spring: cubic-bezier(0.16, 1, 0.3, 1);
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
             --safe-left: env(safe-area-inset-left, 0px);
@@ -83,14 +80,16 @@
             touch-action: manipulation;
         }
 
+        /* Subtle Ambient Lighting Aura */
         .ambient-mesh {
             position: fixed;
             inset: 0;
             pointer-events: none;
             z-index: 0;
             background: 
-                radial-gradient(circle at 10% 10%, rgba(255, 106, 0, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 90% 90%, rgba(157, 78, 221, 0.08) 0%, transparent 40%);
+                radial-gradient(circle at 15% 15%, rgba(255, 94, 0, 0.09) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.03) 0%, transparent 60%);
         }
 
         button, input {
@@ -109,11 +108,20 @@
             stroke-linejoin: round;
             flex-shrink: 0;
         }
-        .icon-sm { width: 16px; height: 16px; stroke-width: 2.3; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .icon-sm {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
 
         .close-btn {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border-subtle);
             color: #ffffff;
             width: 36px;
             height: 36px;
@@ -122,16 +130,16 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.2s ease;
         }
-        .close-btn:active, .close-btn:hover {
-            background: rgba(255, 45, 85, 0.25);
-            color: var(--danger);
+        .close-btn:active {
+            background: var(--danger);
             border-color: var(--danger);
+            transform: scale(0.92);
         }
 
         /* ========================================================
-            AUTH / LOGIN SCREEN
+            CINEMATIC AUTH / ONBOARDING VIEW
            ======================================================== */
         .auth-stage {
             position: fixed;
@@ -141,115 +149,129 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            background: var(--bg-canvas);
-            transition: opacity 0.25s var(--smooth), transform 0.25s var(--smooth);
+            background: radial-gradient(circle at 50% 30%, #151128 0%, var(--bg-canvas) 80%);
+            transition: opacity 0.3s var(--spring), transform 0.3s var(--spring);
         }
         .auth-stage.hidden {
             opacity: 0;
             pointer-events: none;
-            transform: translateY(-12px);
+            transform: scale(0.96);
         }
 
         .auth-card {
             width: 100%;
-            max-width: 380px;
+            max-width: 400px;
             background: var(--bg-surface);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
-            padding: 30px 24px;
+            padding: 34px 28px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.1);
             position: relative;
         }
         .auth-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; height: 3px;
+            top: 0; left: 20%; right: 20%; height: 2px;
             background: var(--brand-gradient);
-            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            box-shadow: 0 0 15px var(--brand);
+            border-radius: var(--radius-full);
         }
         .auth-logo svg {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 14px;
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 8px 20px var(--brand-glow));
         }
         .auth-card h2 {
             font-family: var(--font-head);
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 800;
+            letter-spacing: -0.3px;
             margin-bottom: 6px;
+            color: #fff;
         }
         .auth-card p {
             font-size: 13px;
             color: var(--text-2);
-            margin-bottom: 22px;
+            line-height: 1.5;
+            margin-bottom: 24px;
         }
 
         .auth-input-group {
             width: 100%;
             text-align: left;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
         .field-label {
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.9px;
             color: var(--text-3);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         .field-label-action {
-            color: var(--brand);
+            color: var(--brand-light);
             cursor: pointer;
             font-size: 11px;
             text-transform: none;
             letter-spacing: 0;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.15s;
         }
+        .field-label-action:hover { color: #fff; }
+
         .field-input {
             width: 100%;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.05);
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border-dim);
             border-radius: var(--radius-xs);
             color: #fff;
             font-size: 15px;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.2s ease;
         }
         .field-input:focus {
             border-color: var(--brand);
             background: var(--brand-subtle);
-            box-shadow: 0 0 0 2px var(--brand-subtle);
+            box-shadow: 0 0 0 3px rgba(255, 94, 0, 0.18);
         }
         .field-input::placeholder { color: var(--text-3); }
-        
+
         .btn-primary {
             background: var(--brand-gradient);
             color: #000;
-            padding: 13px 20px;
+            padding: 14px 20px;
             border-radius: var(--radius-xs);
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
+            letter-spacing: 0.2px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             cursor: pointer;
-            transition: all 0.15s ease;
-            box-shadow: 0 4px 16px var(--brand-glow);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: 0 6px 24px var(--brand-glow);
             width: 100%;
         }
         .btn-primary:active { transform: scale(0.98); }
 
         /* ========================================================
-            LAUNCHPAD / STUDIO LOBBY 
+            STUDIO LOBBY VIEW
            ======================================================== */
         .lobby-stage {
             position: fixed;
@@ -259,8 +281,8 @@
             align-items: center;
             justify-content: center;
             padding: max(16px, var(--safe-top)) max(16px, var(--safe-right)) max(16px, var(--safe-bottom)) max(16px, var(--safe-left));
-            background: radial-gradient(circle at 50% 15%, #140e22 0%, var(--bg-canvas) 85%);
-            transition: opacity 0.25s var(--smooth);
+            background: radial-gradient(circle at 50% 20%, #16122a 0%, var(--bg-canvas) 85%);
+            transition: opacity 0.3s var(--spring);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -268,22 +290,23 @@
             opacity: 0;
             pointer-events: none;
         }
+
         .studio-container {
             width: 100%;
-            max-width: 960px;
+            max-width: 980px;
             display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 28px;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 32px;
             align-items: center;
+            margin: auto;
             position: relative;
             z-index: 1;
-            margin: auto;
         }
 
         .brand-panel {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
         }
         .brand-header {
             display: flex;
@@ -298,6 +321,7 @@
         .logo-emblem svg {
             width: 44px;
             height: 44px;
+            filter: drop-shadow(0 6px 16px var(--brand-glow));
         }
         .brand-title h1 {
             font-family: var(--font-head);
@@ -315,14 +339,17 @@
             -webkit-text-fill-color: transparent;
         }
         .brand-title p {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-2);
-            font-weight: 500;
+            font-weight: 600;
+            letter-spacing: 0.4px;
         }
 
         .user-profile-badge {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid var(--border-dim);
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
             padding: 6px 14px;
             border-radius: var(--radius-full);
             display: flex;
@@ -331,49 +358,51 @@
             font-size: 13px;
             font-weight: 700;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s ease;
         }
         .user-profile-badge:active {
-            background: rgba(255,255,255,0.12);
             border-color: var(--brand);
+            background: var(--bg-elevated);
         }
         .user-profile-avatar {
             width: 22px;
             height: 22px;
-            background: var(--brand);
+            background: var(--brand-gradient);
             color: #000;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
+            font-weight: 900;
             font-size: 11px;
         }
 
         .hero-headline {
             font-family: var(--font-head);
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 800;
             line-height: 1.2;
-            letter-spacing: -0.4px;
+            letter-spacing: -0.5px;
             color: #fff;
         }
         .hero-desc {
             font-size: 13px;
-            line-height: 1.5;
+            line-height: 1.6;
             color: var(--text-2);
-            margin-top: 4px;
+            margin-top: 6px;
         }
 
         .join-box-card {
             background: var(--bg-surface);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
-            padding: 18px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            gap: 14px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
         }
 
         .btn-group {
@@ -385,14 +414,14 @@
             background: rgba(255, 255, 255, 0.05);
             color: #fff;
             border: 1px solid var(--border-subtle);
-            padding: 13px 16px;
+            padding: 14px 16px;
             border-radius: var(--radius-xs);
             font-size: 13px;
             font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
             cursor: pointer;
             transition: all 0.15s ease;
         }
@@ -405,7 +434,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 11px 14px;
+            padding: 12px 16px;
             background: rgba(255, 255, 255, 0.03);
             border: 1px dashed var(--border-subtle);
             border-radius: var(--radius-xs);
@@ -425,7 +454,7 @@
         .preview-column {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
         .viewfinder-shell {
             width: 100%;
@@ -435,7 +464,7 @@
             border: 1px solid var(--border-subtle);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
         .viewfinder-shell video {
             width: 100%;
@@ -445,19 +474,21 @@
         }
         .vf-overlay-controls {
             position: absolute;
-            bottom: 12px;
+            bottom: 14px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             z-index: 10;
         }
         .vf-toggle-btn {
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: var(--radius-full);
-            background: rgba(10, 10, 20, 0.88);
+            background: rgba(12, 12, 24, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255,255,255,0.18);
             color: #fff;
             display: flex;
@@ -466,7 +497,11 @@
             cursor: pointer;
             transition: all 0.15s ease;
         }
-        .vf-toggle-btn.off { background: var(--danger); border-color: transparent; }
+        .vf-toggle-btn.off {
+            background: var(--danger);
+            border-color: transparent;
+            box-shadow: 0 4px 16px var(--danger-glow);
+        }
 
         .vf-placeholder-state {
             position: absolute;
@@ -475,45 +510,47 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            background: radial-gradient(circle, #141022 0%, #06060c 100%);
+            gap: 12px;
+            background: radial-gradient(circle at center, #16122c 0%, #06060e 100%);
         }
         .vf-avatar-ring {
-            width: 68px;
-            height: 68px;
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
-            font-size: 26px;
-            font-weight: 800;
+            font-size: 28px;
+            font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 6px 20px var(--brand-glow);
+            box-shadow: 0 8px 30px var(--brand-glow);
         }
         .btn-test-cam {
             background: rgba(255,255,255,0.08);
-            border: 1px solid var(--border-dim);
+            border: 1px solid var(--border-subtle);
             color: #fff;
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: var(--radius-full);
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: 0.15s;
         }
         .btn-test-cam:active {
-            background: rgba(255,255,255,0.18);
+            background: var(--brand-subtle);
             border-color: var(--brand);
         }
 
-        .audio-wave-strip {
+        .audio-eq-bars {
             position: absolute;
             bottom: 0; left: 0; right: 0;
-            height: 3px;
-            background: rgba(255,255,255,0.05);
+            height: 4px;
+            display: flex;
+            gap: 2px;
+            background: rgba(255,255,255,0.04);
         }
-        .audio-wave-progress {
+        .audio-eq-fill {
             height: 100%;
             width: 0%;
             background: var(--brand-gradient);
@@ -524,18 +561,18 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(0, 230, 118, 0.12);
-            border: 1px solid rgba(0, 230, 118, 0.3);
+            background: rgba(0, 240, 118, 0.12);
+            border: 1px solid rgba(0, 240, 118, 0.35);
             color: var(--success);
             font-size: 11px;
-            font-weight: 700;
-            padding: 4px 10px;
+            font-weight: 800;
+            padding: 4px 12px;
             border-radius: var(--radius-full);
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
         }
 
         /* ========================================================
-            ACTIVE CALL STAGE
+            ACTIVE CALL STAGE (STUDIO CANVAS)
            ======================================================== */
         .call-stage {
             display: none;
@@ -545,7 +582,7 @@
             flex-direction: column;
             position: relative;
             overflow: hidden;
-            background: var(--bg-canvas);
+            background: #000000;
         }
         .call-stage.active { display: flex; }
 
@@ -557,7 +594,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: linear-gradient(180deg, rgba(3,3,7,0.92) 0%, rgba(3,3,7,0) 100%);
+            background: linear-gradient(180deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0) 100%);
             z-index: 100;
             pointer-events: none;
         }
@@ -571,8 +608,10 @@
 
         .room-tag-pill {
             background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-subtle);
-            padding: 6px 12px;
+            padding: 7px 14px;
             border-radius: var(--radius-full);
             display: flex;
             align-items: center;
@@ -581,7 +620,7 @@
             transition: all 0.15s ease;
         }
         .room-tag-pill:active {
-            border-color: var(--border-active);
+            border-color: var(--border-glow);
             background: var(--bg-elevated);
         }
 
@@ -598,6 +637,7 @@
             color: var(--text-2);
             border-left: 1px solid var(--border-dim);
             padding-left: 8px;
+            font-weight: 600;
         }
 
         .live-pulse-dot {
@@ -605,19 +645,21 @@
             height: 7px;
             background: var(--danger);
             border-radius: 50%;
-            box-shadow: 0 0 8px var(--danger);
+            box-shadow: 0 0 10px var(--danger);
             animation: pulseGlow 1.5s infinite;
         }
         @keyframes pulseGlow {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(1.2); }
+            50% { opacity: 0.3; transform: scale(1.2); }
         }
 
         .hud-btn {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             border-radius: var(--radius-xs);
             background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border-dim);
             color: var(--text-1);
             display: flex;
@@ -637,7 +679,7 @@
             padding: 0 12px;
             width: auto;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 800;
         }
         .hud-btn.share-cta:active {
             background: var(--wa-green);
@@ -650,7 +692,7 @@
             background: var(--brand);
             color: #000;
             font-size: 9px;
-            font-weight: 800;
+            font-weight: 900;
             width: 16px; height: 16px;
             border-radius: 50%;
             display: flex;
@@ -658,7 +700,7 @@
             justify-content: center;
         }
 
-        /* Center Video Canvas */
+        /* Center Stage Video */
         .video-canvas {
             flex: 1;
             position: relative;
@@ -672,7 +714,7 @@
         .main-hero-tile {
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at center, #141022 0%, #030307 100%);
+            background: radial-gradient(circle at center, #151128 0%, #020206 100%);
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -680,7 +722,7 @@
             position: relative;
         }
         .main-hero-tile.speaking {
-            box-shadow: inset 0 0 0 2px var(--brand);
+            box-shadow: inset 0 0 0 3px var(--brand);
         }
         .main-hero-tile video {
             width: 100%;
@@ -689,29 +731,31 @@
         }
 
         .studio-lighting video {
-            filter: contrast(1.05) saturate(1.1) brightness(1.03);
+            filter: contrast(1.06) saturate(1.12) brightness(1.04);
         }
 
         .tile-avatar-view {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
 
         .user-tag {
             position: absolute;
-            top: 66px;
+            top: 68px;
             left: 14px;
-            background: rgba(0, 0, 0, 0.65);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border-dim);
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: var(--radius-full);
             display: flex;
             align-items: center;
             gap: 6px;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
             z-index: 10;
         }
 
@@ -723,9 +767,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            background: rgba(0, 0, 0, 0.75);
-            padding: 8px 16px;
+            gap: 10px;
+            background: rgba(10, 10, 18, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 8px 18px;
             border-radius: var(--radius-full);
             border: 1px solid var(--border-dim);
             z-index: 5;
@@ -736,11 +782,11 @@
         .subtle-waiting-hub span {
             font-size: 12px;
             color: var(--text-2);
-            font-weight: 500;
+            font-weight: 600;
         }
         .subtle-spinner {
-            width: 12px;
-            height: 12px;
+            width: 13px;
+            height: 13px;
             border: 2px solid rgba(255,255,255,0.2);
             border-top-color: var(--brand);
             border-radius: 50%;
@@ -748,18 +794,18 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Draggable PiP (Picture-in-Picture) */
+        /* Draggable PiP Tile */
         .pip-card {
             position: absolute;
-            top: 68px;
+            top: 70px;
             right: 14px;
-            width: 115px;
+            width: 120px;
             aspect-ratio: 9/16;
             background: #000;
-            border-radius: var(--radius-xs);
+            border-radius: var(--radius-sm);
             overflow: hidden;
-            border: 2px solid var(--border-active);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.85);
+            border: 2px solid var(--border-glow);
+            box-shadow: 0 12px 36px rgba(0,0,0,0.9);
             z-index: 85;
             cursor: grab;
             touch-action: none;
@@ -776,12 +822,12 @@
         }
         .pip-tag {
             position: absolute;
-            bottom: 5px; left: 5px;
-            background: rgba(0,0,0,0.7);
-            padding: 2px 6px;
+            bottom: 6px; left: 6px;
+            background: rgba(0,0,0,0.75);
+            padding: 2px 7px;
             border-radius: 4px;
             font-size: 9px;
-            font-weight: 700;
+            font-weight: 800;
             color: #fff;
             pointer-events: none;
         }
@@ -805,9 +851,11 @@
             gap: 8px;
             padding: 8px 12px;
             background: var(--bg-glass-dock);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--border-dim);
             border-radius: var(--radius-full);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.85);
+            box-shadow: 0 18px 45px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.1);
         }
 
         .dock-sep {
@@ -821,7 +869,7 @@
             width: 44px;
             height: 44px;
             border-radius: var(--radius-full);
-            background: rgba(255, 255, 255, 0.07);
+            background: rgba(255, 255, 255, 0.06);
             color: var(--text-1);
             display: flex;
             align-items: center;
@@ -835,13 +883,13 @@
         .dock-btn.active {
             background: var(--brand-subtle);
             color: var(--brand);
-            border: 1px solid var(--border-active);
+            border: 1px solid var(--border-glow);
         }
 
         .dock-btn.muted {
-            background: rgba(255, 51, 75, 0.15);
+            background: rgba(255, 42, 85, 0.16);
             color: var(--danger);
-            border: 1px solid rgba(255, 51, 75, 0.35);
+            border: 1px solid rgba(255, 42, 85, 0.4);
         }
 
         .dock-btn.end-btn {
@@ -849,51 +897,55 @@
             border-radius: var(--radius-full);
             background: var(--danger);
             color: #fff;
-            box-shadow: 0 4px 14px var(--danger-glow);
+            box-shadow: 0 4px 18px var(--danger-glow);
         }
-        .dock-btn.end-btn:active { background: #e60020; }
+        .dock-btn.end-btn:active { background: #e00028; }
         .dock-btn.end-btn svg { transform: rotate(135deg); }
 
         .mobile-hide { display: flex; }
 
         .reaction-menu {
             position: absolute;
-            bottom: 64px;
+            bottom: 66px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(15, 15, 26, 0.95);
+            background: rgba(16, 16, 28, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-dim);
             border-radius: var(--radius-full);
-            padding: 4px 8px;
+            padding: 5px 8px;
             display: none;
             gap: 4px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.85);
             z-index: 110;
         }
         .reaction-menu.show { display: flex; }
         .r-btn {
-            font-size: 20px;
+            font-size: 22px;
             background: transparent;
             padding: 4px 6px;
             border-radius: var(--radius-full);
             cursor: pointer;
         }
-        .r-btn:active { transform: scale(1.3); }
+        .r-btn:active { transform: scale(1.35); }
 
-        /* Floating Chat Banner */
+        /* Floating Message Banner */
         .floating-chat-banner {
             position: fixed;
             top: max(14px, var(--safe-top));
             left: 50%;
             transform: translateX(-50%) translateY(-100px);
-            background: rgba(18, 18, 30, 0.96);
-            border: 1px solid var(--border-active);
+            background: rgba(18, 18, 32, 0.96);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glow);
             border-radius: var(--radius-full);
-            padding: 8px 16px;
+            padding: 8px 18px;
             display: flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 12px 35px rgba(0,0,0,0.8);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.85);
             z-index: 9999;
             cursor: pointer;
             transition: transform 0.3s var(--spring), opacity 0.25s ease;
@@ -910,7 +962,7 @@
             border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
-            font-weight: 800;
+            font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -925,13 +977,15 @@
         .side-drawer {
             position: absolute;
             top: 0; right: 0; bottom: 0;
-            width: 350px;
+            width: 360px;
             background: var(--bg-surface);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
             border-left: 1px solid var(--border-dim);
             display: flex;
             flex-direction: column;
             transform: translateX(100%);
-            transition: transform 0.25s var(--smooth);
+            transition: transform 0.25s var(--spring);
             z-index: 150;
         }
         .side-drawer.open { transform: translateX(0); }
@@ -940,23 +994,23 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: max(14px, var(--safe-top)) 16px 12px 16px;
+            padding: max(14px, var(--safe-top)) 18px 12px 18px;
             border-bottom: 1px solid var(--border-dim);
         }
-        .drawer-head h3 { font-size: 15px; font-weight: 700; font-family: var(--font-head); }
+        .drawer-head h3 { font-size: 15px; font-weight: 800; font-family: var(--font-head); }
 
         .drawer-tabs {
             display: flex;
             border-bottom: 1px solid var(--border-dim);
-            padding: 0 6px;
+            padding: 0 8px;
         }
         .d-tab {
             flex: 1;
-            padding: 10px 4px;
+            padding: 11px 4px;
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.6px;
+            letter-spacing: 0.7px;
             color: var(--text-2);
             background: transparent;
             border-bottom: 2px solid transparent;
@@ -980,10 +1034,10 @@
         .chat-feed {
             flex: 1;
             overflow-y: auto;
-            padding: 14px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             -webkit-overflow-scrolling: touch;
         }
 
@@ -995,9 +1049,9 @@
         .chat-msg.me { align-self: flex-end; align-items: flex-end; }
         .chat-msg.them { align-self: flex-start; align-items: flex-start; }
 
-        .chat-author { font-size: 10px; font-weight: 700; color: var(--text-2); margin-bottom: 2px; padding: 0 4px; }
+        .chat-author { font-size: 10px; font-weight: 800; color: var(--text-2); margin-bottom: 2px; padding: 0 4px; }
         .chat-bubble {
-            padding: 8px 12px;
+            padding: 9px 13px;
             font-size: 13px;
             line-height: 1.4;
             word-wrap: break-word;
@@ -1005,14 +1059,14 @@
         .chat-msg.me .chat-bubble {
             background: var(--brand-gradient);
             color: #000;
-            border-radius: 14px 14px 2px 14px;
-            font-weight: 600;
+            border-radius: 16px 16px 3px 16px;
+            font-weight: 700;
         }
         .chat-msg.them .chat-bubble {
             background: rgba(255,255,255,0.08);
             border: 1px solid var(--border-dim);
             color: #fff;
-            border-radius: 14px 14px 14px 2px;
+            border-radius: 16px 16px 16px 3px;
         }
 
         .emoji-picker-tray {
@@ -1036,9 +1090,9 @@
         .ep-btn:active { background: rgba(255,255,255,0.12); transform: scale(1.15); }
 
         .chat-bar {
-            padding: 10px 14px max(10px, var(--safe-bottom)) 14px;
+            padding: 10px 16px max(10px, var(--safe-bottom)) 16px;
             border-top: 1px solid var(--border-dim);
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.5);
         }
         .chat-input-row {
             display: flex;
@@ -1047,7 +1101,7 @@
             background: rgba(255,255,255,0.06);
             border: 1px solid var(--border-dim);
             border-radius: var(--radius-full);
-            padding: 3px 5px 3px 10px;
+            padding: 4px 6px 4px 12px;
         }
         .chat-input-row:focus-within { border-color: var(--brand); }
         .chat-input-row input {
@@ -1068,7 +1122,7 @@
             cursor: pointer;
         }
         .chat-send-btn {
-            width: 30px; height: 30px;
+            width: 32px; height: 32px;
             border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
@@ -1081,20 +1135,20 @@
 
         /* Friends & Contacts */
         .friends-toolbar {
-            padding: 12px 14px;
+            padding: 12px 16px;
             display: flex;
             gap: 8px;
             border-bottom: 1px solid var(--border-dim);
         }
         .btn-add-friend {
             width: 100%;
-            padding: 9px;
+            padding: 10px;
             border-radius: var(--radius-xs);
-            background: rgba(255, 106, 0, 0.12);
-            border: 1px solid var(--border-active);
+            background: rgba(255, 94, 0, 0.12);
+            border: 1px solid var(--border-glow);
             color: var(--brand-light);
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 800;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1107,10 +1161,10 @@
         }
 
         .friends-list {
-            padding: 10px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
             overflow-y: auto;
             flex: 1;
             -webkit-overflow-scrolling: touch;
@@ -1120,7 +1174,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 12px;
+            padding: 10px 14px;
             background: rgba(255,255,255,0.04);
             border-radius: var(--radius-xs);
             border: 1px solid var(--border-dim);
@@ -1131,15 +1185,15 @@
             gap: 10px;
         }
         .friend-av {
-            width: 34px; height: 34px;
+            width: 36px; height: 36px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #7928ca, var(--brand));
+            background: linear-gradient(135deg, #a855f7, var(--brand));
             color: #fff;
-            font-weight: 800;
+            font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 13px;
         }
         .friend-actions {
             display: flex;
@@ -1147,20 +1201,20 @@
             gap: 6px;
         }
         .btn-friend-call {
-            padding: 5px 10px;
+            padding: 6px 12px;
             border-radius: var(--radius-full);
             background: var(--brand);
             color: #000;
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
         }
 
         .people-list {
-            padding: 10px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
         .person-item {
             display: flex;
@@ -1177,11 +1231,11 @@
             gap: 10px;
         }
         .person-avatar {
-            width: 32px; height: 32px;
+            width: 34px; height: 34px;
             border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
-            font-weight: 800;
+            font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1192,7 +1246,9 @@
         .modal-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             z-index: 10000;
             display: none;
             align-items: center;
@@ -1203,12 +1259,14 @@
 
         .modal-card {
             width: 100%;
-            max-width: 360px;
+            max-width: 380px;
             background: var(--bg-surface);
-            border: 1px solid var(--border-active);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--border-glow);
             border-radius: var(--radius-md);
-            padding: 22px 18px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+            padding: 24px 20px;
+            box-shadow: 0 25px 65px rgba(0,0,0,0.9);
             position: relative;
         }
 
@@ -1216,7 +1274,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
         .modal-header h3 { font-size: 17px; font-weight: 800; font-family: var(--font-head); }
 
@@ -1241,7 +1299,7 @@
         }
 
         .btn-grid-outline {
-            padding: 10px 8px;
+            padding: 11px 8px;
             border-radius: var(--radius-xs);
             font-size: 12px;
             font-weight: 700;
@@ -1258,18 +1316,18 @@
 
         .share-btn-wa {
             width: 100%;
-            padding: 11px;
+            padding: 12px;
             border-radius: var(--radius-xs);
             background: var(--wa-green);
             color: #000;
             font-size: 13px;
-            font-weight: 800;
+            font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             cursor: pointer;
-            box-shadow: 0 4px 16px rgba(37, 211, 102, 0.3);
+            box-shadow: 0 4px 18px rgba(37, 211, 102, 0.35);
             border: none;
         }
         .share-btn-wa:active { transform: scale(0.98); }
@@ -1277,7 +1335,7 @@
         .reaction-particle {
             position: fixed;
             bottom: 80px;
-            font-size: 30px;
+            font-size: 32px;
             pointer-events: none;
             z-index: 9990;
             animation: particleFly 2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
@@ -1289,6 +1347,7 @@
             100% { opacity: 0; transform: translate3d(var(--vx), -320px, 0) scale(1.3); }
         }
 
+        /* Next-Level Glass Hologram Notification */
         .toast-shelf {
             position: fixed;
             top: max(14px, var(--safe-top));
@@ -1297,28 +1356,35 @@
             z-index: 99999;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
             pointer-events: none;
         }
         .toast-item {
-            background: rgba(15, 15, 26, 0.95);
-            border: 1px solid var(--border-active);
-            padding: 7px 14px;
+            background: rgba(16, 16, 28, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glow);
+            padding: 9px 18px;
             border-radius: var(--radius-full);
             color: #fff;
             font-size: 12px;
-            font-weight: 600;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.8);
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.85);
             display: flex;
             align-items: center;
             gap: 8px;
+            animation: toastPop 0.25s var(--spring);
+        }
+        @keyframes toastPop {
+            0% { opacity: 0; transform: translateY(-12px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* Mobile Breakpoints */
+        /* Responsive */
         @media (max-width: 900px) {
             .studio-container {
                 grid-template-columns: 1fr;
-                gap: 14px;
+                gap: 16px;
             }
             .hero-headline { font-size: 22px; }
             .side-drawer {
@@ -1328,14 +1394,14 @@
                 height: 75vh;
                 border-left: none;
                 border-top: 1px solid var(--border-subtle);
-                border-radius: 22px 22px 0 0;
+                border-radius: 24px 24px 0 0;
                 transform: translateY(100%);
             }
             .side-drawer.open { transform: translateY(0); }
             .pip-card {
-                width: 90px;
-                top: 60px;
-                right: 10px;
+                width: 96px;
+                top: 64px;
+                right: 12px;
             }
             .control-dock { padding: 6px 10px; gap: 6px; }
             .dock-btn { width: 40px; height: 40px; }
@@ -1350,7 +1416,7 @@
 
 <div class="toast-shelf" id="toastShelf"></div>
 
-<!-- Incoming Message Floating Banner -->
+<!-- Floating Heads-Up Banner -->
 <div class="floating-chat-banner" id="chatBanner">
     <div class="floating-avatar" id="bannerAvatar">P</div>
     <div class="floating-text-content">
@@ -1360,57 +1426,57 @@
 </div>
 
 <!-- ========================================================
-     AUTH / LOGIN SCREEN
+     AUTH / IDENTITY ONBOARDING
      ======================================================== -->
 <div class="auth-stage" id="authView">
     <div class="auth-card">
         <div class="auth-logo">
-            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="48" height="48" rx="14" fill="url(#brandGrad)"/>
+            <svg viewBox="0 0 48 48" fill="none">
+                <rect width="48" height="48" rx="16" fill="url(#brandGradAuth)"/>
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM24 32C19.5817 32 16 28.4183 16 24C16 19.5817 19.5817 16 24 16C28.4183 16 32 19.5817 32 24C32 28.4183 28.4183 32 24 32ZM24 28C26.2091 28 28 26.2091 28 24C28 21.7909 26.2091 20 24 20C21.7909 20 20 21.7909 20 24C20 26.2091 21.7909 28 24 28Z" fill="#030307"/>
                 <defs>
-                    <linearGradient id="brandGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#ff4500"/>
+                    <linearGradient id="brandGradAuth" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#ff3b00"/>
                         <stop offset="0.5" stop-color="#ff6a00"/>
                         <stop offset="1" stop-color="#ff0055"/>
                     </linearGradient>
                 </defs>
             </svg>
         </div>
-        <h2>Create Aura Identity</h2>
-        <p>Your encrypted profile for crystal-clear HD calling.</p>
+        <h2>Aura Identity</h2>
+        <p>Your studio-grade encrypted profile for crystal-clear HD meetings.</p>
 
         <div class="auth-input-group">
             <div class="field-label">
                 <span>Display Name</span>
-                <span class="field-label-action" id="btnRandomizeName">🎲 New Random</span>
+                <span class="field-label-action" id="btnRandomizeName">🎲 Random Name</span>
             </div>
-            <input class="field-input" id="authNameInput" placeholder="E.g. Maya" autocomplete="off" autocorrect="off">
+            <input class="field-input" id="authNameInput" placeholder="Enter your name..." autocomplete="off" autocorrect="off">
         </div>
 
         <button class="btn-primary" id="btnAuthCreate">
-            Setup Profile & Enter
+            Enter Studio Suite
         </button>
     </div>
 </div>
 
 <!-- ========================================================
-     LAUNCHPAD / STUDIO LOBBY 
+     STUDIO LOBBY / LAUNCHPAD
      ======================================================== -->
 <div class="lobby-stage hidden" id="lobbyView">
     <div class="studio-container">
         
-        <!-- Left Side: Branding & Quick Action Panel -->
+        <!-- Left Side: Branding & Room Setup -->
         <div class="brand-panel">
             <div class="brand-header">
                 <div class="brand-header-left">
                     <div class="logo-emblem">
-                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="48" height="48" rx="14" fill="url(#brandGradLobby)"/>
+                        <svg viewBox="0 0 48 48" fill="none">
+                            <rect width="48" height="48" rx="16" fill="url(#brandGradLobby)"/>
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM24 32C19.5817 32 16 28.4183 16 24C16 19.5817 19.5817 16 24 16C28.4183 16 32 19.5817 32 24C32 28.4183 28.4183 32 24 32ZM24 28C26.2091 28 28 26.2091 28 24C28 21.7909 26.2091 20 24 20C21.7909 20 20 21.7909 20 24C20 26.2091 21.7909 28 24 28Z" fill="#030307"/>
                             <defs>
                                 <linearGradient id="brandGradLobby" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-                                    <stop stop-color="#ff4500"/>
+                                    <stop stop-color="#ff3b00"/>
                                     <stop offset="0.5" stop-color="#ff6a00"/>
                                     <stop offset="1" stop-color="#ff0055"/>
                                 </linearGradient>
@@ -1429,18 +1495,18 @@
             </div>
 
             <div>
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                    <div class="quality-pill-indicator">⚡ HD 1080p Studio · Noise Filtered</div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <div class="quality-pill-indicator">⚡ 1080p Studio · Hardware Noise Isolated</div>
                 </div>
-                <h2 class="hero-headline">Studio-Quality Meetings.<br>Instant P2P Stream.</h2>
-                <p class="hero-desc">Ultra low latency, crystal-clear noise-cancelled audio, zero echo, and 1-click WhatsApp invites.</p>
+                <h2 class="hero-headline">Studio Meetings.<br>Zero Latency Stream.</h2>
+                <p class="hero-desc">Hardware echo cancellation, live waveform visualizers, WhatsApp invites, and true end-to-end privacy.</p>
             </div>
 
-            <!-- Join / Create Card -->
+            <!-- Join / Create Controls -->
             <div class="join-box-card">
                 <div id="joinFields" style="display: none;">
                     <div>
-                        <label class="field-label">Room Access Code</label>
+                        <label class="field-label">Meeting Access Code</label>
                         <input class="field-input" id="roomCodeInput" placeholder="e.g. AUR-7890" style="text-transform: uppercase; font-family: var(--font-mono); letter-spacing: 1px;" autocomplete="off" autocorrect="off">
                     </div>
                     <div class="btn-group" style="margin-top: 10px;">
@@ -1462,23 +1528,22 @@
                     </div>
                 </div>
 
-                <!-- Quick Friends Book in Lobby -->
                 <div class="lobby-friends-btn" id="btnLobbyOpenFriends">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <svg class="icon-sm" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
                         <span>Saved Friends & Contacts</span>
                     </div>
-                    <span style="font-size: 11px; color: var(--brand); font-weight: 700;" id="lobbyFriendCount">0 Friends</span>
+                    <span style="font-size: 11px; color: var(--brand); font-weight: 800;" id="lobbyFriendCount">0 Friends</span>
                 </div>
             </div>
         </div>
 
-        <!-- Right Side: Preview Viewfinder -->
+        <!-- Right Side: Viewfinder -->
         <div class="preview-column">
             <div class="viewfinder-shell" id="viewfinderWrapper">
                 <div class="vf-placeholder-state" id="vfPlaceholder">
                     <div class="vf-avatar-ring" id="lobbyAvLetter">U</div>
-                    <span style="font-size: 12px; color: var(--text-2); font-weight: 500;">Camera Disabled</span>
+                    <span style="font-size: 12px; color: var(--text-2); font-weight: 600;">Camera Disabled</span>
                     <button class="btn-test-cam" id="btnTestCamera">Preview Camera</button>
                 </div>
                 <video id="lobbyVideo" autoplay playsinline webkit-playsinline muted style="display: none;"></video>
@@ -1491,14 +1556,14 @@
                         <svg class="icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
                     </button>
                 </div>
-                <div class="audio-wave-strip">
-                    <div class="audio-wave-progress" id="lAudioMeter"></div>
+                <div class="audio-eq-bars">
+                    <div class="audio-eq-fill" id="lAudioMeter"></div>
                 </div>
             </div>
 
-            <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--text-2);">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--text-2);">
                 <svg class="icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <span style="color: var(--success);">Zero Self-Echo</span> · P2P Direct Connect
+                <span style="color: var(--success);">Direct P2P Encrypted</span> · Zero Echo
             </div>
         </div>
 
@@ -1524,8 +1589,7 @@
             </button>
         </div>
         <div class="hud-right">
-            <!-- Studio Enhance Light Filter Toggle -->
-            <button class="hud-btn" id="btnStudioFilter" title="Studio Lighting Filter">
+            <button class="hud-btn" id="btnStudioFilter" title="Studio Lighting Enhancer">
                 <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
             </button>
             <button class="hud-btn" id="btnFlipCam" title="Flip Camera View">
@@ -1541,7 +1605,7 @@
         </div>
     </div>
 
-    <!-- Main Center Video Stage -->
+    <!-- Center Main Video Canvas -->
     <div class="video-canvas" id="canvasArea">
         <div class="main-hero-tile" id="mainCard">
             <div class="tile-avatar-view" id="mainPlaceholder">
@@ -1555,20 +1619,19 @@
             </div>
         </div>
 
-        <!-- Subtle Waiting Indicator -->
         <div class="subtle-waiting-hub" id="waitingHub">
             <div class="subtle-spinner"></div>
             <span>Waiting for peer to connect...</span>
         </div>
 
-        <!-- Draggable Touch-Friendly PiP (Double-tap to swap view) -->
+        <!-- Draggable Touch-Friendly Picture-in-Picture -->
         <div class="pip-card hidden" id="pipCard" title="Drag anywhere or double-click to swap view">
             <video id="pipVideo" autoplay playsinline webkit-playsinline muted></video>
             <div class="pip-tag" id="pipTagLabel">You</div>
         </div>
     </div>
 
-    <!-- Bottom Liquid Dock -->
+    <!-- Bottom Liquid Control Dock -->
     <div class="dock-wrapper">
         <div class="reaction-menu" id="reactionMenu">
             <button class="r-btn" data-e="🔥">🔥</button>
@@ -1590,17 +1653,15 @@
                 <svg class="icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
             </button>
 
-            <!-- Screen Share (Hidden on Mobile) -->
             <button class="dock-btn mobile-hide" id="dockScreen" title="Share Screen">
                 <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             </button>
 
-            <!-- Record Call (Hidden on Mobile) -->
             <button class="dock-btn mobile-hide" id="dockRecord" title="Record Screen">
                 <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
             </button>
 
-            <button class="dock-btn" id="dockReact" title="Party Reaction">
+            <button class="dock-btn" id="dockReact" title="Reactions">
                 <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
             </button>
 
@@ -1610,8 +1671,8 @@
 
             <div class="dock-sep"></div>
 
-            <!-- Instant End Call Button (Zero Lag / No Reload) -->
-            <button class="dock-btn end-btn" id="dockEnd" title="End Call Immediately">
+            <!-- Instant 0ms End Call -->
+            <button class="dock-btn end-btn" id="dockEnd" title="End Call">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 2.59 3.4l1.27 1.27a2 2 0 0 1 .45-2.11 12.84 12.84 0 0 0-2.81-.7 2 2 0 0 1-1.72-2z"/></svg>
             </button>
         </div>
@@ -1632,7 +1693,6 @@
             <button class="d-tab" data-tab="rosterTab">In-Call</button>
         </div>
 
-        <!-- Chat Panel -->
         <div class="drawer-content active" id="chatTab">
             <div class="chat-feed" id="chatMessages">
                 <div style="text-align: center; font-size: 11px; color: var(--text-3); margin-top: 6px;">
@@ -1657,7 +1717,6 @@
             </div>
         </div>
 
-        <!-- Friends Panel -->
         <div class="drawer-content" id="friendsTab">
             <div class="friends-toolbar">
                 <button class="btn-add-friend" id="btnOpenAddFriendModal">
@@ -1668,7 +1727,6 @@
             <div class="friends-list" id="friendsContainer"></div>
         </div>
 
-        <!-- Roster Panel -->
         <div class="drawer-content" id="rosterTab">
             <div class="people-list" id="peopleList"></div>
         </div>
@@ -1681,7 +1739,7 @@
 <div class="modal-backdrop" id="addFriendModal">
     <div class="modal-card">
         <div class="modal-header">
-            <h3>Add a New Friend</h3>
+            <h3>Add a New Contact</h3>
             <button class="close-btn" id="btnCloseAddFriendModal" title="Close">
                 <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
@@ -1692,12 +1750,12 @@
                 <input class="field-input" id="newFriendName" placeholder="e.g. Rahul Sharma" autocomplete="off" autocorrect="off">
             </div>
             <div>
-                <label class="field-label">Friend's Room Tag (Optional)</label>
-                <input class="field-input" id="newFriendRoom" placeholder="e.g. AUR-XXXX or Work" autocomplete="off" autocorrect="off">
+                <label class="field-label">Tag (Optional)</label>
+                <input class="field-input" id="newFriendRoom" placeholder="e.g. Work, Studio, Friend" autocomplete="off" autocorrect="off">
             </div>
             <button class="btn-primary" style="margin-top: 4px;" id="btnSaveFriend">
                 <svg class="icon-sm" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                Save to Friends
+                Save to Contacts
             </button>
         </div>
     </div>
@@ -1736,7 +1794,7 @@
 
 <script>
 /**
- * Aurastream Studio Ultra Pro Max — Echo-Free & Noise-Filtered 1080p Edition
+ * Aurastream Next-Gen Luxury Studio Edition
  */
 (function() {
     'use strict';
@@ -1753,7 +1811,7 @@
         }
     }
 
-    // Natural Person Names Pool for Instant Profile Setup
+    // Natural Person Names Pool
     const RANDOM_NAMES = [
         'Aarav', 'Rohan', 'Kabir', 'Maya', 'Aisha', 'Zara', 'Aryan', 
         'Ananya', 'Leo', 'Sophia', 'Alex', 'Liam', 'Ryan', 'Zack', 'Elena',
@@ -1847,7 +1905,7 @@
 
     // Account Manager
     const Account = {
-        key: 'aurastream_profile_v5',
+        key: 'aurastream_profile_v7',
         get() { return localStorage.getItem(this.key); },
         save(name) { localStorage.setItem(this.key, name); },
         check() {
@@ -1887,14 +1945,14 @@
         setTimeout(() => {
             item.style.opacity = '0';
             item.style.transform = 'translateY(-10px)';
-            item.style.transition = 'all 0.2s ease';
-            setTimeout(() => item.remove(), 200);
-        }, 2500);
+            item.style.transition = 'all 0.25s ease';
+            setTimeout(() => item.remove(), 250);
+        }, 2600);
     }
 
     // Friends Manager
     const Friends = {
-        key: 'aurastream_friends_list_v5',
+        key: 'aurastream_friends_list_v7',
         getAll() {
             try {
                 const data = localStorage.getItem(this.key);
@@ -1911,12 +1969,12 @@
             const list = this.getAll();
             list.push({ id: Date.now().toString(), name, tag: tag || 'Friend' });
             this.save(list);
-            notify(`${name} added to Friends!`, '👥');
+            notify(`${name} saved to contacts`, '👥');
         },
         remove(id) {
             const list = this.getAll().filter(f => f.id !== id);
             this.save(list);
-            notify('Friend removed', '🗑️');
+            notify('Contact removed', '🗑️');
         },
         render() {
             const list = this.getAll();
@@ -1929,7 +1987,7 @@
             if (list.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; color: var(--text-3); font-size: 12px; margin-top: 20px;">
-                        No friends saved yet.<br>Tap "Add New Friend" to save contacts!
+                        No contacts saved yet.<br>Tap "Add New Friend" to save contacts!
                     </div>`;
                 return;
             }
@@ -1941,13 +1999,13 @@
                     <div class="friend-meta">
                         <div class="friend-av">${f.name[0].toUpperCase()}</div>
                         <div>
-                            <div style="font-weight: 700; font-size: 13px;">${f.name}</div>
-                            <div style="font-size: 11px; color: var(--text-3);">${f.tag}</div>
+                            <div style="font-weight: 800; font-size: 13px;">${f.name}</div>
+                            <div style="font-size: 11px; color: var(--text-3); font-weight:600;">${f.tag}</div>
                         </div>
                     </div>
                     <div class="friend-actions">
                         <button class="btn-friend-call" onclick="callFriend('${f.name}')">Call</button>
-                        <button class="chat-icon-btn" onclick="removeFriendItem('${f.id}')" title="Delete" style="width: 26px; height: 26px;">
+                        <button class="chat-icon-btn" onclick="removeFriendItem('${f.id}')" title="Delete" style="width: 28px; height: 28px;">
                             <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                         </button>
                     </div>`;
@@ -1963,7 +2021,7 @@
         window.open(`https://api.whatsapp.com/send?text=${waMsg}`, '_blank');
     };
 
-    // Full HD Studio Constraints with Strict Noise Cancellation
+    // Full HD Studio Constraints with Strict Hardware Echo & Noise Cancellation
     function getMediaConstraints() {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         return {
@@ -2020,13 +2078,13 @@
             Sound.init();
         } catch (e) {
             console.log('Cam Preview Error:', e);
-            notify('Camera/Mic permission needed', '⚠️');
+            notify('Camera & Mic permission needed', '⚠️');
         }
     }
 
     bind('btnTestCamera', 'click', initCamera);
 
-    // Audio Meter without Destination Output (Zero Echo / Zero Static Noise)
+    // Audio Meter Analyzer (Zero Destination Loopback)
     function initAudioMeter(stream) {
         try {
             if (App.audioInterval) clearInterval(App.audioInterval);
@@ -2047,7 +2105,6 @@
             App.analyser.smoothingTimeConstant = 0.5;
 
             App.analyserSrc = App.audioCtx.createMediaStreamSource(stream);
-            // Connect ONLY to Analyser (NEVER to audioCtx.destination to prevent speaker loopback)
             App.analyserSrc.connect(App.analyser);
             App.dataArr = new Uint8Array(App.analyser.frequencyBinCount);
             
@@ -2100,8 +2157,8 @@
         $('authView')?.classList.add('hidden');
         $('lobbyView')?.classList.remove('hidden');
         updateProfileUI();
-        notify(`Welcome, ${name}!`, '🎉');
-        Sound.init();
+        notify(`Identity Verified · ${name}`, '✨');
+        Sound.play('chime');
     });
 
     bind('btnEditProfile', 'click', () => {
@@ -2205,7 +2262,7 @@
         startCallTimer();
         if ($('pipCard')) makeTouchDraggable($('pipCard'));
         Sound.play('join');
-        notify(`HD Stream Ready · ${App.roomCode}`, '⚡');
+        notify(`Studio Room Ready · ${App.roomCode}`, '⚡');
 
         renderPeopleRoster();
         Friends.render();
@@ -2307,11 +2364,11 @@
         $('pipCard')?.classList.remove('hidden');
 
         Sound.play('join');
-        notify('Peer connected in HD!', '🟢');
+        notify('Peer connected in HD 1080p', '🟢');
         updateRosterCount(2);
     }
 
-    // Local stream is ALWAYS MUTED to prevent echo/feedback squeals
+    // Local stream is ALWAYS MUTED to prevent echo/feedback loops
     function updateVideoLayout() {
         const mainVid = $('mainVideo');
         const pipVid = $('pipVideo');
@@ -2319,7 +2376,7 @@
         if (!App.remoteStream) {
             if (mainVid && App.localStream) {
                 mainVid.srcObject = App.localStream;
-                mainVid.muted = true; // MUST BE MUTED TO AVOID SELF-ECHO
+                mainVid.muted = true;
                 mainVid.style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
                 mainVid.style.display = App.cam ? 'block' : 'none';
             }
@@ -2349,7 +2406,7 @@
         } else {
             if (mainVid && App.localStream) {
                 mainVid.srcObject = App.localStream;
-                mainVid.muted = true; // SELF IS MUTED
+                mainVid.muted = true;
                 mainVid.style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
                 mainVid.style.display = App.cam ? 'block' : 'none';
             }
@@ -2358,7 +2415,7 @@
 
             if (pipVid && App.remoteStream) {
                 pipVid.srcObject = App.remoteStream;
-                pipVid.muted = false; // LISTEN TO PEER AUDIO ON PIP
+                pipVid.muted = false;
                 pipVid.style.transform = 'scaleX(1)';
                 pipVid.play().catch(()=>{});
             }
@@ -2371,7 +2428,7 @@
         if (!App.remoteStream) return;
         App.swappedViews = !App.swappedViews;
         updateVideoLayout();
-        notify('Swapped video views', '🔀');
+        notify('Swapped video perspective', '🔀');
     });
 
     // Studio Lighting Filter Toggle
@@ -2379,7 +2436,7 @@
         App.studioFilter = !App.studioFilter;
         $('canvasArea')?.classList.toggle('studio-lighting', App.studioFilter);
         $('btnStudioFilter')?.classList.toggle('active', App.studioFilter);
-        notify(App.studioFilter ? 'Studio Lighting Enabled' : 'Natural Lighting', App.studioFilter ? '✨' : '💡');
+        notify(App.studioFilter ? 'Studio Enhancer Active' : 'Natural Sensor Lighting', App.studioFilter ? '✨' : '💡');
     });
 
     function bindDataEvents(conn) {
@@ -2423,7 +2480,7 @@
         App.mic = !App.mic;
         if (App.localStream) App.localStream.getAudioTracks().forEach(t => t.enabled = App.mic);
         if ($('dockMic')) $('dockMic').className = `dock-btn ${App.mic ? 'active' : 'muted'}`;
-        notify(App.mic ? 'Mic On' : 'Mic Muted', App.mic ? '🎤' : '🔇');
+        notify(App.mic ? 'Microphone Active' : 'Microphone Muted', App.mic ? '🎤' : '🔇');
     });
 
     bind('dockCam', 'click', () => {
@@ -2431,7 +2488,7 @@
         if (App.localStream) App.localStream.getVideoTracks().forEach(t => t.enabled = App.cam);
         if ($('dockCam')) $('dockCam').className = `dock-btn ${App.cam ? 'active' : 'muted'}`;
         updateVideoLayout();
-        notify(App.cam ? 'Camera Active' : 'Camera Disabled', App.cam ? '📹' : '📷');
+        notify(App.cam ? 'Camera Stream On' : 'Camera Disabled', App.cam ? '📹' : '📷');
     });
 
     bind('btnFlipCam', 'click', async () => {
@@ -2555,7 +2612,7 @@
     });
 
     function triggerParticleBurst(emoji) {
-        const count = window.innerWidth < 600 ? 7 : 12;
+        const count = window.innerWidth < 600 ? 8 : 14;
         for (let i = 0; i < count; i++) {
             const p = document.createElement('div');
             p.className = 'reaction-particle';
@@ -2651,11 +2708,11 @@
                 <div class="person-info">
                     <div class="person-avatar">${App.userName[0].toUpperCase()}</div>
                     <div>
-                        <div style="font-weight: 700; font-size: 13px;">${App.userName} (You)</div>
-                        <div style="font-size: 11px; color: var(--brand);">${App.isHost ? 'Host' : 'Guest'}</div>
+                        <div style="font-weight: 800; font-size: 13px;">${App.userName} (You)</div>
+                        <div style="font-size: 11px; color: var(--brand); font-weight:700;">${App.isHost ? 'Host' : 'Guest'}</div>
                     </div>
                 </div>
-                <div style="font-size: 12px; color: var(--success);">Online</div>
+                <div style="font-size: 12px; color: var(--success); font-weight:700;">Online</div>
             </div>
         `;
     }
@@ -2671,8 +2728,8 @@
                 <div class="person-info">
                     <div class="person-avatar" style="background: var(--purple); color: #fff;">P</div>
                     <div>
-                        <div style="font-weight: 700; font-size: 13px;">Connected Peer</div>
-                        <div style="font-size: 11px; color: var(--text-2);">Participant (HD)</div>
+                        <div style="font-weight: 800; font-size: 13px;">Connected Peer</div>
+                        <div style="font-size: 11px; color: var(--text-2); font-weight:600;">Participant (HD)</div>
                     </div>
                 </div>
                 <button class="btn-grid-outline" style="padding:4px 8px; font-size:10px;" onclick="savePeerAsFriend()">+ Friend</button>
@@ -2683,7 +2740,7 @@
 
     window.savePeerAsFriend = () => {
         Friends.add('Connected Peer', App.roomCode);
-        notify('Peer saved to your Friends list!', '👥');
+        notify('Saved to Friends list', '👥');
     };
 
     bind('btnOpenAddFriendModal', 'click', () => $('addFriendModal')?.classList.add('show'));
@@ -2739,7 +2796,7 @@
 
     bind('btnCopyInviteCode', 'click', () => {
         navigator.clipboard.writeText(App.roomCode).then(() => {
-            notify('Room Code copied!', '📋');
+            notify('Room Code copied', '📋');
         });
     });
 
@@ -2752,7 +2809,7 @@
     bind('btnCopyInviteLink', 'click', () => {
         const shareUrl = `${window.location.origin}${window.location.pathname}#${App.roomCode}`;
         navigator.clipboard.writeText(shareUrl).then(() => {
-            notify('Invite link copied!', '📋');
+            notify('Invite link copied to clipboard', '📋');
             $('shareModal')?.classList.remove('show');
         });
     });
@@ -2878,7 +2935,7 @@
         $('lobbyView')?.classList.remove('hidden');
 
         cleanUrlHash();
-        notify('Call Ended', '⏹️');
+        notify('Meeting Ended', '⏹️');
     });
 
     // Keyboard Shortcuts (M = Mute, V = Cam, C = Chat, Esc = Close)
