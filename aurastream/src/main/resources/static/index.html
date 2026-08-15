@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AURASTREAM — Adaptive Studio HD Video</title>
+    <title>AURASTREAM — Luxury Studio HD Video & Private Rooms</title>
     <meta name="description" content="Next-generation luxury P2P video meetings with auto-adaptive network streaming, studio lighting, voice isolation, and zero latency.">
     
     <!-- PeerJS Direct P2P Mesh -->
@@ -15,29 +15,29 @@
 
     <style>
         :root {
-            --bg-canvas: #040408;
-            --bg-surface: rgba(15, 15, 26, 0.82);
-            --bg-elevated: rgba(24, 24, 40, 0.92);
-            --bg-glass: rgba(18, 18, 32, 0.75);
-            --bg-glass-dock: rgba(12, 12, 22, 0.92);
+            --bg-canvas: #030308;
+            --bg-surface: rgba(16, 16, 28, 0.78);
+            --bg-elevated: rgba(24, 24, 42, 0.92);
+            --bg-glass: rgba(18, 18, 34, 0.75);
+            --bg-glass-dock: rgba(12, 12, 24, 0.92);
             
             --brand: #ff5e00;
             --brand-light: #ff7e29;
-            --brand-glow: rgba(255, 94, 0, 0.38);
+            --brand-glow: rgba(255, 94, 0, 0.42);
             --brand-subtle: rgba(255, 94, 0, 0.14);
             --brand-gradient: linear-gradient(135deg, #ff3b00 0%, #ff6a00 50%, #ff0055 100%);
             
+            --accent-purple: #a855f7;
+            --accent-cyan: #06b6d4;
             --danger: #ff2a55;
             --danger-glow: rgba(255, 42, 85, 0.45);
             --success: #00f076;
             --success-glow: rgba(0, 240, 118, 0.35);
             --wa-green: #25d366;
-            --purple: #a855f7;
-            --cyan: #06b6d4;
             
             --border-dim: rgba(255, 255, 255, 0.08);
-            --border-subtle: rgba(255, 255, 255, 0.15);
-            --border-glow: rgba(255, 94, 0, 0.5);
+            --border-subtle: rgba(255, 255, 255, 0.16);
+            --border-glow: rgba(255, 94, 0, 0.55);
             
             --text-1: #ffffff;
             --text-2: #9da3be;
@@ -80,57 +80,52 @@
             touch-action: manipulation;
         }
 
-        /* Fullscreen Video Containers with Zero Shrink Bug */
-        .video-stream-wrapper {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            transition: opacity 0.25s ease;
-        }
-        .video-stream-wrapper.mirrored {
-            transform: scaleX(-1);
-            -webkit-transform: scaleX(-1);
-        }
-        .video-stream-wrapper video {
+        /* Fullscreen Video Constraints */
+        #mainVideo {
             position: absolute !important;
-            top: 50% !important;
-            left: 50% !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            height: 100dvh !important;
+            inset: 0 !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
             min-width: 100% !important;
             min-height: 100% !important;
-            transform: translate(-50%, -50%) !important;
-            -webkit-transform: translate(-50%, -50%) !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
             object-fit: cover !important;
+            object-position: center !important;
             display: block !important;
+            background: transparent;
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
+            transition: opacity 0.25s ease;
+        }
+        #mainVideo.self-mirrored {
+            transform: rotateY(180deg) !important;
+            -webkit-transform: rotateY(180deg) !important;
         }
 
-        .viewfinder-shell video {
+        #lobbyVideo {
             position: absolute !important;
             inset: 0 !important;
             width: 100% !important;
             height: 100% !important;
             object-fit: cover !important;
-            transform: scaleX(-1);
-            -webkit-transform: scaleX(-1);
-            transition: opacity 0.2s ease;
+            transform: rotateY(180deg) !important;
+            -webkit-transform: rotateY(180deg) !important;
+            transition: opacity 0.25s ease;
         }
 
-        .pip-card video {
+        #pipVideo {
             position: absolute !important;
             inset: 0 !important;
             width: 100% !important;
             height: 100% !important;
             object-fit: cover !important;
+        }
+        #pipVideo.self-mirrored {
+            transform: rotateY(180deg) !important;
+            -webkit-transform: rotateY(180deg) !important;
         }
 
         .ambient-mesh {
@@ -139,9 +134,9 @@
             pointer-events: none;
             z-index: 0;
             background: 
-                radial-gradient(circle at 15% 15%, rgba(255, 94, 0, 0.09) 0%, transparent 45%),
-                radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.08) 0%, transparent 45%),
-                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.03) 0%, transparent 60%);
+                radial-gradient(circle at 10% 20%, rgba(255, 94, 0, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 60%);
         }
 
         button, input {
@@ -328,7 +323,7 @@
         .btn-primary {
             background: var(--brand-gradient);
             color: #000;
-            padding: 13px 20px;
+            padding: 14px 20px;
             border-radius: var(--radius-xs);
             font-size: 14px;
             font-weight: 800;
@@ -344,7 +339,7 @@
         .btn-primary:active { transform: scale(0.98); }
 
         /* ========================================================
-            STUDIO LOBBY VIEW
+            PREMIUM LUXURY STUDIO LOBBY (FRONT PAGE)
            ======================================================== */
         .lobby-stage {
             position: fixed;
@@ -354,7 +349,7 @@
             align-items: center;
             justify-content: center;
             padding: max(16px, var(--safe-top)) max(16px, var(--safe-right)) max(16px, var(--safe-bottom)) max(16px, var(--safe-left));
-            background: radial-gradient(circle at 50% 20%, #16122a 0%, var(--bg-canvas) 85%);
+            background: radial-gradient(circle at 50% 15%, #181232 0%, var(--bg-canvas) 85%);
             transition: opacity 0.3s var(--spring);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
@@ -363,10 +358,10 @@
 
         .studio-container {
             width: 100%;
-            max-width: 960px;
+            max-width: 980px;
             display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 28px;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 32px;
             align-items: center;
             margin: auto;
         }
@@ -374,7 +369,7 @@
         .brand-panel {
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 20px;
         }
         .brand-header {
             display: flex;
@@ -386,15 +381,20 @@
             align-items: center;
             gap: 12px;
         }
-        .logo-emblem svg { width: 42px; height: 42px; }
+        .logo-emblem svg {
+            width: 44px;
+            height: 44px;
+            filter: drop-shadow(0 6px 16px var(--brand-glow));
+        }
         .brand-title h1 {
             font-family: var(--font-head);
-            font-size: 22px;
+            font-size: 23px;
             font-weight: 800;
             color: #fff;
             display: flex;
             align-items: center;
             gap: 6px;
+            letter-spacing: -0.5px;
         }
         .brand-title h1 span {
             background: var(--brand-gradient);
@@ -405,6 +405,7 @@
             font-size: 11px;
             color: var(--text-2);
             font-weight: 600;
+            letter-spacing: 0.2px;
         }
 
         .user-profile-badge {
@@ -420,10 +421,13 @@
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
+            transition: all 0.15s ease;
         }
+        .user-profile-badge:active { transform: scale(0.96); background: var(--bg-elevated); }
+
         .user-profile-avatar {
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             background: var(--brand-gradient);
             color: #000;
             border-radius: 50%;
@@ -434,32 +438,57 @@
             font-size: 11px;
         }
 
+        /* Hero Highlights Pill */
+        .feature-chip-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .feature-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-dim);
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-2);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .feature-chip.active {
+            background: rgba(0, 240, 118, 0.1);
+            border-color: rgba(0, 240, 118, 0.3);
+            color: var(--success);
+        }
+
         .hero-headline {
             font-family: var(--font-head);
-            font-size: 26px;
+            font-size: 30px;
             font-weight: 800;
-            line-height: 1.25;
-            letter-spacing: -0.4px;
+            line-height: 1.2;
+            letter-spacing: -0.6px;
             color: #fff;
         }
         .hero-desc {
-            font-size: 13px;
-            line-height: 1.55;
+            font-size: 14px;
+            line-height: 1.6;
             color: var(--text-2);
             margin-top: 4px;
         }
 
         .join-box-card {
             background: var(--bg-surface);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
-            padding: 18px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 18px 45px rgba(0,0,0,0.6);
+            gap: 14px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
         }
 
         .btn-group {
@@ -468,10 +497,10 @@
             gap: 10px;
         }
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.06);
             color: #fff;
             border: 1px solid var(--border-subtle);
-            padding: 13px 16px;
+            padding: 14px 16px;
             border-radius: var(--radius-xs);
             font-size: 13px;
             font-weight: 700;
@@ -483,7 +512,7 @@
             transition: all 0.15s ease;
         }
         .btn-secondary:active {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.14);
             transform: scale(0.98);
         }
 
@@ -491,7 +520,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 11px 14px;
+            padding: 12px 16px;
             background: rgba(255, 255, 255, 0.03);
             border: 1px dashed var(--border-subtle);
             border-radius: var(--radius-xs);
@@ -499,8 +528,11 @@
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.15s ease;
         }
+        .lobby-friends-btn:active { background: rgba(255,255,255,0.08); }
 
+        /* Viewfinder Camera Stage */
         .viewfinder-shell {
             width: 100%;
             aspect-ratio: 4/3;
@@ -509,30 +541,53 @@
             border: 1px solid var(--border-subtle);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.85);
         }
+        
+        .vf-stream-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(10, 10, 20, 0.78);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-dim);
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-2);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         .vf-overlay-controls {
             position: absolute;
-            bottom: 12px;
+            bottom: 14px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             z-index: 10;
         }
         .vf-toggle-btn {
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: var(--radius-full);
-            background: rgba(14, 14, 24, 0.88);
+            background: rgba(14, 14, 26, 0.88);
+            backdrop-filter: blur(16px);
             border: 1px solid rgba(255,255,255,0.18);
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            transition: all 0.15s ease;
         }
+        .vf-toggle-btn:active { transform: scale(0.92); }
         .vf-toggle-btn.off {
             background: var(--danger);
             border-color: transparent;
@@ -545,39 +600,41 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             background: radial-gradient(circle at center, #151128 0%, #06060c 100%);
             z-index: 2;
             transition: opacity 0.2s ease;
         }
         .vf-avatar-ring {
-            width: 68px;
-            height: 68px;
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 24px var(--brand-glow);
+            box-shadow: 0 8px 28px var(--brand-glow);
         }
         .btn-test-cam {
             background: rgba(255,255,255,0.08);
             border: 1px solid var(--border-subtle);
             color: #fff;
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: var(--radius-full);
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
+            transition: all 0.15s ease;
         }
+        .btn-test-cam:active { background: rgba(255,255,255,0.16); }
 
         .audio-eq-bars {
             position: absolute;
             bottom: 0; left: 0; right: 0;
-            height: 3px;
+            height: 4px;
             background: rgba(255,255,255,0.04);
             z-index: 5;
         }
@@ -731,6 +788,7 @@
             position: relative;
             width: 100%;
             height: 100%;
+            min-height: 100%;
             overflow: hidden;
             background: #000;
         }
@@ -738,6 +796,7 @@
         .main-hero-tile {
             position: absolute;
             inset: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             width: 100%;
             height: 100%;
             background: radial-gradient(circle at center, #151128 0%, #030308 100%);
@@ -1306,8 +1365,8 @@
         }
 
         @media (max-width: 900px) {
-            .studio-container { grid-template-columns: 1fr; gap: 16px; }
-            .hero-headline { font-size: 22px; }
+            .studio-container { grid-template-columns: 1fr; gap: 18px; }
+            .hero-headline { font-size: 24px; }
             .side-drawer {
                 width: 100%;
                 top: auto; bottom: 0;
@@ -1377,7 +1436,7 @@
 </div>
 
 <!-- ========================================================
-     STUDIO LOBBY
+     DELIGHTFUL NEXT-GEN FRONT PAGE / STUDIO LOBBY
      ======================================================== -->
 <div class="lobby-stage hidden" id="lobbyView">
     <div class="studio-container">
@@ -1397,7 +1456,7 @@
                     </div>
                     <div class="brand-title">
                         <h1>AURA<span>STREAM</span></h1>
-                        <p>Adaptive HD Pro Suite</p>
+                        <p>Studio Pro 3.0</p>
                     </div>
                 </div>
                 <div class="user-profile-badge" id="btnEditProfile" title="Edit Profile">
@@ -1406,9 +1465,23 @@
                 </div>
             </div>
 
+            <!-- Feature Highlight Row -->
+            <div class="feature-chip-row">
+                <div class="feature-chip active">
+                    <div class="live-pulse-dot"></div>
+                    <span>Ultra HD 1080p 60FPS</span>
+                </div>
+                <div class="feature-chip">
+                    <span>⚡ 0ms P2P Mesh</span>
+                </div>
+                <div class="feature-chip">
+                    <span>🔒 End-to-End Encrypted</span>
+                </div>
+            </div>
+
             <div>
-                <h2 class="hero-headline">Studio Meetings.<br>Adaptive Fast Stream.</h2>
-                <p class="hero-desc">Auto-scaling bitrate for 2G/3G/4G/5G, zero echo, WhatsApp invites, and true end-to-end privacy.</p>
+                <h2 class="hero-headline">Studio Meetings.<br>Pure Cinematic Video.</h2>
+                <p class="hero-desc">Adaptive bandwidth engine, hardware echo isolation, instant WhatsApp invites, and true zero-latency peer connection.</p>
             </div>
 
             <div class="join-box-card">
@@ -1446,13 +1519,20 @@
             </div>
         </div>
 
+        <!-- Luxury Interactive Viewfinder Preview -->
         <div class="preview-column">
             <div class="viewfinder-shell">
+                <div class="vf-stream-badge">
+                    <div class="live-pulse-dot"></div>
+                    <span>1080P · 60 FPS · STUDIO</span>
+                </div>
+
                 <div class="vf-placeholder-state" id="vfPlaceholder">
                     <div class="vf-avatar-ring" id="lobbyAvLetter">U</div>
                     <span style="font-size: 12px; color: var(--text-2); font-weight: 600;">Camera Disabled</span>
                     <button class="btn-test-cam" id="btnTestCamera">Preview Camera</button>
                 </div>
+
                 <video id="lobbyVideo" autoplay playsinline webkit-playsinline muted style="opacity: 0; visibility: hidden;"></video>
                 
                 <div class="vf-overlay-controls">
@@ -1508,19 +1588,17 @@
     <!-- Center Stage -->
     <div class="video-canvas" id="canvasArea">
         <div class="main-hero-tile" id="mainCard">
-            <!-- Center Avatar with Integrated Name (Zero Bottom-Left Overlap) -->
+            <!-- Center Avatar with Integrated Name -->
             <div class="tile-avatar-view" id="mainPlaceholder">
                 <div class="tile-avatar-glow" id="mainAvLetter">U</div>
                 <div class="tile-avatar-meta">
                     <span class="tile-avatar-name" id="mainTileLabel">You</span>
-                    <span class="tile-avatar-role" id="mainRoleTag">Host · Adaptive HD</span>
+                    <span class="tile-avatar-role" id="mainRoleTag">Host · 1080p Studio</span>
                 </div>
             </div>
 
-            <!-- Bulletproof Full-Bleed Video Wrapper -->
-            <div class="video-stream-wrapper" id="mainVidWrapper">
-                <video id="mainVideo" autoplay playsinline webkit-playsinline muted style="opacity: 0; visibility: hidden;"></video>
-            </div>
+            <!-- Bulletproof Native Fullscreen Video -->
+            <video id="mainVideo" autoplay playsinline webkit-playsinline muted style="opacity: 0; visibility: hidden;"></video>
         </div>
 
         <!-- Waiting Pill positioned cleanly above bottom dock -->
@@ -1762,7 +1840,7 @@
     }
 
     const Account = {
-        key: 'aurastream_profile_v14',
+        key: 'aurastream_profile_v15',
         get() { return localStorage.getItem(this.key); },
         save(name) { localStorage.setItem(this.key, name); },
         check() {
@@ -1792,7 +1870,7 @@
         if ($('lobbyAvLetter')) $('lobbyAvLetter').textContent = initial;
         if ($('mainAvLetter')) $('mainAvLetter').textContent = initial;
         if ($('mainTileLabel')) $('mainTileLabel').textContent = App.userName;
-        if ($('mainRoleTag')) $('mainRoleTag').textContent = `${App.isHost ? 'Host' : 'Guest'} · Adaptive HD`;
+        if ($('mainRoleTag')) $('mainRoleTag').textContent = `${App.isHost ? 'Host' : 'Guest'} · 1080p Studio`;
     }
 
     function notify(msg, emoji = '✨') {
@@ -1806,7 +1884,7 @@
     }
 
     const Friends = {
-        key: 'aurastream_friends_list_v14',
+        key: 'aurastream_friends_list_v15',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -2189,7 +2267,6 @@
     // Bulletproof zero-shrink layout engine
     function updateVideoLayout() {
         const mainVid = $('mainVideo');
-        const mainWrap = $('mainVidWrapper');
         const pipVid = $('pipVideo');
         const mainPlace = $('mainPlaceholder');
 
@@ -2199,21 +2276,16 @@
                     mainVid.srcObject = App.localStream;
                 }
                 mainVid.muted = true;
+                mainVid.classList.toggle('self-mirrored', App.facing === 'user');
                 mainVid.style.opacity = App.cam ? '1' : '0';
                 mainVid.style.visibility = App.cam ? 'visible' : 'hidden';
                 if (App.cam) mainVid.play().catch(()=>{});
             }
 
-            if (mainWrap) {
-                if (App.facing === 'user') mainWrap.classList.add('mirrored');
-                else mainWrap.classList.remove('mirrored');
-                mainWrap.style.opacity = App.cam ? '1' : '0';
-                mainWrap.style.visibility = App.cam ? 'visible' : 'hidden';
-            }
-
             if (mainPlace) {
                 mainPlace.style.opacity = App.cam ? '0' : '1';
                 mainPlace.style.visibility = App.cam ? 'hidden' : 'visible';
+                mainPlace.style.display = App.cam ? 'none' : 'flex';
             }
             $('pipCard')?.classList.add('hidden');
             return;
@@ -2225,20 +2297,16 @@
                     mainVid.srcObject = App.remoteStream;
                 }
                 mainVid.muted = false;
+                mainVid.classList.remove('self-mirrored');
                 mainVid.style.opacity = '1';
                 mainVid.style.visibility = 'visible';
                 mainVid.play().catch(()=>{});
             }
 
-            if (mainWrap) {
-                mainWrap.classList.remove('mirrored');
-                mainWrap.style.opacity = '1';
-                mainWrap.style.visibility = 'visible';
-            }
-
             if (mainPlace) {
                 mainPlace.style.opacity = '0';
                 mainPlace.style.visibility = 'hidden';
+                mainPlace.style.display = 'none';
             }
 
             if (pipVid && App.localStream) {
@@ -2246,7 +2314,7 @@
                     pipVid.srcObject = App.localStream;
                 }
                 pipVid.muted = true;
-                pipVid.style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+                pipVid.classList.toggle('self-mirrored', App.facing === 'user');
                 pipVid.style.opacity = App.cam ? '1' : '0';
                 pipVid.style.visibility = App.cam ? 'visible' : 'hidden';
                 if (App.cam) pipVid.play().catch(()=>{});
@@ -2258,21 +2326,16 @@
                     mainVid.srcObject = App.localStream;
                 }
                 mainVid.muted = true;
+                mainVid.classList.toggle('self-mirrored', App.facing === 'user');
                 mainVid.style.opacity = App.cam ? '1' : '0';
                 mainVid.style.visibility = App.cam ? 'visible' : 'hidden';
                 if (App.cam) mainVid.play().catch(()=>{});
             }
 
-            if (mainWrap) {
-                if (App.facing === 'user') mainWrap.classList.add('mirrored');
-                else mainWrap.classList.remove('mirrored');
-                mainWrap.style.opacity = App.cam ? '1' : '0';
-                mainWrap.style.visibility = App.cam ? 'visible' : 'hidden';
-            }
-
             if (mainPlace) {
                 mainPlace.style.opacity = App.cam ? '0' : '1';
                 mainPlace.style.visibility = App.cam ? 'hidden' : 'visible';
+                mainPlace.style.display = App.cam ? 'none' : 'flex';
             }
 
             if (pipVid && App.remoteStream) {
@@ -2280,7 +2343,7 @@
                     pipVid.srcObject = App.remoteStream;
                 }
                 pipVid.muted = false;
-                pipVid.style.transform = 'scaleX(1)';
+                pipVid.classList.remove('self-mirrored');
                 pipVid.style.opacity = '1';
                 pipVid.style.visibility = 'visible';
                 pipVid.play().catch(()=>{});
@@ -2559,7 +2622,7 @@
             item.className = 'person-item';
             item.innerHTML = `
                 <div class="person-info">
-                    <div class="person-avatar" style="background: var(--purple); color: #fff;">P</div>
+                    <div class="person-avatar" style="background: var(--accent-purple); color: #fff;">P</div>
                     <div>
                         <div style="font-weight: 800; font-size: 13px;">Connected Peer</div>
                         <div style="font-size: 11px; color: var(--text-2); font-weight:600;">Adaptive Stream</div>
@@ -2717,35 +2780,22 @@
         if (mainVid) { 
             try { mainVid.pause(); } catch(e){}
             mainVid.srcObject = null; 
-            mainVid.removeAttribute('src');
-            mainVid.load();
-            mainVid.muted = true;
             mainVid.style.opacity = '0';
             mainVid.style.visibility = 'hidden';
-        }
-        const mainWrap = $('mainVidWrapper');
-        if (mainWrap) {
-            mainWrap.classList.remove('mirrored');
-            mainWrap.style.opacity = '0';
-            mainWrap.style.visibility = 'hidden';
+            mainVid.classList.remove('self-mirrored');
         }
 
         const pipVid = $('pipVideo');
         if (pipVid) { 
             try { pipVid.pause(); } catch(e){}
             pipVid.srcObject = null; 
-            pipVid.removeAttribute('src');
-            pipVid.load();
-            pipVid.muted = true;
+            pipVid.classList.remove('self-mirrored');
         }
 
         const lobbyVid = $('lobbyVideo');
         if (lobbyVid) { 
             try { lobbyVid.pause(); } catch(e){}
             lobbyVid.srcObject = null; 
-            lobbyVid.removeAttribute('src');
-            lobbyVid.load();
-            lobbyVid.muted = true;
             lobbyVid.style.opacity = '0';
             lobbyVid.style.visibility = 'hidden';
         }
@@ -2763,8 +2813,7 @@
         $('pipCard')?.classList.add('hidden');
         $('waitingHub')?.classList.remove('hidden');
         
-        $('vfPlaceholder') && ($('vfPlaceholder').style.display = 'flex');
-        $('btnTestCamera') && ($('btnTestCamera').style.display = 'block');
+        if ($('vfPlaceholder')) $('vfPlaceholder').style.display = 'flex';
         $('lMicBtn')?.classList.add('off');
         $('lCamBtn')?.classList.add('off');
         $('dockScreen')?.classList.remove('active');
