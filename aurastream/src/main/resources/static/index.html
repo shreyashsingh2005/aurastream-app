@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AURASTREAM — Studio P2P Video & Friends</title>
-    <meta name="description" content="Next-generation video meetings with studio lighting, friends list, WhatsApp sharing, particle reactions, and zero latency.">
+    <title>AURASTREAM — Studio HD P2P Video & Friends</title>
+    <meta name="description" content="Next-generation HD 1080p video meetings with studio lighting, friends list, WhatsApp sharing, particle reactions, and zero latency.">
     
-    <!-- PeerJS for Reliable Cross-Device P2P Connection -->
+    <!-- PeerJS for 100% Reliable Cross-Device P2P Connection -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,41 +15,35 @@
 
     <style>
         :root {
-            /* Luxury OLED Night Color System */
-            --bg-canvas: #030307;
-            --bg-surface: #090912;
-            --bg-elevated: #111122;
-            --bg-glass: rgba(15, 15, 26, 0.72);
-            --bg-glass-heavy: rgba(10, 10, 18, 0.88);
-            --bg-glass-dock: rgba(12, 12, 22, 0.85);
+            --bg-canvas: #040408;
+            --bg-surface: #0a0a14;
+            --bg-elevated: #121224;
+            --bg-glass: rgba(16, 16, 28, 0.78);
+            --bg-glass-heavy: rgba(10, 10, 18, 0.92);
+            --bg-glass-dock: rgba(12, 12, 24, 0.88);
             
-            /* Electric Sunset Gold Gradient */
             --brand: #ff6a00;
             --brand-light: #ff8c3b;
             --brand-glow: rgba(255, 106, 0, 0.35);
             --brand-subtle: rgba(255, 106, 0, 0.12);
             --brand-gradient: linear-gradient(135deg, #ff4500 0%, #ff6a00 50%, #ff0055 100%);
             
-            /* UI System */
             --danger: #ff2d55;
             --danger-glow: rgba(255, 45, 85, 0.35);
             --success: #00e676;
             --success-glow: rgba(0, 230, 118, 0.3);
-            --cyan: #00e5ff;
-            --purple: #9d4edd;
             --wa-green: #25d366;
+            --purple: #9d4edd;
+            --cyan: #00e5ff;
             
-            /* Glass Borders */
             --border-dim: rgba(255, 255, 255, 0.08);
-            --border-subtle: rgba(255, 255, 255, 0.15);
+            --border-subtle: rgba(255, 255, 255, 0.14);
             --border-active: rgba(255, 106, 0, 0.5);
             
-            /* Text */
             --text-1: #ffffff;
             --text-2: #a0a0ba;
-            --text-3: #5a5a75;
+            --text-3: #5c5c77;
             
-            /* Fonts */
             --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-head: 'Space Grotesk', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
@@ -57,7 +51,6 @@
             --radius-xs: 10px;
             --radius-sm: 16px;
             --radius-md: 22px;
-            --radius-lg: 28px;
             --radius-full: 9999px;
             
             --spring: cubic-bezier(0.175, 0.885, 0.32, 1.2);
@@ -90,31 +83,15 @@
             touch-action: manipulation;
         }
 
-        /* Highly Optimized GPU Ambient Orbs (Zero Mobile Lag) */
+        /* Pure CSS Hardware-Accelerated Ambient Light */
         .ambient-mesh {
             position: fixed;
             inset: 0;
             pointer-events: none;
             z-index: 0;
-            overflow: hidden;
-            transform: translate3d(0, 0, 0);
-            contain: strict;
-        }
-        .ambient-orb {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.18;
-            filter: blur(70px);
-            will-change: transform;
-            transform: translate3d(0,0,0);
-            animation: orbMorph 18s ease-in-out infinite alternate;
-        }
-        .orb-1 { width: 450px; height: 450px; background: radial-gradient(circle, #ff6a00 0%, transparent 70%); top: -10%; left: -10%; }
-        .orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, #9d4edd 0%, transparent 70%); bottom: -10%; right: -10%; animation-delay: -6s; }
-
-        @keyframes orbMorph {
-            0% { transform: translate3d(0, 0, 0) scale(1); }
-            100% { transform: translate3d(30px, -25px, 0) scale(1.08); }
+            background: 
+                radial-gradient(circle at 10% 10%, rgba(255, 106, 0, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(157, 78, 221, 0.08) 0%, transparent 40%);
         }
 
         button, input {
@@ -128,14 +105,13 @@
             height: 20px;
             stroke: currentColor;
             fill: none;
-            stroke-width: 2.1;
+            stroke-width: 2.2;
             stroke-linecap: round;
             stroke-linejoin: round;
             flex-shrink: 0;
         }
         .icon-sm { width: 16px; height: 16px; stroke-width: 2.3; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-        .icon-lg { width: 24px; height: 24px; }
-        
+
         .close-btn {
             background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.18);
@@ -147,9 +123,9 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
         }
-        .close-btn:hover, .close-btn:active {
+        .close-btn:active, .close-btn:hover {
             background: rgba(255, 45, 85, 0.25);
             color: var(--danger);
             border-color: var(--danger);
@@ -167,12 +143,12 @@
             justify-content: center;
             padding: 20px;
             background: var(--bg-canvas);
-            transition: opacity 0.3s var(--smooth), transform 0.3s var(--smooth);
+            transition: opacity 0.25s var(--smooth), transform 0.25s var(--smooth);
         }
         .auth-stage.hidden {
             opacity: 0;
             pointer-events: none;
-            transform: translateY(-16px);
+            transform: translateY(-12px);
         }
 
         .auth-card {
@@ -181,7 +157,7 @@
             background: var(--bg-surface);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
-            padding: 32px 24px;
+            padding: 30px 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -196,15 +172,10 @@
             background: var(--brand-gradient);
             border-radius: var(--radius-md) var(--radius-md) 0 0;
         }
-        .auth-logo {
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
         .auth-logo svg {
-            width: 64px;
-            height: 64px;
+            width: 60px;
+            height: 60px;
+            margin-bottom: 14px;
         }
         .auth-card h2 {
             font-family: var(--font-head);
@@ -215,7 +186,7 @@
         .auth-card p {
             font-size: 13px;
             color: var(--text-2);
-            margin-bottom: 24px;
+            margin-bottom: 22px;
         }
 
         .auth-input-group {
@@ -262,13 +233,11 @@
             justify-content: center;
             gap: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             box-shadow: 0 4px 16px var(--brand-glow);
             width: 100%;
         }
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
+        .btn-primary:active { transform: scale(0.98); }
 
         /* ========================================================
             LAUNCHPAD / STUDIO LOBBY 
@@ -281,8 +250,8 @@
             align-items: center;
             justify-content: center;
             padding: max(16px, var(--safe-top)) max(16px, var(--safe-right)) max(16px, var(--safe-bottom)) max(16px, var(--safe-left));
-            background: radial-gradient(circle at 50% 15%, #140f20 0%, var(--bg-canvas) 85%);
-            transition: opacity 0.3s var(--smooth);
+            background: radial-gradient(circle at 50% 15%, #140e22 0%, var(--bg-canvas) 85%);
+            transition: opacity 0.25s var(--smooth);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -295,7 +264,7 @@
             max-width: 960px;
             display: grid;
             grid-template-columns: 1.1fr 0.9fr;
-            gap: 30px;
+            gap: 28px;
             align-items: center;
             position: relative;
             z-index: 1;
@@ -305,7 +274,7 @@
         .brand-panel {
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 16px;
         }
         .brand-header {
             display: flex;
@@ -316,12 +285,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-        }
-        .logo-emblem {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
         }
         .logo-emblem svg {
             width: 44px;
@@ -380,7 +343,7 @@
 
         .hero-headline {
             font-family: var(--font-head);
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 800;
             line-height: 1.2;
             letter-spacing: -0.4px;
@@ -397,10 +360,10 @@
             background: var(--bg-surface);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
-            padding: 20px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.5);
         }
 
@@ -422,7 +385,7 @@
             justify-content: center;
             gap: 6px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
         }
         .btn-secondary:active {
             background: rgba(255, 255, 255, 0.12);
@@ -485,14 +448,14 @@
             width: 42px;
             height: 42px;
             border-radius: var(--radius-full);
-            background: rgba(10, 10, 20, 0.85);
+            background: rgba(10, 10, 20, 0.88);
             border: 1px solid rgba(255,255,255,0.18);
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
         }
         .vf-toggle-btn.off { background: var(--danger); border-color: transparent; }
 
@@ -507,12 +470,12 @@
             background: radial-gradient(circle, #141022 0%, #06060c 100%);
         }
         .vf-avatar-ring {
-            width: 70px;
-            height: 70px;
+            width: 68px;
+            height: 68px;
             border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 800;
             display: flex;
             align-items: center;
@@ -528,7 +491,7 @@
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
+            transition: 0.15s;
         }
         .btn-test-cam:active {
             background: rgba(255,255,255,0.18);
@@ -548,16 +511,19 @@
             transition: width 0.05s linear;
         }
 
-        .security-badge-row {
-            display: flex;
+        .quality-pill-indicator {
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 6px;
+            background: rgba(0, 230, 118, 0.12);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+            color: var(--success);
             font-size: 11px;
-            font-weight: 600;
-            color: var(--text-2);
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            letter-spacing: 0.5px;
         }
-        .security-badge-row span { color: var(--success); }
 
         /* ========================================================
             ACTIVE CALL STAGE
@@ -578,11 +544,11 @@
         .hud-topbar {
             position: absolute;
             top: 0; left: 0; right: 0;
-            padding: max(12px, var(--safe-top)) max(16px, var(--safe-right)) 12px max(16px, var(--safe-left));
+            padding: max(12px, var(--safe-top)) max(14px, var(--safe-right)) 10px max(14px, var(--safe-left));
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: linear-gradient(180deg, rgba(3,3,7,0.95) 0%, rgba(3,3,7,0) 100%);
+            background: linear-gradient(180deg, rgba(3,3,7,0.92) 0%, rgba(3,3,7,0) 100%);
             z-index: 100;
             pointer-events: none;
         }
@@ -597,13 +563,13 @@
         .room-tag-pill {
             background: var(--bg-glass);
             border: 1px solid var(--border-subtle);
-            padding: 7px 14px;
+            padding: 6px 12px;
             border-radius: var(--radius-full);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
         }
         .room-tag-pill:active {
             border-color: var(--border-active);
@@ -649,12 +615,10 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             position: relative;
         }
-        .hud-btn:active {
-            background: rgba(255,255,255,0.15);
-        }
+        .hud-btn:active { background: rgba(255,255,255,0.15); }
 
         .hud-btn.share-cta {
             background: rgba(37, 211, 102, 0.16);
@@ -692,8 +656,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0;
             overflow: hidden;
+            background: #000;
         }
 
         .main-hero-tile {
@@ -705,7 +669,6 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            transition: border-color 0.2s ease;
         }
         .main-hero-tile.speaking {
             box-shadow: inset 0 0 0 2px var(--brand);
@@ -714,6 +677,11 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+
+        /* Studio Lighting Filter */
+        .studio-lighting video {
+            filter: contrast(1.05) saturate(1.1) brightness(1.03);
         }
 
         .tile-avatar-view {
@@ -725,31 +693,31 @@
 
         .user-tag {
             position: absolute;
-            top: 68px;
-            left: 16px;
-            background: rgba(0, 0, 0, 0.6);
+            top: 66px;
+            left: 14px;
+            background: rgba(0, 0, 0, 0.65);
             border: 1px solid var(--border-dim);
-            padding: 5px 12px;
+            padding: 4px 10px;
             border-radius: var(--radius-full);
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             z-index: 10;
         }
 
         .subtle-waiting-hub {
             position: absolute;
-            bottom: 110px;
+            bottom: 105px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             background: rgba(0, 0, 0, 0.75);
-            padding: 8px 18px;
+            padding: 8px 16px;
             border-radius: var(--radius-full);
             border: 1px solid var(--border-dim);
             z-index: 5;
@@ -763,27 +731,27 @@
             font-weight: 500;
         }
         .subtle-spinner {
-            width: 14px;
-            height: 14px;
+            width: 12px;
+            height: 12px;
             border: 2px solid rgba(255,255,255,0.2);
             border-top-color: var(--brand);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Draggable / Touch-Friendly PiP (Picture-in-Picture) */
+        /* Draggable PiP (Picture-in-Picture) */
         .pip-card {
             position: absolute;
-            top: 75px;
-            right: 16px;
-            width: 120px;
+            top: 68px;
+            right: 14px;
+            width: 115px;
             aspect-ratio: 9/16;
             background: #000;
             border-radius: var(--radius-xs);
             overflow: hidden;
             border: 2px solid var(--border-active);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.85);
             z-index: 85;
             cursor: grab;
             touch-action: none;
@@ -800,8 +768,8 @@
         }
         .pip-tag {
             position: absolute;
-            bottom: 6px; left: 6px;
-            background: rgba(0,0,0,0.65);
+            bottom: 5px; left: 5px;
+            background: rgba(0,0,0,0.7);
             padding: 2px 6px;
             border-radius: 4px;
             font-size: 9px;
@@ -827,7 +795,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 14px;
+            padding: 8px 12px;
             background: var(--bg-glass-dock);
             border: 1px solid var(--border-dim);
             border-radius: var(--radius-full);
@@ -869,25 +837,20 @@
         }
 
         .dock-btn.end-btn {
-            width: 54px;
+            width: 52px;
             border-radius: var(--radius-full);
             background: var(--danger);
             color: #fff;
             box-shadow: 0 4px 14px var(--danger-glow);
         }
-        .dock-btn.end-btn:active {
-            background: #e60020;
-        }
+        .dock-btn.end-btn:active { background: #e60020; }
         .dock-btn.end-btn svg { transform: rotate(135deg); }
 
-        .mobile-hide {
-            display: flex;
-        }
+        .mobile-hide { display: flex; }
 
-        /* Party Burst Reaction Menu */
         .reaction-menu {
             position: absolute;
-            bottom: 66px;
+            bottom: 64px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(15, 15, 26, 0.95);
@@ -899,21 +862,20 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             z-index: 110;
         }
-        .reaction-menu.show { display: flex; animation: dropIn 0.2s var(--spring); }
+        .reaction-menu.show { display: flex; }
         .r-btn {
-            font-size: 22px;
+            font-size: 20px;
             background: transparent;
             padding: 4px 6px;
             border-radius: var(--radius-full);
             cursor: pointer;
-            transition: transform 0.12s ease;
         }
         .r-btn:active { transform: scale(1.3); }
 
         /* Floating Chat Banner */
         .floating-chat-banner {
             position: fixed;
-            top: max(16px, var(--safe-top));
+            top: max(14px, var(--safe-top));
             left: 50%;
             transform: translateX(-50%) translateY(-100px);
             background: rgba(18, 18, 30, 0.96);
@@ -935,8 +897,8 @@
             opacity: 1;
         }
         .floating-avatar {
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
@@ -944,7 +906,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 11px;
         }
         .floating-text-content b { font-size: 11px; color: var(--brand-light); }
         .floating-text-content span { font-size: 12px; color: #fff; }
@@ -955,13 +917,13 @@
         .side-drawer {
             position: absolute;
             top: 0; right: 0; bottom: 0;
-            width: 360px;
+            width: 350px;
             background: var(--bg-surface);
             border-left: 1px solid var(--border-dim);
             display: flex;
             flex-direction: column;
             transform: translateX(100%);
-            transition: transform 0.3s var(--smooth);
+            transition: transform 0.25s var(--smooth);
             z-index: 150;
         }
         .side-drawer.open { transform: translateX(0); }
@@ -970,7 +932,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: max(14px, var(--safe-top)) 16px 14px 16px;
+            padding: max(14px, var(--safe-top)) 16px 12px 16px;
             border-bottom: 1px solid var(--border-dim);
         }
         .drawer-head h3 { font-size: 15px; font-weight: 700; font-family: var(--font-head); }
@@ -991,7 +953,6 @@
             background: transparent;
             border-bottom: 2px solid transparent;
             cursor: pointer;
-            transition: all 0.15s ease;
             text-align: center;
         }
         .d-tab.active {
@@ -1011,7 +972,7 @@
         .chat-feed {
             flex: 1;
             overflow-y: auto;
-            padding: 16px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -1022,16 +983,13 @@
             display: flex;
             flex-direction: column;
             max-width: 85%;
-            animation: msgPop 0.2s var(--spring);
         }
-        @keyframes msgPop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
         .chat-msg.me { align-self: flex-end; align-items: flex-end; }
         .chat-msg.them { align-self: flex-start; align-items: flex-start; }
 
-        .chat-author { font-size: 10px; font-weight: 700; color: var(--text-2); margin-bottom: 3px; padding: 0 4px; }
+        .chat-author { font-size: 10px; font-weight: 700; color: var(--text-2); margin-bottom: 2px; padding: 0 4px; }
         .chat-bubble {
-            padding: 9px 14px;
+            padding: 8px 12px;
             font-size: 13px;
             line-height: 1.4;
             word-wrap: break-word;
@@ -1039,14 +997,14 @@
         .chat-msg.me .chat-bubble {
             background: var(--brand-gradient);
             color: #000;
-            border-radius: 16px 16px 3px 16px;
+            border-radius: 14px 14px 2px 14px;
             font-weight: 600;
         }
         .chat-msg.them .chat-bubble {
             background: rgba(255,255,255,0.08);
             border: 1px solid var(--border-dim);
             color: #fff;
-            border-radius: 16px 16px 16px 3px;
+            border-radius: 14px 14px 14px 2px;
         }
 
         .emoji-picker-tray {
@@ -1092,7 +1050,7 @@
             padding: 6px 0;
         }
         .chat-icon-btn {
-            width: 32px; height: 32px;
+            width: 30px; height: 30px;
             border-radius: 50%;
             background: rgba(255,255,255,0.06);
             color: var(--text-2);
@@ -1102,7 +1060,7 @@
             cursor: pointer;
         }
         .chat-send-btn {
-            width: 32px; height: 32px;
+            width: 30px; height: 30px;
             border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
@@ -1165,7 +1123,7 @@
             gap: 10px;
         }
         .friend-av {
-            width: 36px; height: 36px;
+            width: 34px; height: 34px;
             border-radius: 50%;
             background: linear-gradient(135deg, #7928ca, var(--brand));
             color: #fff;
@@ -1173,7 +1131,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
+            font-size: 12px;
         }
         .friend-actions {
             display: flex;
@@ -1189,7 +1147,6 @@
             font-weight: 700;
             cursor: pointer;
         }
-        .btn-friend-call:active { transform: scale(0.95); }
 
         .people-list {
             padding: 10px;
@@ -1212,7 +1169,7 @@
             gap: 10px;
         }
         .person-avatar {
-            width: 34px; height: 34px;
+            width: 32px; height: 32px;
             border-radius: 50%;
             background: var(--brand-gradient);
             color: #000;
@@ -1238,31 +1195,30 @@
 
         .modal-card {
             width: 100%;
-            max-width: 380px;
+            max-width: 360px;
             background: var(--bg-surface);
             border: 1px solid var(--border-active);
             border-radius: var(--radius-md);
-            padding: 24px 20px;
+            padding: 22px 18px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.9);
             position: relative;
-            animation: dropIn 0.25s var(--spring);
         }
 
         .modal-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
-        .modal-header h3 { font-size: 18px; font-weight: 800; font-family: var(--font-head); }
+        .modal-header h3 { font-size: 17px; font-weight: 800; font-family: var(--font-head); }
 
         .qr-wrapper {
             background: #fff;
             padding: 10px;
             border-radius: var(--radius-sm);
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 18px;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 16px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1272,12 +1228,12 @@
         .share-actions-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 10px;
         }
 
         .btn-grid-outline {
-            padding: 11px 8px;
+            padding: 10px 8px;
             border-radius: var(--radius-xs);
             font-size: 12px;
             font-weight: 700;
@@ -1294,7 +1250,7 @@
 
         .share-btn-wa {
             width: 100%;
-            padding: 12px;
+            padding: 11px;
             border-radius: var(--radius-xs);
             background: var(--wa-green);
             color: #000;
@@ -1314,22 +1270,22 @@
         .reaction-particle {
             position: fixed;
             bottom: 80px;
-            font-size: 32px;
+            font-size: 30px;
             pointer-events: none;
             z-index: 9990;
-            animation: particleFly 2.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+            animation: particleFly 2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
             will-change: transform, opacity;
         }
         @keyframes particleFly {
-            0% { opacity: 1; transform: translate3d(0, 0, 0) scale(0.6) rotate(0deg); }
+            0% { opacity: 1; transform: translate3d(0, 0, 0) scale(0.6); }
             70% { opacity: 1; }
-            100% { opacity: 0; transform: translate3d(var(--vx), -350px, 0) scale(1.3) rotate(var(--rot)); }
+            100% { opacity: 0; transform: translate3d(var(--vx), -320px, 0) scale(1.3); }
         }
 
         /* Toast Shelf */
         .toast-shelf {
             position: fixed;
-            top: max(16px, var(--safe-top));
+            top: max(14px, var(--safe-top));
             left: 50%;
             transform: translateX(-50%);
             z-index: 99999;
@@ -1341,7 +1297,7 @@
         .toast-item {
             background: rgba(15, 15, 26, 0.95);
             border: 1px solid var(--border-active);
-            padding: 8px 16px;
+            padding: 7px 14px;
             border-radius: var(--radius-full);
             color: #fff;
             font-size: 12px;
@@ -1350,37 +1306,30 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            animation: dropIn 0.25s var(--spring) forwards;
-        }
-        @keyframes dropIn {
-            from { opacity: 0; transform: translateY(-15px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Responsive Breakpoints & Mobile Bottom Sheet Drawer */
+        /* Mobile Breakpoints */
         @media (max-width: 900px) {
             .studio-container {
                 grid-template-columns: 1fr;
-                gap: 16px;
+                gap: 14px;
             }
             .hero-headline { font-size: 22px; }
             .side-drawer {
                 width: 100%;
                 top: auto;
                 bottom: 0;
-                height: 78vh;
+                height: 75vh;
                 border-left: none;
                 border-top: 1px solid var(--border-subtle);
-                border-radius: 24px 24px 0 0;
+                border-radius: 22px 22px 0 0;
                 transform: translateY(100%);
             }
-            .side-drawer.open {
-                transform: translateY(0);
-            }
+            .side-drawer.open { transform: translateY(0); }
             .pip-card {
-                width: 95px;
-                top: 65px;
-                right: 12px;
+                width: 90px;
+                top: 60px;
+                right: 10px;
             }
             .control-dock { padding: 6px 10px; gap: 6px; }
             .dock-btn { width: 40px; height: 40px; }
@@ -1391,10 +1340,7 @@
 </head>
 <body>
 
-<div class="ambient-mesh">
-    <div class="ambient-orb orb-1"></div>
-    <div class="ambient-orb orb-2"></div>
-</div>
+<div class="ambient-mesh"></div>
 
 <div class="toast-shelf" id="toastShelf"></div>
 
@@ -1426,7 +1372,7 @@
             </svg>
         </div>
         <h2>Create Aura Identity</h2>
-        <p>Your encrypted profile for instant studio calling.</p>
+        <p>Your encrypted profile for instant HD calling.</p>
 
         <div class="auth-input-group">
             <label class="field-label">Display Name</label>
@@ -1464,10 +1410,9 @@
                     </div>
                     <div class="brand-title">
                         <h1>AURA<span>STREAM</span></h1>
-                        <p>Studio Pro Suite · Mobile & Desktop</p>
+                        <p>Studio HD Pro Suite</p>
                     </div>
                 </div>
-                <!-- Profile Badge -->
                 <div class="user-profile-badge" id="btnEditProfile" title="Edit Profile">
                     <div class="user-profile-avatar" id="navAvatar">S</div>
                     <span id="navName">Shrey</span>
@@ -1475,8 +1420,11 @@
             </div>
 
             <div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                    <div class="quality-pill-indicator">⚡ HD 1080p Studio Quality</div>
+                </div>
                 <h2 class="hero-headline">Studio-Quality Meetings.<br>Instant P2P Stream.</h2>
-                <p class="hero-desc">Crystal-clear peer-to-peer audio and video with dynamic reaction bursts, friends manager, and 1-click WhatsApp invites.</p>
+                <p class="hero-desc">Ultra low latency, crystal-clear 1080p studio audio & video, friends list, and 1-click WhatsApp invites.</p>
             </div>
 
             <!-- Join / Create Card -->
@@ -1539,9 +1487,9 @@
                 </div>
             </div>
 
-            <div class="security-badge-row">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--text-2);">
                 <svg class="icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <span>End-to-End Encrypted</span> · Zero Server Storage
+                <span style="color: var(--success);">100% P2P Encrypted</span> · Zero Server Lag
             </div>
         </div>
 
@@ -1567,6 +1515,10 @@
             </button>
         </div>
         <div class="hud-right">
+            <!-- Studio Enhance Light Filter Toggle -->
+            <button class="hud-btn" id="btnStudioFilter" title="Studio Lighting Filter">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            </button>
             <button class="hud-btn" id="btnFlipCam" title="Flip Camera View">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
             </button>
@@ -1581,7 +1533,7 @@
     </div>
 
     <!-- Main Center Video Stage -->
-    <div class="video-canvas">
+    <div class="video-canvas" id="canvasArea">
         <div class="main-hero-tile" id="mainCard">
             <div class="tile-avatar-view" id="mainPlaceholder">
                 <div class="vf-avatar-ring" id="mainAvLetter">Y</div>
@@ -1597,13 +1549,13 @@
         <!-- Subtle Waiting Indicator -->
         <div class="subtle-waiting-hub" id="waitingHub">
             <div class="subtle-spinner"></div>
-            <span>Waiting for peer to join...</span>
+            <span>Waiting for peer to connect...</span>
         </div>
 
-        <!-- Draggable Touch-Friendly PiP (Picture-in-Picture) -->
-        <div class="pip-card hidden" id="pipCard">
+        <!-- Draggable Touch-Friendly PiP (Double-tap to swap view) -->
+        <div class="pip-card hidden" id="pipCard" title="Drag anywhere or double-click to swap view">
             <video id="pipVideo" autoplay playsinline webkit-playsinline muted></video>
-            <div class="pip-tag">You</div>
+            <div class="pip-tag" id="pipTagLabel">You</div>
         </div>
     </div>
 
@@ -1621,11 +1573,11 @@
         </div>
 
         <div class="control-dock">
-            <button class="dock-btn active" id="dockMic" title="Mic">
+            <button class="dock-btn active" id="dockMic" title="Mic (M)">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
             </button>
             
-            <button class="dock-btn active" id="dockCam" title="Camera">
+            <button class="dock-btn active" id="dockCam" title="Camera (V)">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
             </button>
 
@@ -1643,13 +1595,14 @@
                 <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
             </button>
 
-            <button class="dock-btn" id="dockChat" title="Chat">
+            <button class="dock-btn" id="dockChat" title="Chat (C)">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
             </button>
 
             <div class="dock-sep"></div>
 
-            <button class="dock-btn end-btn" id="dockEnd" title="End Call">
+            <!-- Instant End Call Button (No Lag / No Reload) -->
+            <button class="dock-btn end-btn" id="dockEnd" title="End Call Immediately">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 2.59 3.4l1.27 1.27a2 2 0 0 1 .45-2.11 12.84 12.84 0 0 0-2.81-.7 2 2 0 0 1-1.72-2z"/></svg>
             </button>
         </div>
@@ -1733,7 +1686,7 @@
                 <label class="field-label">Friend's Room Tag (Optional)</label>
                 <input class="field-input" id="newFriendRoom" placeholder="e.g. AUR-XXXX or Work" autocomplete="off" autocorrect="off">
             </div>
-            <button class="btn-primary" style="margin-top: 6px;" id="btnSaveFriend">
+            <button class="btn-primary" style="margin-top: 4px;" id="btnSaveFriend">
                 <svg class="icon-sm" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 Save to Friends
             </button>
@@ -1774,7 +1727,7 @@
 
 <script>
 /**
- * Aurastream Studio Ultra Pro Max — 100% Smooth Mobile & Desktop Edition
+ * Aurastream Studio Ultra Pro Max — Instant End Call & 1080p HD Edition
  */
 (function() {
     'use strict';
@@ -1812,31 +1765,37 @@
                 gain.connect(this.ctx.destination);
 
                 if (type === 'join') {
-                    osc.frequency.setValueAtTime(350, now);
-                    osc.frequency.exponentialRampToValueAtTime(700, now + 0.15);
+                    osc.frequency.setValueAtTime(360, now);
+                    osc.frequency.exponentialRampToValueAtTime(720, now + 0.12);
                     gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-                    osc.start(now); osc.stop(now + 0.15);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                    osc.start(now); osc.stop(now + 0.12);
                 } else if (type === 'pop') {
-                    osc.frequency.setValueAtTime(500, now);
-                    osc.frequency.exponentialRampToValueAtTime(950, now + 0.06);
+                    osc.frequency.setValueAtTime(520, now);
+                    osc.frequency.exponentialRampToValueAtTime(980, now + 0.05);
                     gain.gain.setValueAtTime(0.08, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
-                    osc.start(now); osc.stop(now + 0.06);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now); osc.stop(now + 0.05);
                 } else if (type === 'chime') {
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(523.25, now);
-                    osc.frequency.setValueAtTime(659.25, now + 0.08);
-                    osc.frequency.setValueAtTime(783.99, now + 0.16);
+                    osc.frequency.setValueAtTime(659.25, now + 0.06);
+                    osc.frequency.setValueAtTime(783.99, now + 0.12);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+                    osc.start(now); osc.stop(now + 0.22);
+                } else if (type === 'leave') {
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(250, now + 0.15);
                     gain.gain.setValueAtTime(0.12, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                    osc.start(now); osc.stop(now + 0.3);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now); osc.stop(now + 0.15);
                 }
             } catch (e) {}
         }
     };
 
-    // Global App State
+    // Global State
     const App = {
         userName: 'Shrey',
         roomCode: '',
@@ -1845,6 +1804,8 @@
         cam: false,
         screen: false,
         recording: false,
+        studioFilter: false,
+        swappedViews: false,
         facing: 'user',
         localStream: null,
         screenStream: null,
@@ -1858,13 +1819,14 @@
         audioInterval: null,
         analyser: null,
         dataArr: null,
+        audioCtx: null,
         recorder: null,
         recChunks: []
     };
 
     // Account Manager
     const Account = {
-        key: 'aurastream_profile_v2',
+        key: 'aurastream_profile_v3',
         get() { return localStorage.getItem(this.key); },
         save(name) { localStorage.setItem(this.key, name); },
         check() {
@@ -1896,14 +1858,14 @@
         setTimeout(() => {
             item.style.opacity = '0';
             item.style.transform = 'translateY(-10px)';
-            item.style.transition = 'all 0.25s ease';
-            setTimeout(() => item.remove(), 250);
-        }, 2800);
+            item.style.transition = 'all 0.2s ease';
+            setTimeout(() => item.remove(), 200);
+        }, 2500);
     }
 
     // Friends Manager
     const Friends = {
-        key: 'aurastream_friends_list_v2',
+        key: 'aurastream_friends_list_v3',
         getAll() {
             try {
                 const data = localStorage.getItem(this.key);
@@ -1968,25 +1930,49 @@
     window.removeFriendItem = id => Friends.remove(id);
     window.callFriend = name => {
         const shareUrl = `${window.location.origin}${window.location.pathname}#${App.roomCode || 'AUR-LIVE'}`;
-        const waMsg = encodeURIComponent(`👋 Hey ${name}, join my live Aurastream meeting now!\n\nLink: ${shareUrl}`);
+        const waMsg = encodeURIComponent(`👋 Hey ${name}, join my live HD Aurastream meeting now!\n\nLink: ${shareUrl}`);
         window.open(`https://api.whatsapp.com/send?text=${waMsg}`, '_blank');
     };
 
-    // Mobile & Desktop Media Constraints
+    // Full HD Studio Media Constraints
     function getMediaConstraints() {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         return {
             video: {
-                width: { ideal: 1280, max: 1280 },
-                height: { ideal: 720, max: 720 },
-                facingMode: App.facing,
-                frameRate: { ideal: 30, max: 30 }
+                width: isMobile ? { ideal: 1280, max: 1920 } : { ideal: 1920, min: 1280 },
+                height: isMobile ? { ideal: 720, max: 1080 } : { ideal: 1080, min: 720 },
+                facingMode: { ideal: App.facing },
+                frameRate: { ideal: 30, max: 60 }
             },
             audio: {
                 echoCancellation: true,
                 noiseSuppression: true,
-                autoGainControl: true
+                autoGainControl: true,
+                sampleRate: 48000,
+                channelCount: 2
             }
         };
+    }
+
+    // High-Bitrate WebRTC Sender Tuning
+    function tunePeerConnectionBitrate(peerConnection) {
+        if (!peerConnection || !peerConnection.getSenders) return;
+        peerConnection.getSenders().forEach(sender => {
+            if (!sender.track) return;
+            const params = sender.getParameters();
+            if (!params.encodings || params.encodings.length === 0) {
+                params.encodings = [{}];
+            }
+            if (sender.track.kind === 'video') {
+                params.encodings[0].maxBitrate = 2500000; // 2.5 Mbps crisp HD
+                params.encodings[0].maxFramerate = 30;
+            } else if (sender.track.kind === 'audio') {
+                params.encodings[0].maxBitrate = 128000; // 128 kbps Studio Sound
+            }
+            try {
+                sender.setParameters(params);
+            } catch (e) {}
+        });
     }
 
     async function initCamera() {
@@ -2015,23 +2001,24 @@
 
     bind('btnTestCamera', 'click', initCamera);
 
-    // Highly Optimized, Throttled Audio Visualizer (Zero Mobile CPU Drain)
+    // Highly Optimized Audio Visualizer
     function initAudioMeter(stream) {
         try {
             if (App.audioInterval) clearInterval(App.audioInterval);
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (!AudioCtx) return;
             
-            const ctx = new AudioCtx();
-            const src = ctx.createMediaStreamSource(stream);
-            App.analyser = ctx.createAnalyser();
+            if (!App.audioCtx || App.audioCtx.state === 'closed') {
+                App.audioCtx = new AudioCtx();
+            }
+            const src = App.audioCtx.createMediaStreamSource(stream);
+            App.analyser = App.audioCtx.createAnalyser();
             App.analyser.fftSize = 32;
             src.connect(App.analyser);
             App.dataArr = new Uint8Array(App.analyser.frequencyBinCount);
             
             let lastSpeakingState = false;
 
-            // Run at 20fps (every 50ms) instead of unthrottled 60-120Hz rAF
             App.audioInterval = setInterval(() => {
                 if (!App.localStream || !App.analyser) return;
                 App.analyser.getByteFrequencyData(App.dataArr);
@@ -2047,7 +2034,7 @@
                     meter.style.width = '0%';
                 }
 
-                const isSpeaking = avg > 28 && App.mic;
+                const isSpeaking = avg > 25 && App.mic;
                 if (isSpeaking !== lastSpeakingState) {
                     lastSpeakingState = isSpeaking;
                     const card = $('mainCard');
@@ -2056,7 +2043,7 @@
                         else card.classList.remove('speaking');
                     }
                 }
-            }, 50);
+            }, 60);
         } catch (e) {}
     }
 
@@ -2163,7 +2150,7 @@
                 App.mic = true;
                 App.cam = true;
             } catch (e) {
-                console.log('Audio/Video stream initialization fallback');
+                console.log('Audio/Video stream fallback');
             }
         }
 
@@ -2184,7 +2171,7 @@
         startCallTimer();
         if ($('pipCard')) makeTouchDraggable($('pipCard'));
         Sound.play('join');
-        notify(`Room ${App.roomCode} Ready`, '🚀');
+        notify(`HD Stream Ready · ${App.roomCode}`, '⚡');
 
         renderPeopleRoster();
         Friends.render();
@@ -2206,6 +2193,7 @@
     }
 
     function startCallTimer() {
+        if (App.timer) clearInterval(App.timer);
         App.t0 = Date.now();
         App.timer = setInterval(() => {
             const diff = Math.floor((Date.now() - App.t0) / 1000);
@@ -2235,13 +2223,14 @@
 
                 App.peer.on('open', id => {
                     console.log('Peer active:', id);
-                    if (!App.isHost) setTimeout(() => callHostPeer(hostPeerId), 600);
+                    if (!App.isHost) setTimeout(() => callHostPeer(hostPeerId), 400);
                 });
 
                 App.peer.on('call', call => {
                     App.peerCall = call;
                     if (App.localStream) call.answer(App.localStream);
                     call.on('stream', remoteStream => attachRemoteStream(remoteStream));
+                    if (call.peerConnection) tunePeerConnectionBitrate(call.peerConnection);
                 });
 
                 App.peer.on('connection', conn => {
@@ -2250,7 +2239,7 @@
                 });
             }
         } catch (e) {
-            console.log('P2P fallback');
+            console.log('P2P fallback active');
         }
 
         try {
@@ -2273,6 +2262,7 @@
             const call = App.peer.call(hostId, App.localStream);
             App.peerCall = call;
             call.on('stream', remoteStream => attachRemoteStream(remoteStream));
+            if (call.peerConnection) tunePeerConnectionBitrate(call.peerConnection);
 
             const conn = App.peer.connect(hostId);
             App.dataConn = conn;
@@ -2284,20 +2274,75 @@
         App.remoteStream = stream;
         $('waitingHub')?.classList.add('hidden');
         
-        if ($('mainVideo')) {
-            $('mainVideo').srcObject = stream;
-            $('mainVideo').style.transform = 'scaleX(1)';
-            $('mainVideo').style.display = 'block';
-        }
-        if ($('mainPlaceholder')) $('mainPlaceholder').style.display = 'none';
-        if ($('mainNameTag')) $('mainNameTag').textContent = 'Connected Peer';
-
+        updateVideoLayout();
         $('pipCard')?.classList.remove('hidden');
 
         Sound.play('join');
-        notify('Peer connected to stream!', '🟢');
+        notify('Peer connected in HD!', '🟢');
         updateRosterCount(2);
     }
+
+    function updateVideoLayout() {
+        if (!App.remoteStream) {
+            if ($('mainVideo')) {
+                $('mainVideo').srcObject = App.localStream;
+                $('mainVideo').style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+                $('mainVideo').style.display = App.cam ? 'block' : 'none';
+            }
+            if ($('mainPlaceholder')) $('mainPlaceholder').style.display = App.cam ? 'none' : 'flex';
+            if ($('mainNameTag')) $('mainNameTag').textContent = `${App.userName} (${App.isHost ? 'Host' : 'Guest'})`;
+            $('pipCard')?.classList.add('hidden');
+            return;
+        }
+
+        if (!App.swappedViews) {
+            // Normal View: Remote on Main Tile, Local on PiP
+            if ($('mainVideo')) {
+                $('mainVideo').srcObject = App.remoteStream;
+                $('mainVideo').style.transform = 'scaleX(1)';
+                $('mainVideo').style.display = 'block';
+            }
+            if ($('mainPlaceholder')) $('mainPlaceholder').style.display = 'none';
+            if ($('mainNameTag')) $('mainNameTag').textContent = 'Connected Peer (HD)';
+
+            if ($('pipVideo')) {
+                $('pipVideo').srcObject = App.localStream;
+                $('pipVideo').style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+            }
+            if ($('pipTagLabel')) $('pipTagLabel').textContent = 'You';
+        } else {
+            // Swapped View: Local on Main Tile, Remote on PiP
+            if ($('mainVideo')) {
+                $('mainVideo').srcObject = App.localStream;
+                $('mainVideo').style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+                $('mainVideo').style.display = App.cam ? 'block' : 'none';
+            }
+            if ($('mainPlaceholder')) $('mainPlaceholder').style.display = App.cam ? 'none' : 'flex';
+            if ($('mainNameTag')) $('mainNameTag').textContent = `${App.userName} (You)`;
+
+            if ($('pipVideo')) {
+                $('pipVideo').srcObject = App.remoteStream;
+                $('pipVideo').style.transform = 'scaleX(1)';
+            }
+            if ($('pipTagLabel')) $('pipTagLabel').textContent = 'Peer';
+        }
+    }
+
+    // Double-click or tap on PiP to swap views
+    bind('pipCard', 'dblclick', () => {
+        if (!App.remoteStream) return;
+        App.swappedViews = !App.swappedViews;
+        updateVideoLayout();
+        notify('Swapped video views', '🔀');
+    });
+
+    // Studio Lighting Filter Toggle
+    bind('btnStudioFilter', 'click', () => {
+        App.studioFilter = !App.studioFilter;
+        $('canvasArea')?.classList.toggle('studio-lighting', App.studioFilter);
+        $('btnStudioFilter')?.classList.toggle('active', App.studioFilter);
+        notify(App.studioFilter ? 'Studio Lighting Enabled' : 'Natural Lighting', App.studioFilter ? '✨' : '💡');
+    });
 
     function bindDataEvents(conn) {
         conn.on('data', data => {
@@ -2347,15 +2392,10 @@
         App.cam = !App.cam;
         if (App.localStream) App.localStream.getVideoTracks().forEach(t => t.enabled = App.cam);
         if ($('dockCam')) $('dockCam').className = `dock-btn ${App.cam ? 'active' : 'muted'}`;
-        
-        if (!App.remoteStream) {
-            if ($('mainVideo')) $('mainVideo').style.display = App.cam ? 'block' : 'none';
-            if ($('mainPlaceholder')) $('mainPlaceholder').style.display = App.cam ? 'none' : 'flex';
-        }
+        updateVideoLayout();
         notify(App.cam ? 'Camera Active' : 'Camera Disabled', App.cam ? '📹' : '📷');
     });
 
-    // Seamless Front / Back Camera Switcher for Mobile & Desktop
     bind('btnFlipCam', 'click', async () => {
         if (!App.localStream) return;
         App.facing = App.facing === 'user' ? 'environment' : 'user';
@@ -2364,9 +2404,7 @@
             const oldVideoTrack = App.localStream.getVideoTracks()[0];
             if (oldVideoTrack) oldVideoTrack.stop();
 
-            const newStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: { ideal: App.facing } }
-            });
+            const newStream = await navigator.mediaDevices.getUserMedia(getMediaConstraints());
             const newTrack = newStream.getVideoTracks()[0];
             
             if (oldVideoTrack) App.localStream.removeTrack(oldVideoTrack);
@@ -2377,9 +2415,7 @@
                 if (sender) sender.replaceTrack(newTrack);
             }
 
-            const isUser = App.facing === 'user';
-            if ($('mainVideo')) $('mainVideo').style.transform = isUser ? 'scaleX(-1)' : 'scaleX(1)';
-            if ($('pipVideo')) $('pipVideo').style.transform = isUser ? 'scaleX(-1)' : 'scaleX(1)';
+            updateVideoLayout();
             notify('Camera Switched', '🔄');
         } catch (e) {
             notify('Camera switch not supported', '⚠️');
@@ -2481,17 +2517,15 @@
     });
 
     function triggerParticleBurst(emoji) {
-        const count = window.innerWidth < 600 ? 8 : 14;
+        const count = window.innerWidth < 600 ? 7 : 12;
         for (let i = 0; i < count; i++) {
             const p = document.createElement('div');
             p.className = 'reaction-particle';
             p.textContent = emoji;
             p.style.left = (30 + Math.random() * 40) + '%';
-            p.style.setProperty('--vx', (Math.random() * 200 - 100) + 'px');
-            p.style.setProperty('--rot', (Math.random() * 60 - 30) + 'deg');
-            p.style.animationDelay = (Math.random() * 0.15) + 's';
+            p.style.setProperty('--vx', (Math.random() * 180 - 90) + 'px');
             document.body.appendChild(p);
-            setTimeout(() => p.remove(), 2300);
+            setTimeout(() => p.remove(), 2000);
         }
     }
 
@@ -2600,10 +2634,10 @@
                     <div class="person-avatar" style="background: var(--purple); color: #fff;">P</div>
                     <div>
                         <div style="font-weight: 700; font-size: 13px;">Connected Peer</div>
-                        <div style="font-size: 11px; color: var(--text-2);">Participant</div>
+                        <div style="font-size: 11px; color: var(--text-2);">Participant (HD)</div>
                     </div>
                 </div>
-                <button class="btn-copy-chip" style="padding:4px 8px; font-size:10px;" onclick="savePeerAsFriend()">+ Friend</button>
+                <button class="btn-grid-outline" style="padding:4px 8px; font-size:10px;" onclick="savePeerAsFriend()">+ Friend</button>
             `;
             list.appendChild(item);
         }
@@ -2631,18 +2665,18 @@
         const canvas = $('qrCanvas');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
-        canvas.width = 150; canvas.height = 150;
+        canvas.width = 140; canvas.height = 140;
 
-        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 150, 150);
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 140, 140);
         ctx.fillStyle = '#000000';
 
         function drawQrCorner(cx, x, y) {
-            cx.fillRect(x, y, 46, 46);
-            cx.fillStyle = '#ffffff'; cx.fillRect(x + 7, y + 7, 32, 32);
-            cx.fillStyle = '#000000'; cx.fillRect(x + 14, y + 14, 18, 18);
+            cx.fillRect(x, y, 44, 44);
+            cx.fillStyle = '#ffffff'; cx.fillRect(x + 6, y + 6, 32, 32);
+            cx.fillStyle = '#000000'; cx.fillRect(x + 13, y + 13, 18, 18);
         }
 
-        drawQrCorner(ctx, 8, 8); drawQrCorner(ctx, 96, 8); drawQrCorner(ctx, 8, 96);
+        drawQrCorner(ctx, 8, 8); drawQrCorner(ctx, 88, 8); drawQrCorner(ctx, 8, 88);
 
         let hash = 0;
         for (let i = 0; i < text.length; i++) hash = (hash << 5) - hash + text.charCodeAt(i);
@@ -2650,7 +2684,7 @@
         for (let r = 0; r < 14; r++) {
             for (let c = 0; c < 14; c++) {
                 if ((r < 5 && c < 5) || (r < 5 && c > 8) || (r > 8 && c < 5)) continue;
-                if ((hash ^ (r * 17 + c * 31)) % 3 === 0) ctx.fillRect(12 + c * 9, 12 + r * 9, 7, 7);
+                if ((hash ^ (r * 17 + c * 31)) % 3 === 0) ctx.fillRect(10 + c * 8.5, 10 + r * 8.5, 6.5, 6.5);
             }
         }
     }
@@ -2673,7 +2707,7 @@
 
     bind('btnShareWhatsApp', 'click', () => {
         const shareUrl = `${window.location.origin}${window.location.pathname}#${App.roomCode}`;
-        const waMsg = encodeURIComponent(`🎥 Join my live Aurastream Studio meeting now!\n\nRoom Code: ${App.roomCode}\nLink: ${shareUrl}`);
+        const waMsg = encodeURIComponent(`🎥 Join my live HD Aurastream Studio meeting now!\n\nRoom Code: ${App.roomCode}\nLink: ${shareUrl}`);
         window.open(`https://api.whatsapp.com/send?text=${waMsg}`, '_blank');
     });
 
@@ -2685,7 +2719,7 @@
         });
     });
 
-    // Touch & Mouse Drag for PiP (Picture-in-Picture)
+    // Touch & Mouse Drag for PiP
     function makeTouchDraggable(el) {
         if (!el) return;
         let startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
@@ -2714,15 +2748,11 @@
             const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
             const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
             
-            const dx = clientX - startX;
-            const dy = clientY - startY;
+            let newLeft = initialLeft + (clientX - startX);
+            let newTop = initialTop + (clientY - startY);
 
-            let newLeft = initialLeft + dx;
-            let newTop = initialTop + dy;
-
-            // Constrain within screen bounds
             const maxLeft = window.innerWidth - el.offsetWidth - 8;
-            const maxTop = window.innerHeight - el.offsetHeight - 80;
+            const maxTop = window.innerHeight - el.offsetHeight - 75;
             newLeft = Math.max(8, Math.min(newLeft, maxLeft));
             newTop = Math.max(50, Math.min(newTop, maxTop));
 
@@ -2740,18 +2770,81 @@
         }
     }
 
+    // ========================================================
+    // INSTANT END CALL (NO RELOAD / ZERO FREEZING / ZERO DELAY)
+    // ========================================================
     bind('dockEnd', 'click', () => {
-        Sound.play('join');
-        if (App.localStream) App.localStream.getTracks().forEach(t => t.stop());
-        if (App.screenStream) App.screenStream.getTracks().forEach(t => t.stop());
-        if (App.recording) App.recorder?.stop();
-        if (App.peer) App.peer.destroy();
-        if (App.broadcast) App.broadcast.close();
-        if (App.timer) clearInterval(App.timer);
-        if (App.audioInterval) clearInterval(App.audioInterval);
+        Sound.play('leave');
+
+        // 1. Terminate all media tracks immediately
+        if (App.localStream) {
+            App.localStream.getTracks().forEach(t => t.stop());
+            App.localStream = null;
+        }
+        if (App.screenStream) {
+            App.screenStream.getTracks().forEach(t => t.stop());
+            App.screenStream = null;
+        }
+        if (App.recording && App.recorder) {
+            try { App.recorder.stop(); } catch (e) {}
+            App.recording = false;
+        }
+
+        // 2. Destroy P2P peer connection cleanly
+        try { if (App.peerCall) App.peerCall.close(); } catch (e) {}
+        try { if (App.dataConn) App.dataConn.close(); } catch (e) {}
+        try { if (App.peer) App.peer.destroy(); } catch (e) {}
+        try { if (App.broadcast) App.broadcast.close(); } catch (e) {}
+
+        // 3. Clear audio interval & timers
+        if (App.timer) { clearInterval(App.timer); App.timer = null; }
+        if (App.audioInterval) { clearInterval(App.audioInterval); App.audioInterval = null; }
+
+        // 4. Detach video elements
+        if ($('mainVideo')) { $('mainVideo').srcObject = null; $('mainVideo').style.display = 'none'; }
+        if ($('pipVideo')) { $('pipVideo').srcObject = null; }
+        if ($('lobbyVideo')) { $('lobbyVideo').srcObject = null; $('lobbyVideo').style.display = 'none'; }
+
+        // 5. Reset UI State back to Lobby cleanly
+        App.remoteStream = null;
+        App.mic = false;
+        App.cam = false;
+        App.screen = false;
+        App.swappedViews = false;
+
+        $('callStage')?.classList.remove('active');
+        $('sideDrawer')?.classList.remove('open');
+        $('reactionMenu')?.classList.remove('show');
+        $('shareModal')?.classList.remove('show');
+        $('addFriendModal')?.classList.remove('show');
+        $('pipCard')?.classList.add('hidden');
+        $('waitingHub')?.classList.remove('hidden');
         
+        $('vfPlaceholder') && ($('vfPlaceholder').style.display = 'flex');
+        $('btnTestCamera') && ($('btnTestCamera').style.display = 'block');
+        $('lMicBtn')?.classList.add('off');
+        $('lCamBtn')?.classList.add('off');
+        $('dockRecord')?.classList.remove('active');
+        $('dockScreen')?.classList.remove('active');
+
+        $('lobbyView')?.classList.remove('hidden');
+
         cleanUrlHash();
-        window.location.reload();
+        notify('Call Ended', '⏹️');
+    });
+
+    // Keyboard Shortcuts for Laptops (M = Mute, V = Cam, C = Chat, Esc = Close)
+    window.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT' || !$('callStage')?.classList.contains('active')) return;
+        if (e.key === 'm' || e.key === 'M') $('dockMic')?.click();
+        if (e.key === 'v' || e.key === 'V') $('dockCam')?.click();
+        if (e.key === 'c' || e.key === 'C') $('dockChat')?.click();
+        if (e.key === 'Escape') {
+            $('sideDrawer')?.classList.remove('open');
+            $('shareModal')?.classList.remove('show');
+            $('addFriendModal')?.classList.remove('show');
+            $('reactionMenu')?.classList.remove('show');
+        }
     });
 
 })();
