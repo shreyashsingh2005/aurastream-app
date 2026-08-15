@@ -80,26 +80,57 @@
             touch-action: manipulation;
         }
 
-        /* Bulletproof Fullscreen Video Constraints */
-        video {
+        /* Fullscreen Video Containers with Zero Shrink Bug */
+        .video-stream-wrapper {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .video-stream-wrapper.mirrored {
+            transform: scaleX(-1);
+            -webkit-transform: scaleX(-1);
+        }
+        .video-stream-wrapper video {
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            min-width: 100% !important;
+            min-height: 100% !important;
+            transform: translate(-50%, -50%) !important;
+            -webkit-transform: translate(-50%, -50%) !important;
+            object-fit: cover !important;
+            display: block !important;
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
         }
 
-        .main-hero-tile video, .viewfinder-shell video, .pip-card video {
+        .viewfinder-shell video {
             position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
+            inset: 0 !important;
             width: 100% !important;
             height: 100% !important;
-            min-width: 100% !important;
-            min-height: 100% !important;
-            max-width: 100% !important;
-            max-height: 100% !important;
             object-fit: cover !important;
-            display: block !important;
-            pointer-events: none;
-            transition: opacity 0.25s ease, transform 0.2s ease;
+            transform: scaleX(-1);
+            -webkit-transform: scaleX(-1);
+            transition: opacity 0.2s ease;
+        }
+
+        .pip-card video {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
         }
 
         .ambient-mesh {
@@ -241,7 +272,6 @@
             font-weight: 600;
         }
 
-        /* Clear Cut Button */
         .input-clear-wrapper {
             position: relative;
             width: 100%;
@@ -480,9 +510,6 @@
             position: relative;
             overflow: hidden;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-        }
-        .viewfinder-shell video {
-            transform: scaleX(-1);
         }
         .vf-overlay-controls {
             position: absolute;
@@ -975,7 +1002,7 @@
             font-size: 11px;
         }
 
-        /* Safe Toasts (Positioned below top HUD) */
+        /* Safe Toasts */
         .toast-shelf {
             position: fixed;
             top: calc(max(14px, var(--safe-top)) + 52px);
@@ -1489,7 +1516,11 @@
                     <span class="tile-avatar-role" id="mainRoleTag">Host · Adaptive HD</span>
                 </div>
             </div>
-            <video id="mainVideo" autoplay playsinline webkit-playsinline style="opacity: 0; visibility: hidden;"></video>
+
+            <!-- Bulletproof Full-Bleed Video Wrapper -->
+            <div class="video-stream-wrapper" id="mainVidWrapper">
+                <video id="mainVideo" autoplay playsinline webkit-playsinline muted style="opacity: 0; visibility: hidden;"></video>
+            </div>
         </div>
 
         <!-- Waiting Pill positioned cleanly above bottom dock -->
@@ -1731,7 +1762,7 @@
     }
 
     const Account = {
-        key: 'aurastream_profile_v12',
+        key: 'aurastream_profile_v14',
         get() { return localStorage.getItem(this.key); },
         save(name) { localStorage.setItem(this.key, name); },
         check() {
@@ -1775,7 +1806,7 @@
     }
 
     const Friends = {
-        key: 'aurastream_friends_list_v12',
+        key: 'aurastream_friends_list_v14',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -1811,7 +1842,6 @@
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(`👋 Hey ${name}, join my live meeting: ${shareUrl}`)}`, '_blank');
     };
 
-    // Adaptive constraints for all camera sensors & screen ratios
     function getMediaConstraints() {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         return {
@@ -1829,7 +1859,6 @@
         };
     }
 
-    // Auto-Adaptive Dynamic WebRTC Bandwidth Scaler (2G to 5G)
     function tunePeerConnectionAdaptive(peerConnection) {
         if (!peerConnection || !peerConnection.getSenders) return;
         peerConnection.getSenders().forEach(sender => {
@@ -1838,14 +1867,14 @@
             if (!params.encodings || params.encodings.length === 0) params.encodings = [{}];
             
             if (sender.track.kind === 'video') {
-                params.encodings[0].minBitrate = 150000;  // 150 kbps for low 2G/3G network
-                params.encodings[0].maxBitrate = 4000000; // Up to 4.0 Mbps for fast 5G/Wi-Fi
+                params.encodings[0].minBitrate = 150000;
+                params.encodings[0].maxBitrate = 4000000;
                 params.encodings[0].maxFramerate = 60;
                 params.encodings[0].networkPriority = 'high';
-                params.degradationPreference = 'balanced'; // Smoothly scales quality without dropping frames
+                params.degradationPreference = 'balanced';
             } else if (sender.track.kind === 'audio') {
-                params.encodings[0].minBitrate = 16000;   // 16 kbps voice for weak signals
-                params.encodings[0].maxBitrate = 128000;  // 128 kbps crystal audio
+                params.encodings[0].minBitrate = 16000;
+                params.encodings[0].maxBitrate = 128000;
                 params.encodings[0].networkPriority = 'high';
             }
             try { sender.setParameters(params); } catch (e) {}
@@ -1858,11 +1887,13 @@
             App.mic = true;
             App.cam = true;
             
-            if ($('lobbyVideo')) {
-                $('lobbyVideo').srcObject = App.localStream;
-                $('lobbyVideo').muted = true;
-                $('lobbyVideo').style.opacity = '1';
-                $('lobbyVideo').style.visibility = 'visible';
+            const lVid = $('lobbyVideo');
+            if (lVid) {
+                lVid.srcObject = App.localStream;
+                lVid.muted = true;
+                lVid.style.opacity = '1';
+                lVid.style.visibility = 'visible';
+                lVid.play().catch(()=>{});
             }
             if ($('vfPlaceholder')) $('vfPlaceholder').style.display = 'none';
             
@@ -2038,12 +2069,14 @@
         if ($('hudRoomText')) $('hudRoomText').textContent = App.roomCode;
         window.location.hash = App.roomCode;
 
-        if (!App.localStream) {
-            try {
+        try {
+            if (!App.localStream || !App.localStream.active) {
                 App.localStream = await navigator.mediaDevices.getUserMedia(getMediaConstraints());
-                App.mic = true;
-                App.cam = true;
-            } catch (e) {}
+            }
+            App.mic = true;
+            App.cam = true;
+        } catch (e) {
+            notify('Camera / Mic permission required', '⚠️');
         }
 
         if (App.localStream) initAudioMeter(App.localStream);
@@ -2153,21 +2186,31 @@
         updateRosterCount(2);
     }
 
-    // Zero-shrink video layout engine
+    // Bulletproof zero-shrink layout engine
     function updateVideoLayout() {
         const mainVid = $('mainVideo');
+        const mainWrap = $('mainVidWrapper');
         const pipVid = $('pipVideo');
         const mainPlace = $('mainPlaceholder');
 
         if (!App.remoteStream) {
             if (mainVid && App.localStream) {
-                if (mainVid.srcObject !== App.localStream) mainVid.srcObject = App.localStream;
+                if (mainVid.srcObject !== App.localStream) {
+                    mainVid.srcObject = App.localStream;
+                }
                 mainVid.muted = true;
-                mainVid.style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
                 mainVid.style.opacity = App.cam ? '1' : '0';
                 mainVid.style.visibility = App.cam ? 'visible' : 'hidden';
                 if (App.cam) mainVid.play().catch(()=>{});
             }
+
+            if (mainWrap) {
+                if (App.facing === 'user') mainWrap.classList.add('mirrored');
+                else mainWrap.classList.remove('mirrored');
+                mainWrap.style.opacity = App.cam ? '1' : '0';
+                mainWrap.style.visibility = App.cam ? 'visible' : 'hidden';
+            }
+
             if (mainPlace) {
                 mainPlace.style.opacity = App.cam ? '0' : '1';
                 mainPlace.style.visibility = App.cam ? 'hidden' : 'visible';
@@ -2178,41 +2221,64 @@
 
         if (!App.swappedViews) {
             if (mainVid) {
-                if (mainVid.srcObject !== App.remoteStream) mainVid.srcObject = App.remoteStream;
+                if (mainVid.srcObject !== App.remoteStream) {
+                    mainVid.srcObject = App.remoteStream;
+                }
                 mainVid.muted = false;
-                mainVid.style.transform = 'scaleX(1)';
                 mainVid.style.opacity = '1';
                 mainVid.style.visibility = 'visible';
                 mainVid.play().catch(()=>{});
             }
+
+            if (mainWrap) {
+                mainWrap.classList.remove('mirrored');
+                mainWrap.style.opacity = '1';
+                mainWrap.style.visibility = 'visible';
+            }
+
             if (mainPlace) {
                 mainPlace.style.opacity = '0';
                 mainPlace.style.visibility = 'hidden';
             }
 
             if (pipVid && App.localStream) {
-                if (pipVid.srcObject !== App.localStream) pipVid.srcObject = App.localStream;
+                if (pipVid.srcObject !== App.localStream) {
+                    pipVid.srcObject = App.localStream;
+                }
                 pipVid.muted = true;
                 pipVid.style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
                 pipVid.style.opacity = App.cam ? '1' : '0';
                 pipVid.style.visibility = App.cam ? 'visible' : 'hidden';
+                if (App.cam) pipVid.play().catch(()=>{});
             }
             if ($('pipTagLabel')) $('pipTagLabel').textContent = 'You';
         } else {
             if (mainVid && App.localStream) {
-                if (mainVid.srcObject !== App.localStream) mainVid.srcObject = App.localStream;
+                if (mainVid.srcObject !== App.localStream) {
+                    mainVid.srcObject = App.localStream;
+                }
                 mainVid.muted = true;
-                mainVid.style.transform = App.facing === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
                 mainVid.style.opacity = App.cam ? '1' : '0';
                 mainVid.style.visibility = App.cam ? 'visible' : 'hidden';
+                if (App.cam) mainVid.play().catch(()=>{});
             }
+
+            if (mainWrap) {
+                if (App.facing === 'user') mainWrap.classList.add('mirrored');
+                else mainWrap.classList.remove('mirrored');
+                mainWrap.style.opacity = App.cam ? '1' : '0';
+                mainWrap.style.visibility = App.cam ? 'visible' : 'hidden';
+            }
+
             if (mainPlace) {
                 mainPlace.style.opacity = App.cam ? '0' : '1';
                 mainPlace.style.visibility = App.cam ? 'hidden' : 'visible';
             }
 
             if (pipVid && App.remoteStream) {
-                if (pipVid.srcObject !== App.remoteStream) pipVid.srcObject = App.remoteStream;
+                if (pipVid.srcObject !== App.remoteStream) {
+                    pipVid.srcObject = App.remoteStream;
+                }
                 pipVid.muted = false;
                 pipVid.style.transform = 'scaleX(1)';
                 pipVid.style.opacity = '1';
@@ -2617,7 +2683,7 @@
     }
 
     // ========================================================
-    // INSTANT 0ms END CALL TEARDOWN
+    // COMPLETE & CLEAN END CALL DISPOSAL
     // ========================================================
     bind('dockEnd', 'click', () => {
         Sound.play('leave');
@@ -2647,21 +2713,41 @@
             App.analyserSrc = null;
         }
 
-        if ($('mainVideo')) { 
-            $('mainVideo').srcObject = null; 
-            $('mainVideo').muted = true;
-            $('mainVideo').style.opacity = '0';
-            $('mainVideo').style.visibility = 'hidden';
+        const mainVid = $('mainVideo');
+        if (mainVid) { 
+            try { mainVid.pause(); } catch(e){}
+            mainVid.srcObject = null; 
+            mainVid.removeAttribute('src');
+            mainVid.load();
+            mainVid.muted = true;
+            mainVid.style.opacity = '0';
+            mainVid.style.visibility = 'hidden';
         }
-        if ($('pipVideo')) { 
-            $('pipVideo').srcObject = null; 
-            $('pipVideo').muted = true;
+        const mainWrap = $('mainVidWrapper');
+        if (mainWrap) {
+            mainWrap.classList.remove('mirrored');
+            mainWrap.style.opacity = '0';
+            mainWrap.style.visibility = 'hidden';
         }
-        if ($('lobbyVideo')) { 
-            $('lobbyVideo').srcObject = null; 
-            $('lobbyVideo').muted = true;
-            $('lobbyVideo').style.opacity = '0';
-            $('lobbyVideo').style.visibility = 'hidden';
+
+        const pipVid = $('pipVideo');
+        if (pipVid) { 
+            try { pipVid.pause(); } catch(e){}
+            pipVid.srcObject = null; 
+            pipVid.removeAttribute('src');
+            pipVid.load();
+            pipVid.muted = true;
+        }
+
+        const lobbyVid = $('lobbyVideo');
+        if (lobbyVid) { 
+            try { lobbyVid.pause(); } catch(e){}
+            lobbyVid.srcObject = null; 
+            lobbyVid.removeAttribute('src');
+            lobbyVid.load();
+            lobbyVid.muted = true;
+            lobbyVid.style.opacity = '0';
+            lobbyVid.style.visibility = 'hidden';
         }
 
         App.remoteStream = null;
