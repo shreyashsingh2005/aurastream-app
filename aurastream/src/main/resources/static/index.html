@@ -2117,7 +2117,7 @@
 
 <script>
 /**
- * Aurastream Direct P2P Video Mesh Engine
+ * Aurastream Bulletproof P2P Video Mesh Engine
  */
 (function() {
     'use strict';
@@ -2258,6 +2258,7 @@
         timer: null,
         t0: null,
         audioInterval: null,
+        retryDialInterval: null,
         analyser: null,
         analyserSrc: null,
         dataArr: null,
@@ -2812,7 +2813,7 @@
         App.roomCode = raw.startsWith('@') ? raw : `AUR-${clean.toUpperCase()}`;
 
         if ($('waitingTitle')) $('waitingTitle').textContent = `Connecting to ${App.roomCode}...`;
-        if ($('waitingSub')) $('waitingSub').textContent = `Waiting for host/peer to stream`;
+        if ($('waitingSub')) $('waitingSub').textContent = `Waiting for peer stream`;
 
         startMeetingSession();
     });
@@ -2869,7 +2870,6 @@
         if (App.pendingCall && App.localStream) {
             App.pendingCall.answer(App.localStream);
             App.pendingCall.on('stream', remoteStream => attachRemoteStream(remoteStream));
-            App.pendingCall.on('close', () => endCallGracefully(true));
             App.peerCall = App.pendingCall;
         }
     });
@@ -2941,6 +2941,11 @@
         const isTagCall = App.roomCode.startsWith('@');
         const targetHostId = isTagCall ? `aura_user_${cleanCode}` : `aura_room_${cleanCode}`;
 
+        if (App.retryDialInterval) {
+            clearInterval(App.retryDialInterval);
+            App.retryDialInterval = null;
+        }
+
         if (App.isHost) {
             try {
                 if (App.roomPeer) App.roomPeer.destroy();
@@ -2948,9 +2953,8 @@
 
                 App.roomPeer.on('call', call => {
                     App.peerCall = call;
-                    call.answer(App.localStream);
+                    if (App.localStream) call.answer(App.localStream);
                     call.on('stream', remoteStream => attachRemoteStream(remoteStream));
-                    call.on('close', () => endCallGracefully(true));
                     notify('Peer connected to room!', '🟢');
                 });
 
@@ -2968,33 +2972,48 @@
                 if (App.roomPeer) App.roomPeer.destroy();
                 App.roomPeer = new Peer(guestPeerId, PEER_CONFIG);
 
-                App.roomPeer.on('open', () => {
-                    if (App.localStream) {
-                        const call = App.roomPeer.call(targetHostId, App.localStream, {
-                            metadata: { callerName: App.userName, callerTag: App.myAuraTag }
+                function attemptDial() {
+                    if (App.remoteStream || !App.localStream) return;
+                    
+                    const call = App.roomPeer.call(targetHostId, App.localStream, {
+                        metadata: { callerName: App.userName, callerTag: App.myAuraTag }
+                    });
+
+                    if (call) {
+                        App.peerCall = call;
+                        call.on('stream', remoteStream => {
+                            if (App.retryDialInterval) {
+                                clearInterval(App.retryDialInterval);
+                                App.retryDialInterval = null;
+                            }
+                            attachRemoteStream(remoteStream);
                         });
-
-                        if (call) {
-                            App.peerCall = call;
-                            call.on('stream', remoteStream => attachRemoteStream(remoteStream));
-                            call.on('close', () => endCallGracefully(true));
-                        }
-
-                        try {
-                            App.dataConn = App.roomPeer.connect(targetHostId, { reliable: true });
-                            App.dataConn.on('data', data => {
-                                if (data.type === 'end_call') endCallGracefully(true);
-                            });
-                        } catch(e){}
                     }
+
+                    try {
+                        App.dataConn = App.roomPeer.connect(targetHostId, { reliable: true });
+                        App.dataConn.on('data', data => {
+                            if (data.type === 'end_call') endCallGracefully(true);
+                        });
+                    } catch(e){}
+                }
+
+                App.roomPeer.on('open', () => {
+                    attemptDial();
+                    // Smoothly retry dialing in background until connected (no timeouts kicking user)
+                    App.retryDialInterval = setInterval(() => {
+                        if (!App.remoteStream) attemptDial();
+                        else if (App.retryDialInterval) {
+                            clearInterval(App.retryDialInterval);
+                            App.retryDialInterval = null;
+                        }
+                    }, 2000);
                 });
 
-                // Also listen for incoming calls if host dials guest
                 App.roomPeer.on('call', call => {
                     App.peerCall = call;
-                    call.answer(App.localStream);
+                    if (App.localStream) call.answer(App.localStream);
                     call.on('stream', remoteStream => attachRemoteStream(remoteStream));
-                    call.on('close', () => endCallGracefully(true));
                 });
             } catch(e) {}
         }
@@ -3024,8 +3043,6 @@
         Sound.play('join');
         notify('Connected · 720p HD', '🟢');
         updateRosterCount(2);
-
-        stream.onremovetrack = () => endCallGracefully(true);
     }
 
     // ========================================================
@@ -3447,6 +3464,11 @@
     // ========================================================
     function endCallGracefully(isRemoteTerminated = false) {
         Sound.play('leave');
+
+        if (App.retryDialInterval) {
+            clearInterval(App.retryDialInterval);
+            App.retryDialInterval = null;
+        }
 
         if (!isRemoteTerminated) {
             try {
