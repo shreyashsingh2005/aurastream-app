@@ -306,15 +306,6 @@
             background: var(--brand-subtle);
             box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.16);
         }
-        .field-input.input-error {
-            border-color: var(--danger) !important;
-            animation: shake 0.35s ease-in-out;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-6px); }
-            40%, 80% { transform: translateX(6px); }
-        }
 
         .toggle-pin-btn {
             position: absolute;
@@ -2126,7 +2117,7 @@
 
 <script>
 /**
- * Aurastream Multi-Device Account & Thermal-Optimized WebRTC Engine
+ * Aurastream Direct P2P Video Mesh Engine
  */
 (function() {
     'use strict';
@@ -2803,9 +2794,6 @@
         startMeetingSession();
     });
 
-    // ========================================================
-    // NORMALIZATION
-    // ========================================================
     function normalizeCodeToClean(input) {
         if (!input) return '';
         let c = input.trim();
@@ -2824,7 +2812,7 @@
         App.roomCode = raw.startsWith('@') ? raw : `AUR-${clean.toUpperCase()}`;
 
         if ($('waitingTitle')) $('waitingTitle').textContent = `Connecting to ${App.roomCode}...`;
-        if ($('waitingSub')) $('waitingSub').textContent = `Establishing encrypted stream`;
+        if ($('waitingSub')) $('waitingSub').textContent = `Waiting for host/peer to stream`;
 
         startMeetingSession();
     });
@@ -2946,7 +2934,7 @@
     }
 
     // ========================================================
-    // BULLETPROOF P2P ENGINE (ROOMS & DIRECT CALLS)
+    // DIRECT P2P ENGINE (ROOMS & DIRECT CALLS)
     // ========================================================
     function initP2PEngine() {
         const cleanCode = normalizeCodeToClean(App.roomCode);
@@ -2975,7 +2963,6 @@
             } catch (e) {}
         } else {
             const guestPeerId = `aura_guest_${cleanCode}_${Math.random().toString(36).substring(2, 7)}`;
-            let isConnected = false;
 
             try {
                 if (App.roomPeer) App.roomPeer.destroy();
@@ -2989,18 +2976,12 @@
 
                         if (call) {
                             App.peerCall = call;
-                            call.on('stream', remoteStream => {
-                                isConnected = true;
-                                attachRemoteStream(remoteStream);
-                            });
+                            call.on('stream', remoteStream => attachRemoteStream(remoteStream));
                             call.on('close', () => endCallGracefully(true));
                         }
 
                         try {
                             App.dataConn = App.roomPeer.connect(targetHostId, { reliable: true });
-                            App.dataConn.on('open', () => {
-                                isConnected = true;
-                            });
                             App.dataConn.on('data', data => {
                                 if (data.type === 'end_call') endCallGracefully(true);
                             });
@@ -3008,19 +2989,13 @@
                     }
                 });
 
-                // Error / Non-existent Room detection
-                App.roomPeer.on('error', err => {
-                    if (err.type === 'peer-unavailable') {
-                        triggerNonExistentRoomError();
-                    }
+                // Also listen for incoming calls if host dials guest
+                App.roomPeer.on('call', call => {
+                    App.peerCall = call;
+                    call.answer(App.localStream);
+                    call.on('stream', remoteStream => attachRemoteStream(remoteStream));
+                    call.on('close', () => endCallGracefully(true));
                 });
-
-                // Fail-safe timeout if host is not active
-                setTimeout(() => {
-                    if (!isConnected && !App.remoteStream && $('callStage')?.classList.contains('active')) {
-                        triggerNonExistentRoomError();
-                    }
-                }, 4000);
             } catch(e) {}
         }
 
@@ -3038,21 +3013,6 @@
                 }
             };
         } catch (e) {}
-    }
-
-    function triggerNonExistentRoomError() {
-        endCallGracefully(true);
-        notify(`Room ${App.roomCode} does not exist or host is offline!`, '❌');
-        
-        switchHubTab('tabCalls');
-        $('btnShowJoin')?.click();
-        
-        const input = $('roomCodeInput');
-        if (input) {
-            input.classList.add('input-error');
-            input.focus();
-            setTimeout(() => input.classList.remove('input-error'), 1200);
-        }
     }
 
     function attachRemoteStream(stream) {
