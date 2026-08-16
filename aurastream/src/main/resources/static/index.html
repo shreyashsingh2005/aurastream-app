@@ -889,9 +889,7 @@
         }
         .btn-call-dec svg { transform: rotate(135deg); }
 
-        /* ========================================================
-            WHATSAPP DYNAMIC VIDEO STAGE & MODES
-           ======================================================== */
+        /* Call Stage */
         .call-stage {
             display: none;
             height: 100vh;
@@ -1247,7 +1245,7 @@
             letter-spacing: 0.3px;
         }
 
-        /* WhatsApp 50/50 Split View Layout */
+        /* Split View Layout */
         .video-canvas.split-view {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -2008,7 +2006,6 @@
             </button>
         </div>
 
-        <!-- Clean Luxury Minimalist PiP Window -->
         <div class="pip-card hidden" id="pipCard">
             <video id="pipVideo" autoplay playsinline webkit-playsinline muted></video>
             <div class="pip-tag" id="pipTagLabel">
@@ -2556,7 +2553,11 @@
     bind('btnCloseDm', () => $('dmModal')?.classList.remove('show'));
 
     window.callFriendDirectly = (name, tag) => {
-        verifyAndJoin(tag, name);
+        App.isHost = false;
+        App.roomCode = tag.replace('@', '').toUpperCase();
+        if ($('waitingTitle')) $('waitingTitle').textContent = `Calling ${name}...`;
+        if ($('waitingSub')) $('waitingSub').textContent = `Ringing ${tag}`;
+        startMeetingSession();
     };
 
     bind('btnCallFromDm', () => {
@@ -2794,97 +2795,34 @@
     });
 
     // ========================================================
-    // PRE-FLIGHT VERIFICATION ("DOES NOT EXIST" GUARD)
+    // NORMALIZE & JOIN MEETING / FRIEND
     // ========================================================
-    async function verifyAndJoin(codeOrTag, callerDisplayName = null) {
-        let c = (codeOrTag || '').trim();
-        if (!c) return notify('Enter a meeting code or friend @ID', '⚠️');
-
-        const isTag = c.startsWith('@');
-        const cleanTarget = c.replace('@', '').toLowerCase();
-        const targetRoomId = `aurastream_room_${cleanTarget}`;
-        const targetUserId = `aurastream_user_${cleanTarget}`;
-        const targetId = isTag ? targetUserId : targetRoomId;
-
-        const btn = $('btnJoinRoom');
-        const origText = btn ? btn.innerHTML : '';
-        if (btn) {
-            btn.innerHTML = `<span>Checking ID...</span>`;
-            btn.disabled = true;
+    function normalizeTargetCode(input) {
+        let c = (input || '').trim();
+        if (!c) return '';
+        if (c.startsWith('@')) return c;
+        let clean = c.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        if (!clean.startsWith('AUR') && clean.length === 4) {
+            return `AUR-${clean}`;
         }
-
-        let verified = false;
-        const checkerPeer = new Peer(`aurastream_chk_${Math.floor(Math.random()*90000+10000)}`, PEER_CONFIG);
-
-        const fail = (errMsg = 'Room or @ID does not exist!') => {
-            if (verified) return;
-            verified = true;
-            try { checkerPeer.destroy(); } catch(e){}
-            if (btn) {
-                btn.innerHTML = origText;
-                btn.disabled = false;
-            }
-            notify(errMsg, '❌');
-            const input = $('roomCodeInput');
-            if (input) {
-                input.style.borderColor = 'var(--danger)';
-                input.focus();
-                setTimeout(() => input.style.borderColor = '', 2200);
-            }
-        };
-
-        const timeout = setTimeout(() => {
-            fail('Room or @ID does not exist or offline!');
-        }, 3600);
-
-        checkerPeer.on('open', () => {
-            try {
-                const conn = checkerPeer.connect(targetId, { reliable: true });
-
-                conn.on('open', () => {
-                    if (verified) return;
-                    verified = true;
-                    clearTimeout(timeout);
-                    try { conn.close(); checkerPeer.destroy(); } catch(e){}
-                    if (btn) {
-                        btn.innerHTML = origText;
-                        btn.disabled = false;
-                    }
-
-                    // Verification passed! Start call session
-                    App.isHost = false;
-                    App.roomCode = c.replace('@', '').toUpperCase();
-
-                    if (callerDisplayName) {
-                        if ($('waitingTitle')) $('waitingTitle').textContent = `Calling ${callerDisplayName}...`;
-                        if ($('waitingSub')) $('waitingSub').textContent = `Ringing ${c}`;
-                    } else {
-                        if ($('waitingTitle')) $('waitingTitle').textContent = `Connecting to ${App.roomCode}...`;
-                        if ($('waitingSub')) $('waitingSub').textContent = `Establishing encrypted stream`;
-                    }
-
-                    startMeetingSession();
-                });
-
-                checkerPeer.on('error', err => {
-                    clearTimeout(timeout);
-                    fail('Room or @ID does not exist!');
-                });
-            } catch (e) {
-                clearTimeout(timeout);
-                fail('Room or @ID does not exist!');
-            }
-        });
-
-        checkerPeer.on('error', () => {
-            clearTimeout(timeout);
-            fail('Room or @ID does not exist!');
-        });
+        if (clean.startsWith('AUR') && clean.length > 3 && !clean.includes('-')) {
+            return `AUR-${clean.substring(3)}`;
+        }
+        return c.toUpperCase();
     }
 
     bind('btnJoinRoom', () => {
-        const c = $('roomCodeInput')?.value.trim();
-        verifyAndJoin(c);
+        const raw = $('roomCodeInput')?.value.trim();
+        if (!raw) return notify('Enter a meeting code or friend @ID', '⚠️');
+
+        const normalized = normalizeTargetCode(raw);
+        App.isHost = false;
+        App.roomCode = normalized.replace('@', '');
+
+        if ($('waitingTitle')) $('waitingTitle').textContent = `Connecting to ${normalized}...`;
+        if ($('waitingSub')) $('waitingSub').textContent = `Establishing encrypted stream`;
+
+        startMeetingSession();
     });
 
     // ========================================================
@@ -3004,7 +2942,7 @@
     }
 
     // ========================================================
-    // P2P ENGINE & SIGNALING
+    // DIRECT P2P ENGINE WITH ERROR HANDLING
     // ========================================================
     function initP2PEngine() {
         const cleanRoom = App.roomCode.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -3041,6 +2979,7 @@
 
                 App.roomPeer.on('open', () => {
                     if (App.localStream) {
+                        // Call Room Host
                         let call = App.roomPeer.call(targetRoomId, App.localStream, {
                             metadata: { callerName: App.userName, callerTag: App.myAuraTag }
                         });
@@ -3051,6 +2990,7 @@
                             call.on('close', () => endCallGracefully(true));
                         }
 
+                        // Data connection
                         try {
                             App.dataConn = App.roomPeer.connect(targetRoomId);
                             App.dataConn.on('data', data => {
@@ -3058,6 +2998,7 @@
                             });
                         } catch(e){}
 
+                        // Fallback Direct Friend Call
                         if (App.peer) {
                             let friendCall = App.peer.call(targetFriendId, App.localStream, {
                                 metadata: { callerName: App.userName, callerTag: App.myAuraTag }
@@ -3066,6 +3007,20 @@
                                 friendCall.on('stream', remoteStream => attachRemoteStream(remoteStream));
                                 friendCall.on('close', () => endCallGracefully(true));
                             }
+                        }
+                    }
+                });
+
+                // Catch "Does Not Exist" Error Directly
+                App.roomPeer.on('error', err => {
+                    if (err.type === 'peer-unavailable') {
+                        endCallGracefully(true);
+                        notify('Room or @ID does not exist / Offline!', '❌');
+                        const input = $('roomCodeInput');
+                        if (input) {
+                            input.style.borderColor = 'var(--danger)';
+                            input.focus();
+                            setTimeout(() => input.style.borderColor = '', 2400);
                         }
                     }
                 });
