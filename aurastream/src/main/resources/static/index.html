@@ -306,6 +306,15 @@
             background: var(--brand-subtle);
             box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.16);
         }
+        .field-input.input-error {
+            border-color: var(--danger) !important;
+            animation: shake 0.35s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
 
         .toggle-pin-btn {
             position: absolute;
@@ -2542,7 +2551,7 @@
 
         const peerClean = App.activeDmFriend.tag.replace('@', '').toLowerCase();
         try {
-            const conn = App.peer.connect(`aurastream_user_${peerClean}`);
+            const conn = App.peer.connect(`aura_user_${peerClean}`);
             conn.on('open', () => conn.send({ type: 'dm', text, author: App.userName, fromTag: App.myAuraTag }));
         } catch(e){}
 
@@ -2795,31 +2804,26 @@
     });
 
     // ========================================================
-    // NORMALIZE & JOIN MEETING / FRIEND
+    // NORMALIZATION
     // ========================================================
-    function normalizeTargetCode(input) {
-        let c = (input || '').trim();
-        if (!c) return '';
-        if (c.startsWith('@')) return c;
-        let clean = c.toUpperCase().replace(/[^A-Z0-9]/g, '');
-        if (!clean.startsWith('AUR') && clean.length === 4) {
-            return `AUR-${clean}`;
-        }
-        if (clean.startsWith('AUR') && clean.length > 3 && !clean.includes('-')) {
-            return `AUR-${clean.substring(3)}`;
-        }
-        return c.toUpperCase();
+    function normalizeCodeToClean(input) {
+        if (!input) return '';
+        let c = input.trim();
+        if (c.startsWith('@')) return c.toLowerCase().replace('@', '');
+        return c.toUpperCase().replace('AUR-', '').replace(/[^A-Z0-9]/g, '').toLowerCase();
     }
 
     bind('btnJoinRoom', () => {
         const raw = $('roomCodeInput')?.value.trim();
         if (!raw) return notify('Enter a meeting code or friend @ID', '⚠️');
 
-        const normalized = normalizeTargetCode(raw);
-        App.isHost = false;
-        App.roomCode = normalized.replace('@', '');
+        const clean = normalizeCodeToClean(raw);
+        if (!clean) return notify('Invalid meeting code', '⚠️');
 
-        if ($('waitingTitle')) $('waitingTitle').textContent = `Connecting to ${normalized}...`;
+        App.isHost = false;
+        App.roomCode = raw.startsWith('@') ? raw : `AUR-${clean.toUpperCase()}`;
+
+        if ($('waitingTitle')) $('waitingTitle').textContent = `Connecting to ${App.roomCode}...`;
         if ($('waitingSub')) $('waitingSub').textContent = `Establishing encrypted stream`;
 
         startMeetingSession();
@@ -2830,7 +2834,7 @@
     // ========================================================
     function initPermanentPeer(tag) {
         const cleanTag = tag.replace('@', '').toLowerCase();
-        const peerId = `aurastream_user_${cleanTag}`;
+        const peerId = `aura_user_${cleanTag}`;
 
         try {
             if (typeof Peer !== 'undefined') {
@@ -2942,16 +2946,17 @@
     }
 
     // ========================================================
-    // DIRECT P2P ENGINE WITH ERROR HANDLING
+    // BULLETPROOF P2P ENGINE (ROOMS & DIRECT CALLS)
     // ========================================================
     function initP2PEngine() {
-        const cleanRoom = App.roomCode.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const cleanCode = normalizeCodeToClean(App.roomCode);
+        const isTagCall = App.roomCode.startsWith('@');
+        const targetHostId = isTagCall ? `aura_user_${cleanCode}` : `aura_room_${cleanCode}`;
 
         if (App.isHost) {
-            const roomHostId = `aurastream_room_${cleanRoom}`;
             try {
                 if (App.roomPeer) App.roomPeer.destroy();
-                App.roomPeer = new Peer(roomHostId, PEER_CONFIG);
+                App.roomPeer = new Peer(targetHostId, PEER_CONFIG);
 
                 App.roomPeer.on('call', call => {
                     App.peerCall = call;
@@ -2969,9 +2974,8 @@
                 });
             } catch (e) {}
         } else {
-            const targetRoomId = `aurastream_room_${cleanRoom}`;
-            const targetFriendId = `aurastream_user_${cleanRoom}`;
-            const guestPeerId = `aurastream_guest_${cleanRoom}_${Math.floor(Math.random()*9000+1000)}`;
+            const guestPeerId = `aura_guest_${cleanCode}_${Math.random().toString(36).substring(2, 7)}`;
+            let isConnected = false;
 
             try {
                 if (App.roomPeer) App.roomPeer.destroy();
@@ -2979,57 +2983,50 @@
 
                 App.roomPeer.on('open', () => {
                     if (App.localStream) {
-                        // Call Room Host
-                        let call = App.roomPeer.call(targetRoomId, App.localStream, {
+                        const call = App.roomPeer.call(targetHostId, App.localStream, {
                             metadata: { callerName: App.userName, callerTag: App.myAuraTag }
                         });
 
                         if (call) {
                             App.peerCall = call;
-                            call.on('stream', remoteStream => attachRemoteStream(remoteStream));
+                            call.on('stream', remoteStream => {
+                                isConnected = true;
+                                attachRemoteStream(remoteStream);
+                            });
                             call.on('close', () => endCallGracefully(true));
                         }
 
-                        // Data connection
                         try {
-                            App.dataConn = App.roomPeer.connect(targetRoomId);
+                            App.dataConn = App.roomPeer.connect(targetHostId, { reliable: true });
+                            App.dataConn.on('open', () => {
+                                isConnected = true;
+                            });
                             App.dataConn.on('data', data => {
                                 if (data.type === 'end_call') endCallGracefully(true);
                             });
                         } catch(e){}
-
-                        // Fallback Direct Friend Call
-                        if (App.peer) {
-                            let friendCall = App.peer.call(targetFriendId, App.localStream, {
-                                metadata: { callerName: App.userName, callerTag: App.myAuraTag }
-                            });
-                            if (friendCall) {
-                                friendCall.on('stream', remoteStream => attachRemoteStream(remoteStream));
-                                friendCall.on('close', () => endCallGracefully(true));
-                            }
-                        }
                     }
                 });
 
-                // Catch "Does Not Exist" Error Directly
+                // Error / Non-existent Room detection
                 App.roomPeer.on('error', err => {
                     if (err.type === 'peer-unavailable') {
-                        endCallGracefully(true);
-                        notify('Room or @ID does not exist / Offline!', '❌');
-                        const input = $('roomCodeInput');
-                        if (input) {
-                            input.style.borderColor = 'var(--danger)';
-                            input.focus();
-                            setTimeout(() => input.style.borderColor = '', 2400);
-                        }
+                        triggerNonExistentRoomError();
                     }
                 });
+
+                // Fail-safe timeout if host is not active
+                setTimeout(() => {
+                    if (!isConnected && !App.remoteStream && $('callStage')?.classList.contains('active')) {
+                        triggerNonExistentRoomError();
+                    }
+                }, 4000);
             } catch(e) {}
         }
 
         try {
             if (App.broadcast) App.broadcast.close();
-            App.broadcast = new BroadcastChannel(`aurastream_${App.roomCode}`);
+            App.broadcast = new BroadcastChannel(`aurastream_${cleanCode}`);
             App.broadcast.onmessage = e => {
                 const data = e.data;
                 if (data.type === 'chat') handleIncomingChatMessage(data.text, data.author);
@@ -3041,6 +3038,21 @@
                 }
             };
         } catch (e) {}
+    }
+
+    function triggerNonExistentRoomError() {
+        endCallGracefully(true);
+        notify(`Room ${App.roomCode} does not exist or host is offline!`, '❌');
+        
+        switchHubTab('tabCalls');
+        $('btnShowJoin')?.click();
+        
+        const input = $('roomCodeInput');
+        if (input) {
+            input.classList.add('input-error');
+            input.focus();
+            setTimeout(() => input.classList.remove('input-error'), 1200);
+        }
     }
 
     function attachRemoteStream(stream) {
