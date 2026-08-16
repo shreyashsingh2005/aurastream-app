@@ -82,7 +82,6 @@
             touch-action: manipulation;
         }
 
-        /* Ambient Glow Backdrop */
         .ambient-mesh {
             position: fixed;
             inset: 0;
@@ -140,7 +139,7 @@
             transform: scale(0.92);
         }
 
-        /* Fullscreen Video Constraints */
+        /* Fullscreen Video Canvas */
         #mainVideo {
             position: absolute !important;
             inset: 0 !important;
@@ -150,9 +149,9 @@
             min-height: 100% !important;
             object-fit: cover !important;
             object-position: center !important;
-            display: block !important;
-            background: transparent;
-            transition: opacity 0.25s ease;
+            display: block;
+            background: #000;
+            z-index: 1;
         }
         #mainVideo.self-mirrored {
             transform: rotateY(180deg) !important;
@@ -167,7 +166,8 @@
             object-fit: cover !important;
             transform: rotateY(180deg) !important;
             -webkit-transform: rotateY(180deg) !important;
-            transition: opacity 0.25s ease;
+            display: none;
+            z-index: 1;
         }
 
         #pipVideo {
@@ -176,6 +176,7 @@
             width: 100% !important;
             height: 100% !important;
             object-fit: cover !important;
+            z-index: 1;
         }
         #pipVideo.self-mirrored {
             transform: rotateY(180deg) !important;
@@ -920,7 +921,7 @@
             flex-direction: column;
             position: relative;
             overflow: hidden;
-            background: #020205;
+            background: #000;
         }
         .call-stage.active { display: flex; }
 
@@ -1059,7 +1060,7 @@
             inset: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at center, #151128 0%, #030308 100%);
+            background: #000;
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -1074,12 +1075,11 @@
         }
 
         .tile-avatar-view {
-            display: flex;
+            display: none;
             flex-direction: column;
             align-items: center;
             gap: 14px;
             z-index: 2;
-            transition: opacity 0.25s ease;
         }
         .tile-avatar-glow {
             width: 86px; height: 86px;
@@ -1116,9 +1116,7 @@
             letter-spacing: 0.3px;
         }
 
-        /* ========================================================
-            INSTAGRAM / WHATSAPP STYLE DYNAMIC CALLING HUD
-           ======================================================== */
+        /* Instagram / WhatsApp Style Calling HUD */
         .calling-status-card {
             position: absolute;
             bottom: 96px;
@@ -1218,7 +1216,7 @@
         .pip-card {
             position: absolute;
             top: 75px; right: 14px;
-            width: 105px;
+            width: 110px;
             aspect-ratio: 9/16;
             background: #000;
             border-radius: var(--radius-sm);
@@ -1850,7 +1848,7 @@
                             <button class="btn-test-cam" id="btnTestCamera">Preview Camera</button>
                         </div>
 
-                        <video id="lobbyVideo" autoplay playsinline webkit-playsinline muted style="opacity: 0; visibility: hidden;"></video>
+                        <video id="lobbyVideo" autoplay playsinline webkit-playsinline muted></video>
                         
                         <div class="vf-overlay-controls">
                             <button class="vf-toggle-btn off" id="lMicBtn" title="Toggle Mic">
@@ -1869,7 +1867,6 @@
         <!-- Tab 2: Advanced Permanent Friends Network -->
         <div class="tab-panel" id="tabFriends">
             <div class="friends-network-card">
-                <!-- Stacked Aura ID Banner with Zero Overlap -->
                 <div class="my-tag-banner">
                     <div class="my-tag-top">
                         <span class="my-tag-label">YOUR PERMANENT AURA ID</span>
@@ -1885,7 +1882,6 @@
                     </div>
                 </div>
 
-                <!-- Add Friend Inputs -->
                 <div class="add-friend-box">
                     <label class="field-label">ADD FRIEND TO NETWORK</label>
                     <div class="add-friend-inputs">
@@ -1895,7 +1891,6 @@
                     <button class="btn-primary" id="btnAddFriend" type="button" style="margin-top: 4px;">+ Add Friend</button>
                 </div>
 
-                <!-- Friends List -->
                 <div class="friends-grid-list" id="friendsNetworkList"></div>
             </div>
         </div>
@@ -1952,7 +1947,7 @@
      ======================================================== -->
 <div class="call-stage" id="callStage">
     
-    <!-- Clean Top Bar with Safe Spacing -->
+    <!-- Top HUD Bar -->
     <div class="hud-topbar">
         <div class="hud-left">
             <div class="room-tag-pill" id="btnCopyCode" title="Click to share meeting">
@@ -1994,8 +1989,8 @@
                 </div>
             </div>
 
-            <!-- Bulletproof Native Fullscreen Video -->
-            <video id="mainVideo" autoplay playsinline webkit-playsinline muted style="opacity: 0; visibility: hidden;"></video>
+            <!-- Fullscreen Native Video Element -->
+            <video id="mainVideo" autoplay playsinline webkit-playsinline muted></video>
         </div>
 
         <!-- Instagram / WhatsApp Style Calling HUD -->
@@ -2006,8 +2001,8 @@
                 <div class="radar-dot"></div>
             </div>
             <div class="calling-meta">
-                <span class="calling-title" id="waitingTitle">Ringing...</span>
-                <span class="calling-sub" id="waitingSub">Waiting for peer to join stream</span>
+                <span class="calling-title" id="waitingTitle">Room AUR-XXXX</span>
+                <span class="calling-sub" id="waitingSub">Waiting for friends to join...</span>
             </div>
             <button class="btn-calling-quick-share" id="btnWaitingQuickShare" title="Invite via WhatsApp">
                 <svg class="icon-sm" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
@@ -2132,7 +2127,6 @@
 
     const $ = id => document.getElementById(id);
 
-    // Resilient event binder supporting bind(id, handler) or bind(id, 'click', handler)
     function bind(id, eventOrCallback, handler) {
         const el = $(id);
         if (!el) return;
@@ -2151,6 +2145,22 @@
             history.replaceState(null, null, window.location.pathname);
         }
     }
+
+    // Global Public Multi-Carrier STUN/TURN Config
+    const PEER_CONFIG = {
+        debug: 1,
+        config: {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' },
+                { urls: 'stun:stun.cloudflare.com:3478' },
+                { urls: 'stun:global.stun.twilio.com:3478' }
+            ],
+            iceCandidatePoolSize: 10
+        }
+    };
 
     const Sound = {
         ctx: null,
@@ -2233,8 +2243,8 @@
         myAuraTag: '@john',
         roomCode: '',
         isHost: false,
-        mic: false,
-        cam: false,
+        mic: true,
+        cam: true,
         screen: false,
         recording: false,
         studioFilter: false,
@@ -2244,6 +2254,7 @@
         screenStream: null,
         remoteStream: null,
         peer: null,
+        roomPeer: null,
         peerCall: null,
         dataConn: null,
         broadcast: null,
@@ -2320,10 +2331,9 @@
         item.className = 'toast-item';
         item.innerHTML = `<span>${emoji}</span> <span>${msg}</span>`;
         box.appendChild(item);
-        setTimeout(() => item.remove(), 2200);
+        setTimeout(() => item.remove(), 2400);
     }
 
-    // Toggle PIN Visibility
     bind('btnToggleRegPin', () => {
         const input = $('regPinInput');
         if (!input) return;
@@ -2336,7 +2346,6 @@
         input.type = input.type === 'password' ? 'text' : 'password';
     });
 
-    // Auto-fill tag when typing name in register box
     bind('regNameInput', 'input', e => {
         const val = e.target.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
         if (val && !$('regTagInput')?.dataset.customized) {
@@ -2348,7 +2357,6 @@
         $('regTagInput').dataset.customized = 'true';
     });
 
-    // Auth Tabs Switch
     bind('btnAuthTabRegister', () => {
         $('btnAuthTabRegister')?.classList.add('active');
         $('btnAuthTabLogin')?.classList.remove('active');
@@ -2363,7 +2371,6 @@
         $('authRegisterBox').style.display = 'none';
     });
 
-    // Register Handler
     bind('btnSubmitRegister', () => {
         const name = $('regNameInput')?.value.trim();
         let tag = $('regTagInput')?.value.trim();
@@ -2394,7 +2401,6 @@
         notify(`Account created! Welcome, ${name}.`, '🎉');
     });
 
-    // Login Handler
     bind('btnSubmitLogin', () => {
         let inputId = $('loginIdInput')?.value.trim();
         const pin = $('loginPinInput')?.value.trim();
@@ -2407,7 +2413,6 @@
         const user = db[inputId.toLowerCase()];
 
         if (!user) {
-            // First time login on fresh device auto-links account
             const fallbackName = inputId.replace('@', '');
             const newUser = { name: fallbackName, tag: inputId, pin, created: Date.now() };
             AccountEngine.saveUser(inputId, newUser);
@@ -2555,12 +2560,11 @@
     bind('btnCloseDm', () => $('dmModal')?.classList.remove('show'));
 
     window.callFriendDirectly = (name, tag) => {
-        App.isHost = true;
+        App.isHost = false;
         App.roomCode = tag.replace('@', '').toUpperCase();
         
-        // Update Calling Banner Text for Direct Call
         if ($('waitingTitle')) $('waitingTitle').textContent = `Calling ${name}...`;
-        if ($('waitingSub')) $('waitingSub').textContent = `Waiting for ${tag} to answer`;
+        if ($('waitingSub')) $('waitingSub').textContent = `Ringing ${tag}`;
 
         startMeetingSession();
         notify(`Calling ${name} (${tag})...`, '📞');
@@ -2651,39 +2655,16 @@
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         return {
             video: {
-                width: isMobile ? { ideal: 1280, max: 1920 } : { ideal: 1920, min: 1280 },
-                height: isMobile ? { ideal: 720, max: 1080 } : { ideal: 1080, min: 720 },
-                facingMode: { ideal: App.facing },
-                frameRate: { ideal: 60, min: 24 }
+                width: isMobile ? { ideal: 1280 } : { ideal: 1920 },
+                height: isMobile ? { ideal: 720 } : { ideal: 1080 },
+                facingMode: { ideal: App.facing }
             },
             audio: {
-                echoCancellation: { ideal: true },
-                noiseSuppression: { ideal: true },
-                autoGainControl: { ideal: true }
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
             }
         };
-    }
-
-    function tunePeerConnectionAdaptive(peerConnection) {
-        if (!peerConnection || !peerConnection.getSenders) return;
-        peerConnection.getSenders().forEach(sender => {
-            if (!sender.track) return;
-            const params = sender.getParameters();
-            if (!params.encodings || params.encodings.length === 0) params.encodings = [{}];
-            
-            if (sender.track.kind === 'video') {
-                params.encodings[0].minBitrate = 150000;
-                params.encodings[0].maxBitrate = 4000000;
-                params.encodings[0].maxFramerate = 60;
-                params.encodings[0].networkPriority = 'high';
-                params.degradationPreference = 'balanced';
-            } else if (sender.track.kind === 'audio') {
-                params.encodings[0].minBitrate = 16000;
-                params.encodings[0].maxBitrate = 128000;
-                params.encodings[0].networkPriority = 'high';
-            }
-            try { sender.setParameters(params); } catch (e) {}
-        });
     }
 
     async function initCamera() {
@@ -2696,8 +2677,7 @@
             if (lVid) {
                 lVid.srcObject = App.localStream;
                 lVid.muted = true;
-                lVid.style.opacity = '1';
-                lVid.style.visibility = 'visible';
+                lVid.style.display = 'block';
                 lVid.play().catch(()=>{});
             }
             if ($('vfPlaceholder')) $('vfPlaceholder').style.display = 'none';
@@ -2783,8 +2763,7 @@
         $('lCamBtn')?.classList.toggle('off', !App.cam);
         App.localStream.getVideoTracks().forEach(t => t.enabled = App.cam);
         if ($('lobbyVideo')) {
-            $('lobbyVideo').style.opacity = App.cam ? '1' : '0';
-            $('lobbyVideo').style.visibility = App.cam ? 'visible' : 'hidden';
+            $('lobbyVideo').style.display = App.cam ? 'block' : 'none';
         }
         if ($('vfPlaceholder')) $('vfPlaceholder').style.display = App.cam ? 'none' : 'flex';
     });
@@ -2832,13 +2811,13 @@
         App.roomCode = c;
 
         if ($('waitingTitle')) $('waitingTitle').textContent = `Connecting to ${c}...`;
-        if ($('waitingSub')) $('waitingSub').textContent = `Establishing encrypted studio stream`;
+        if ($('waitingSub')) $('waitingSub').textContent = `Establishing encrypted stream`;
 
         startMeetingSession();
     });
 
     // ========================================================
-    // PERMANENT PEER LISTENER & INCOMING CALL HANDLING
+    // PERMANENT PEER LISTENER (FOR DIRECT CALLS)
     // ========================================================
     function initPermanentPeer(tag) {
         const cleanTag = tag.replace('@', '').toLowerCase();
@@ -2847,17 +2826,7 @@
         try {
             if (typeof Peer !== 'undefined') {
                 if (App.peer) App.peer.destroy();
-                App.peer = new Peer(peerId, {
-                    debug: 0,
-                    config: {
-                        iceServers: [
-                            { urls: 'stun:stun.l.google.com:19302' },
-                            { urls: 'stun:stun1.l.google.com:19302' },
-                            { urls: 'stun:stun2.l.google.com:19302' },
-                            { urls: 'stun:stun.cloudflare.com:3478' }
-                        ]
-                    }
-                });
+                App.peer = new Peer(peerId, PEER_CONFIG);
 
                 App.peer.on('call', call => {
                     App.pendingCall = call;
@@ -2899,7 +2868,6 @@
         if (App.pendingCall && App.localStream) {
             App.pendingCall.answer(App.localStream);
             App.pendingCall.on('stream', remoteStream => attachRemoteStream(remoteStream));
-            if (App.pendingCall.peerConnection) tunePeerConnectionAdaptive(App.pendingCall.peerConnection);
             App.peerCall = App.pendingCall;
         }
     });
@@ -2912,6 +2880,9 @@
         notify('Call declined', '📞');
     });
 
+    // ========================================================
+    // START MEETING SESSION (INSTANT SELF-CAM & P2P CONNECTION)
+    // ========================================================
     async function startMeetingSession() {
         $('lobbyView')?.classList.add('hidden');
         $('callStage')?.classList.add('active');
@@ -2930,6 +2901,7 @@
 
         if (App.localStream) initAudioMeter(App.localStream);
 
+        // Render self camera immediately so screen is NEVER blank
         updateVideoLayout();
         syncMediaState();
         startCallTimer();
@@ -2960,20 +2932,60 @@
         }, 1000);
     }
 
+    // ========================================================
+    // DETERMINISTIC ROOM & PEER-TO-PEER ENGINE
+    // ========================================================
     function initP2PEngine() {
         const cleanRoom = App.roomCode.toLowerCase().replace(/[^a-z0-9]/g, '');
-        const targetPeerId = `aurastream_user_${cleanRoom}`;
 
-        // Dial if calling a friend
-        if (!App.isHost && App.localStream) {
+        if (App.isHost) {
+            // HOST: Register Room Peer ID
+            const roomHostId = `aurastream_room_${cleanRoom}`;
             try {
-                const call = App.peer.call(targetPeerId, App.localStream, {
-                    metadata: { callerName: App.userName, callerTag: App.myAuraTag }
+                if (App.roomPeer) App.roomPeer.destroy();
+                App.roomPeer = new Peer(roomHostId, PEER_CONFIG);
+
+                App.roomPeer.on('call', call => {
+                    App.peerCall = call;
+                    call.answer(App.localStream);
+                    call.on('stream', remoteStream => attachRemoteStream(remoteStream));
+                    notify('Peer connected to room!', '🟢');
                 });
-                App.peerCall = call;
-                call.on('stream', remoteStream => attachRemoteStream(remoteStream));
-                if (call.peerConnection) tunePeerConnectionAdaptive(call.peerConnection);
-            } catch(e){}
+            } catch (e) {}
+        } else {
+            // GUEST / FRIEND DIAL
+            const targetRoomId = `aurastream_room_${cleanRoom}`;
+            const targetFriendId = `aurastream_user_${cleanRoom}`;
+            const guestPeerId = `aurastream_guest_${cleanRoom}_${Math.floor(Math.random()*9000+1000)}`;
+
+            try {
+                if (App.roomPeer) App.roomPeer.destroy();
+                App.roomPeer = new Peer(guestPeerId, PEER_CONFIG);
+
+                App.roomPeer.on('open', () => {
+                    if (App.localStream) {
+                        // Attempt call to room host
+                        let call = App.roomPeer.call(targetRoomId, App.localStream, {
+                            metadata: { callerName: App.userName, callerTag: App.myAuraTag }
+                        });
+
+                        if (call) {
+                            App.peerCall = call;
+                            call.on('stream', remoteStream => attachRemoteStream(remoteStream));
+                        }
+
+                        // Also try friend peer ID in case it's a direct user call
+                        if (App.peer) {
+                            let friendCall = App.peer.call(targetFriendId, App.localStream, {
+                                metadata: { callerName: App.userName, callerTag: App.myAuraTag }
+                            });
+                            if (friendCall) {
+                                friendCall.on('stream', remoteStream => attachRemoteStream(remoteStream));
+                            }
+                        }
+                    }
+                });
+            } catch(e) {}
         }
 
         try {
@@ -2990,6 +3002,7 @@
     }
 
     function attachRemoteStream(stream) {
+        if (!stream) return;
         App.remoteStream = stream;
         $('waitingHub')?.classList.add('hidden');
         updateVideoLayout();
@@ -3004,75 +3017,59 @@
         const pipVid = $('pipVideo');
         const mainPlace = $('mainPlaceholder');
 
+        if (!mainVid) return;
+
         if (!App.remoteStream) {
-            if (mainVid && App.localStream) {
+            // Lone User / Waiting Mode: Main screen is SELF CAMERA
+            if (App.localStream) {
                 if (mainVid.srcObject !== App.localStream) mainVid.srcObject = App.localStream;
                 mainVid.muted = true;
                 mainVid.classList.toggle('self-mirrored', App.facing === 'user');
-                mainVid.style.opacity = App.cam ? '1' : '0';
-                mainVid.style.visibility = App.cam ? 'visible' : 'hidden';
+                mainVid.style.display = App.cam ? 'block' : 'none';
                 if (App.cam) mainVid.play().catch(()=>{});
             }
-
             if (mainPlace) {
-                mainPlace.style.opacity = App.cam ? '0' : '1';
-                mainPlace.style.visibility = App.cam ? 'hidden' : 'visible';
                 mainPlace.style.display = App.cam ? 'none' : 'flex';
             }
             $('pipCard')?.classList.add('hidden');
             return;
         }
 
+        // Two People Connected Mode
         if (!App.swappedViews) {
-            if (mainVid) {
-                if (mainVid.srcObject !== App.remoteStream) mainVid.srcObject = App.remoteStream;
-                mainVid.muted = false;
-                mainVid.classList.remove('self-mirrored');
-                mainVid.style.opacity = '1';
-                mainVid.style.visibility = 'visible';
-                mainVid.play().catch(()=>{});
-            }
-
-            if (mainPlace) {
-                mainPlace.style.opacity = '0';
-                mainPlace.style.visibility = 'hidden';
-                mainPlace.style.display = 'none';
-            }
+            // Main is Remote, PiP is Local
+            if (mainVid.srcObject !== App.remoteStream) mainVid.srcObject = App.remoteStream;
+            mainVid.muted = false;
+            mainVid.classList.remove('self-mirrored');
+            mainVid.style.display = 'block';
+            mainVid.play().catch(()=>{});
 
             if (pipVid && App.localStream) {
                 if (pipVid.srcObject !== App.localStream) pipVid.srcObject = App.localStream;
                 pipVid.muted = true;
                 pipVid.classList.toggle('self-mirrored', App.facing === 'user');
-                pipVid.style.opacity = App.cam ? '1' : '0';
-                pipVid.style.visibility = App.cam ? 'visible' : 'hidden';
+                pipVid.style.display = App.cam ? 'block' : 'none';
                 if (App.cam) pipVid.play().catch(()=>{});
             }
             if ($('pipTagLabel')) $('pipTagLabel').textContent = 'You';
+            if (mainPlace) mainPlace.style.display = 'none';
         } else {
-            if (mainVid && App.localStream) {
-                if (mainVid.srcObject !== App.localStream) mainVid.srcObject = App.localStream;
-                mainVid.muted = true;
-                mainVid.classList.toggle('self-mirrored', App.facing === 'user');
-                mainVid.style.opacity = App.cam ? '1' : '0';
-                mainVid.style.visibility = App.cam ? 'visible' : 'hidden';
-                if (App.cam) mainVid.play().catch(()=>{});
-            }
-
-            if (mainPlace) {
-                mainPlace.style.opacity = App.cam ? '0' : '1';
-                mainPlace.style.visibility = App.cam ? 'hidden' : 'visible';
-                mainPlace.style.display = App.cam ? 'none' : 'flex';
-            }
+            // Main is Local, PiP is Remote
+            if (mainVid.srcObject !== App.localStream) mainVid.srcObject = App.localStream;
+            mainVid.muted = true;
+            mainVid.classList.toggle('self-mirrored', App.facing === 'user');
+            mainVid.style.display = App.cam ? 'block' : 'none';
+            if (App.cam) mainVid.play().catch(()=>{});
 
             if (pipVid && App.remoteStream) {
                 if (pipVid.srcObject !== App.remoteStream) pipVid.srcObject = App.remoteStream;
                 pipVid.muted = false;
                 pipVid.classList.remove('self-mirrored');
-                pipVid.style.opacity = '1';
-                pipVid.style.visibility = 'visible';
+                pipVid.style.display = 'block';
                 pipVid.play().catch(()=>{});
             }
             if ($('pipTagLabel')) $('pipTagLabel').textContent = 'Peer';
+            if (mainPlace) mainPlace.style.display = App.cam ? 'none' : 'flex';
         }
     }
 
@@ -3334,11 +3331,11 @@
                 <div class="person-info">
                     <div class="person-avatar" style="background: var(--accent-purple); color: #fff;">A</div>
                     <div>
-                        <div style="font-weight: 800; font-size: 13px;">Alex (Peer)</div>
+                        <div style="font-weight: 800; font-size: 13px;">Connected Peer</div>
                         <div style="font-size: 11px; color: var(--text-2); font-weight:600;">Adaptive Stream</div>
                     </div>
                 </div>
-                <button class="btn-grid-outline" style="padding:4px 8px; font-size:10px;" onclick="FriendsNetwork.add('Alex', '@alex')">+ Friend</button>
+                <button class="btn-grid-outline" style="padding:4px 8px; font-size:10px;" onclick="FriendsNetwork.add('Connected Peer', App.roomCode)">+ Friend</button>
             `;
             list.appendChild(item);
         }
@@ -3355,7 +3352,7 @@
 
         function drawQrCorner(cx, x, y) {
             cx.fillRect(x, y, 44, 44);
-            cx.fillStyle = '#ffffff'; cx.fillRect(x + 6, y + 6, 32, 32);
+            cx.fillStyle = '#ffffff'; ctx.fillRect(x + 6, y + 6, 32, 32);
             cx.fillStyle = '#000000'; cx.fillRect(x + 13, y + 13, 18, 18);
         }
 
@@ -3468,6 +3465,7 @@
         }
 
         try { if (App.peerCall) App.peerCall.close(); } catch (e) {}
+        try { if (App.roomPeer) App.roomPeer.destroy(); } catch (e) {}
         try { if (App.dataConn) App.dataConn.close(); } catch (e) {}
         try { if (App.broadcast) App.broadcast.close(); } catch (e) {}
 
@@ -3482,8 +3480,6 @@
         if (mainVid) { 
             try { mainVid.pause(); } catch(e){}
             mainVid.srcObject = null; 
-            mainVid.style.opacity = '0';
-            mainVid.style.visibility = 'hidden';
             mainVid.classList.remove('self-mirrored');
         }
 
@@ -3498,13 +3494,12 @@
         if (lobbyVid) { 
             try { lobbyVid.pause(); } catch(e){}
             lobbyVid.srcObject = null; 
-            lobbyVid.style.opacity = '0';
-            lobbyVid.style.visibility = 'hidden';
+            lobbyVid.style.display = 'none';
         }
 
         App.remoteStream = null;
-        App.mic = false;
-        App.cam = false;
+        App.mic = true;
+        App.cam = true;
         App.screen = false;
         App.swappedViews = false;
 
@@ -3521,7 +3516,7 @@
         $('dockScreen')?.classList.remove('active');
         $('dockRecord')?.classList.remove('active');
 
-        // Reconnect permanent peer listener for incoming friend calls
+        // Re-listen for incoming friend calls
         initPermanentPeer(App.myAuraTag);
 
         $('lobbyView')?.classList.remove('hidden');
