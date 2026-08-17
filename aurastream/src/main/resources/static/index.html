@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>AURASTREAM — Studio Ultra HD Video & Mesh Network</title>
-    <meta name="description" content="Next-generation luxury P2P video meetings with permanent user accounts, multi-device sync, persistent friends, direct calls, and 25+ party multi-mesh.">
+    <meta name="description" content="Next-generation luxury P2P video meetings with permanent user accounts, multi-device sync, persistent friends, and direct calls.">
     
     <!-- PeerJS Direct P2P Mesh -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -31,7 +31,6 @@
             --wa-green-glow: rgba(34, 197, 94, 0.32);
             --accent-purple: #9333ea;
             --accent-cyan: #06b6d4;
-            --accent-gold: #eab308;
             --danger: #f43f5e;
             --danger-glow: rgba(244, 63, 94, 0.4);
             --success: #10b981;
@@ -200,9 +199,9 @@
             -webkit-overflow-scrolling: touch;
         }
         .auth-stage.hidden {
-            display: none !important;
             opacity: 0;
             pointer-events: none;
+            transform: scale(0.96);
         }
 
         .auth-card {
@@ -319,6 +318,7 @@
             align-items: center;
             justify-content: center;
         }
+        .toggle-pin-btn:hover { color: #fff; }
 
         .btn-primary {
             background: var(--brand-gradient);
@@ -337,6 +337,7 @@
             transition: transform 0.15s ease;
         }
         .btn-primary:active { transform: scale(0.98); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
         /* Studio Lobby Stage */
         .lobby-stage {
@@ -349,7 +350,7 @@
             transition: opacity 0.3s var(--spring);
             overflow: hidden;
         }
-        .lobby-stage.hidden { display: none !important; opacity: 0; pointer-events: none; }
+        .lobby-stage.hidden { opacity: 0; pointer-events: none; }
 
         .hub-topbar {
             padding: max(14px, var(--safe-top)) 18px 12px 18px;
@@ -465,6 +466,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Tab 1: Studio Meeting */
         .calls-grid {
             display: grid;
             grid-template-columns: 1.15fr 0.85fr;
@@ -582,6 +584,7 @@
             gap: 10px;
             background: radial-gradient(circle at center, #151128 0%, #06060c 100%);
             z-index: 2;
+            transition: opacity 0.2s ease;
         }
         .vf-avatar-ring {
             width: 68px; height: 68px;
@@ -620,7 +623,7 @@
             transition: width 0.08s linear;
         }
 
-        /* Friends Network */
+        /* Tab 2: Friends Network */
         .friends-network-card {
             background: var(--bg-surface);
             border: 1px solid var(--border-subtle);
@@ -641,11 +644,24 @@
             border: 1px solid var(--border-glow);
             border-radius: var(--radius-sm);
         }
+        .my-tag-top {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .my-tag-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-2);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
         .my-tag-code {
             font-family: var(--font-mono);
             font-size: 16px;
             font-weight: 800;
             color: var(--brand-light);
+            word-break: break-all;
         }
         .my-tag-actions-row {
             display: grid;
@@ -665,18 +681,26 @@
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid var(--border-subtle);
             color: #fff;
+            transition: all 0.15s ease;
         }
+        .btn-tag-action:active { background: rgba(255, 255, 255, 0.16); }
         .btn-tag-action.wa {
             background: rgba(34, 197, 94, 0.14);
             border-color: rgba(34, 197, 94, 0.38);
             color: var(--wa-green);
         }
 
+        .add-friend-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
         .add-friend-inputs {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
         }
+
         .friends-grid-list {
             display: flex;
             flex-direction: column;
@@ -684,6 +708,7 @@
             max-height: 440px;
             overflow-y: auto;
         }
+
         .friend-net-item {
             display: flex;
             align-items: center;
@@ -692,7 +717,13 @@
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border-dim);
             border-radius: var(--radius-sm);
+            transition: all 0.15s ease;
         }
+        .friend-net-item:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: var(--border-subtle);
+        }
+
         .friend-net-info {
             display: flex;
             align-items: center;
@@ -718,6 +749,12 @@
             background: var(--success);
             border: 2px solid #000;
         }
+
+        .friend-net-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
         .btn-call-direct {
             background: var(--brand-gradient);
             color: #000;
@@ -729,6 +766,7 @@
             align-items: center;
             gap: 5px;
             cursor: pointer;
+            box-shadow: 0 4px 14px var(--brand-glow);
         }
         .btn-chat-direct {
             background: rgba(255, 255, 255, 0.08);
@@ -743,23 +781,126 @@
             gap: 5px;
             cursor: pointer;
         }
+        .btn-del-friend {
+            background: transparent;
+            color: var(--text-3);
+            padding: 6px;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .btn-del-friend:hover { color: var(--danger); }
 
-        /* ========================================================
-           ACTIVE CALL STAGE (SEAMLESS P2P + MULTI-PARTY MESH)
-           ======================================================== */
+        /* DM Modal */
+        .dm-modal-card {
+            width: 100%;
+            max-width: 420px;
+            height: 520px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: var(--radius-md);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 65px rgba(0,0,0,0.9);
+            overflow: hidden;
+        }
+        .dm-modal-header {
+            padding: 12px 16px;
+            background: rgba(12, 12, 22, 0.95);
+            border-bottom: 1px solid var(--border-dim);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .dm-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .dm-header-av {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: var(--brand-gradient);
+            color: #000;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        /* Incoming Call Modal */
+        .incoming-call-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 20000;
+            background: radial-gradient(circle at center, rgba(255, 85, 0, 0.22) 0%, rgba(2, 2, 8, 0.96) 80%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            padding: 24px;
+        }
+        .incoming-call-modal.show { display: flex; }
+        .incoming-avatar {
+            width: 105px; height: 105px;
+            border-radius: 50%;
+            background: var(--brand-gradient);
+            color: #000;
+            font-size: 42px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 50px var(--brand-glow);
+            animation: ringPulse 1.2s infinite;
+        }
+        @keyframes ringPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 40px var(--brand-glow); }
+            50% { transform: scale(1.08); box-shadow: 0 0 70px var(--brand-glow); }
+        }
+        .incoming-actions {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            margin-top: 20px;
+        }
+        .btn-call-ans {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: var(--success);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 25px var(--success-glow);
+        }
+        .btn-call-dec {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: var(--danger);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 25px var(--danger-glow);
+        }
+        .btn-call-dec svg { transform: rotate(135deg); }
+
+        /* Call Stage */
         .call-stage {
             display: none;
             height: 100vh;
             height: 100dvh;
             width: 100vw;
             flex-direction: column;
-            position: fixed !important;
-            inset: 0 !important;
-            z-index: 5000 !important;
+            position: relative;
             overflow: hidden;
             background: #000;
         }
-        .call-stage.active { display: flex !important; }
+        .call-stage.active { display: flex; }
 
         .hud-topbar {
             position: absolute;
@@ -771,7 +912,34 @@
             background: linear-gradient(180deg, rgba(2,2,5,0.92) 0%, rgba(2,2,5,0) 100%);
             z-index: 100;
             pointer-events: none;
+            transition: transform 0.25s var(--spring), opacity 0.25s ease;
         }
+        .dock-wrapper {
+            position: absolute;
+            bottom: max(16px, var(--safe-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            width: auto;
+            max-width: 96%;
+            transition: transform 0.25s var(--spring), opacity 0.25s ease;
+        }
+
+        .call-stage.immersive .hud-topbar {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .call-stage.immersive .dock-wrapper {
+            transform: translateX(-50%) translateY(120px);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .call-stage.immersive .calling-status-card {
+            opacity: 0;
+            pointer-events: none;
+        }
+
         .hud-left, .hud-right {
             pointer-events: auto;
             display: flex;
@@ -789,7 +957,10 @@
             gap: 7px;
             cursor: pointer;
             box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            transition: all 0.15s ease;
         }
+        .room-tag-pill:active { background: var(--bg-elevated); }
+
         .room-code-label {
             font-family: var(--font-mono);
             font-size: 12px;
@@ -805,11 +976,17 @@
             padding-left: 7px;
             font-weight: 600;
         }
+
         .live-pulse-dot {
             width: 7px; height: 7px;
             background: var(--success);
             border-radius: 50%;
             box-shadow: 0 0 8px var(--success);
+            animation: pulseGlow 1.8s infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.15); }
         }
 
         .hud-icon-btn {
@@ -826,11 +1003,14 @@
             position: relative;
             transition: all 0.15s ease;
         }
+        .hud-icon-btn:active { background: rgba(255,255,255,0.18); transform: scale(0.95); }
+
         .hud-icon-btn.active {
             background: var(--brand-subtle);
             color: var(--brand-light);
             border-color: var(--border-glow);
         }
+
         .hud-icon-btn .badge {
             position: absolute;
             top: -2px; right: -2px;
@@ -858,6 +1038,7 @@
             font-size: 12px;
             font-weight: 800;
             cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
         }
 
         /* Video Canvas Container */
@@ -870,6 +1051,7 @@
             overflow: hidden;
             background: #000;
             display: flex;
+            cursor: pointer;
         }
 
         .main-hero-tile {
@@ -882,9 +1064,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s var(--spring);
         }
         .main-hero-tile.speaking {
             box-shadow: inset 0 0 0 3px var(--brand);
+        }
+
+        .studio-lighting video {
+            filter: contrast(1.06) saturate(1.12) brightness(1.04);
         }
 
         .tile-avatar-view {
@@ -916,6 +1103,7 @@
             font-size: 16px;
             font-weight: 800;
             color: #ffffff;
+            letter-spacing: -0.02em;
         }
         .tile-avatar-role {
             font-size: 11px;
@@ -925,9 +1113,10 @@
             padding: 3px 10px;
             border-radius: var(--radius-full);
             border: 1px solid var(--border-glow);
+            letter-spacing: 0.3px;
         }
 
-        /* Calling Radar Card */
+        /* Calling HUD */
         .calling-status-card {
             position: absolute;
             bottom: 96px;
@@ -942,8 +1131,14 @@
             border: 1px solid var(--border-glow);
             z-index: 25;
             box-shadow: 0 16px 40px rgba(0,0,0,0.85);
+            animation: floatUp 0.3s var(--spring);
+            transition: opacity 0.25s ease;
         }
         .calling-status-card.hidden { display: none; }
+        @keyframes floatUp {
+            from { opacity: 0; transform: translate(-50%, 15px) scale(0.95); }
+            to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+        }
 
         .radar-wave-container {
             position: relative;
@@ -960,7 +1155,9 @@
             background: rgba(255, 85, 0, 0.25);
             animation: sonarWave 1.6s infinite cubic-bezier(0, 0.2, 0.8, 1);
         }
-        .radar-ring:nth-child(2) { animation-delay: 0.8s; }
+        .radar-ring:nth-child(2) {
+            animation-delay: 0.8s;
+        }
         @keyframes sonarWave {
             0% { transform: scale(0.5); opacity: 1; }
             100% { transform: scale(2.2); opacity: 0; }
@@ -972,6 +1169,27 @@
             background: var(--brand);
             box-shadow: 0 0 10px var(--brand);
             z-index: 2;
+        }
+
+        .calling-meta {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        .calling-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .calling-sub {
+            font-size: 11px;
+            color: var(--text-2);
+            font-weight: 600;
+            white-space: nowrap;
         }
 
         .btn-calling-quick-share {
@@ -986,9 +1204,15 @@
             align-items: center;
             gap: 5px;
             cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-calling-quick-share:active {
+            background: var(--wa-green);
+            color: #000;
+            transform: scale(0.95);
         }
 
-        /* PiP Floating Window */
+        /* Clean Luxury Minimalist PiP Window */
         .pip-card {
             position: absolute;
             top: 75px; right: 14px;
@@ -1002,7 +1226,10 @@
             z-index: 85;
             cursor: pointer;
             touch-action: none;
+            transition: border-color 0.2s ease, transform 0.2s var(--spring);
+            will-change: transform, top, left;
         }
+        .pip-card:active { transform: scale(0.96); }
         .pip-card.hidden { display: none; }
         .pip-tag {
             position: absolute;
@@ -1015,6 +1242,7 @@
             color: #fff;
             pointer-events: none;
             z-index: 5;
+            letter-spacing: 0.3px;
         }
 
         /* Split View Layout */
@@ -1030,6 +1258,7 @@
             inset: auto !important;
             width: 100% !important;
             height: 100% !important;
+            border-radius: 0;
         }
         .video-canvas.split-view .pip-card {
             position: relative !important;
@@ -1042,54 +1271,7 @@
             aspect-ratio: auto !important;
             border-radius: 0 !important;
             border: none !important;
-        }
-
-        /* Gallery Grid Mode (Multi-Party 3 to 25+ Participants) */
-        .video-canvas.gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 8px;
-            padding: max(60px, calc(var(--safe-top) + 52px)) 10px max(86px, calc(var(--safe-bottom) + 74px)) 10px;
-            overflow-y: auto;
-        }
-        .video-canvas.gallery-grid .main-hero-tile,
-        .video-canvas.gallery-grid .pip-card,
-        .video-canvas.gallery-grid .dynamic-guest-tile {
-            position: relative !important;
-            top: auto !important; left: auto !important; right: auto !important; bottom: auto !important;
-            width: 100% !important;
-            height: 100% !important;
-            min-height: 180px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border-subtle);
-            overflow: hidden;
-            display: flex !important;
-        }
-
-        .dynamic-guest-tile {
-            position: relative;
-            background: #080812;
-            border-radius: var(--radius-sm);
-            overflow: hidden;
-            border: 1px solid var(--border-subtle);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 180px;
-        }
-        .dynamic-guest-tile video {
-            width: 100%; height: 100%; object-fit: cover;
-        }
-        .dynamic-guest-tile .tile-tag-label {
-            position: absolute;
-            bottom: 6px; left: 6px;
-            background: rgba(0,0,0,0.8);
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: 800;
-            color: #fff;
-            z-index: 5;
+            cursor: pointer;
         }
 
         @media (max-width: 768px) {
@@ -1097,22 +1279,9 @@
                 grid-template-columns: 1fr;
                 grid-template-rows: 1fr 1fr;
             }
-            .video-canvas.gallery-grid {
-                grid-template-columns: 1fr 1fr;
-            }
         }
 
         /* Control Dock */
-        .dock-wrapper {
-            position: absolute;
-            bottom: max(16px, var(--safe-bottom));
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            width: auto;
-            max-width: 96%;
-        }
-
         .control-dock {
             display: flex;
             align-items: center;
@@ -1189,6 +1358,68 @@
             cursor: pointer;
         }
         .r-btn:active { transform: scale(1.35); }
+
+        .floating-chat-banner {
+            position: fixed;
+            top: calc(max(14px, var(--safe-top)) + 52px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(18, 18, 32, 0.96);
+            border: 1px solid var(--border-glow);
+            border-radius: var(--radius-full);
+            padding: 8px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.85);
+            z-index: 9999;
+            cursor: pointer;
+            transition: transform 0.3s var(--spring), opacity 0.25s ease;
+            opacity: 0;
+            max-width: 90%;
+        }
+        .floating-chat-banner.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .floating-avatar {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            background: var(--brand-gradient);
+            color: #000;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+
+        .toast-shelf {
+            position: fixed;
+            top: calc(max(14px, var(--safe-top)) + 52px);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .toast-item {
+            background: rgba(16, 16, 28, 0.95);
+            border: 1px solid var(--border-glow);
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.85);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: toastPop 0.25s var(--spring);
+        }
+        @keyframes toastPop {
+            0% { opacity: 0; transform: translateY(-10px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
 
         .side-drawer {
             position: absolute;
@@ -1396,36 +1627,6 @@
             cursor: pointer;
         }
 
-        .toast-shelf {
-            position: fixed;
-            top: calc(max(14px, var(--safe-top)) + 52px);
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 99999;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            pointer-events: none;
-        }
-        .toast-item {
-            background: rgba(16, 16, 28, 0.95);
-            border: 1px solid var(--border-glow);
-            padding: 8px 16px;
-            border-radius: var(--radius-full);
-            color: #fff;
-            font-size: 12px;
-            font-weight: 700;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.85);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            animation: toastPop 0.25s var(--spring);
-        }
-        @keyframes toastPop {
-            0% { opacity: 0; transform: translateY(-10px) scale(0.95); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
         .reaction-particle {
             position: fixed;
             bottom: 80px;
@@ -1465,9 +1666,10 @@
 <body>
 
 <div class="ambient-mesh"></div>
+
 <div class="toast-shelf" id="toastShelf"></div>
 
-<!-- Incoming Direct Call Notification Modal -->
+<!-- Incoming Call Notification -->
 <div class="incoming-call-modal" id="incomingCallModal">
     <div class="incoming-avatar" id="incomingAv">A</div>
     <div style="text-align: center;">
@@ -1482,6 +1684,15 @@
         <button class="btn-call-ans" id="btnAcceptCall" title="Accept Call">
             <svg class="icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 2.59 3.4l1.27 1.27a2 2 0 0 1 .45-2.11 12.84 12.84 0 0 0-2.81-.7 2 2 0 0 1-1.72-2z"/></svg>
         </button>
+    </div>
+</div>
+
+<!-- Incoming Message Banner -->
+<div class="floating-chat-banner" id="chatBanner">
+    <div class="floating-avatar" id="bannerAvatar">A</div>
+    <div style="display:flex; flex-direction:column;">
+        <b style="font-size:11px; color:var(--brand-light);" id="bannerAuthor">Alex</b>
+        <span style="font-size:12px; color:#fff;" id="bannerText">Hey there!</span>
     </div>
 </div>
 
@@ -1598,14 +1809,14 @@
                 <div class="action-side">
                     <div class="hero-banner">
                         <h2>Studio Meetings.<br>Pure Cinematic Video.</h2>
-                        <p>Cool thermal encoding, multi-party mesh for 25+ participants, and verified instant connection.</p>
+                        <p>Cool thermal encoding, two-way auto termination, and verified instant connection.</p>
                     </div>
 
                     <div class="action-card-box">
                         <div id="joinFields" style="display: none;">
                             <div>
                                 <label class="field-label">Meeting Code or Friend ID</label>
-                                <input class="field-input" id="roomCodeInput" placeholder="e.g. 7890 or AUR-7890 or @alex" style="text-transform: uppercase; font-family: var(--font-mono);" autocomplete="off">
+                                <input class="field-input" id="roomCodeInput" placeholder="e.g. AUR-7890 or @alex" style="text-transform: uppercase; font-family: var(--font-mono);" autocomplete="off">
                             </div>
                             <div class="btn-group" style="margin-top: 10px;">
                                 <button class="btn-primary" id="btnJoinRoom">Connect Stream</button>
@@ -1662,21 +1873,23 @@
         <div class="tab-panel" id="tabFriends">
             <div class="friends-network-card">
                 <div class="my-tag-banner">
-                    <span style="font-size: 11px; font-weight: 800; color: var(--text-2); text-transform: uppercase;">YOUR PERMANENT AURA ID</span>
-                    <span class="my-tag-code" id="myAuraTag">@john</span>
+                    <div class="my-tag-top">
+                        <span class="my-tag-label">YOUR PERMANENT AURA ID</span>
+                        <span class="my-tag-code" id="myAuraTag">@john</span>
+                    </div>
                     <div class="my-tag-actions-row">
                         <button class="btn-tag-action" id="btnCopyMyId" type="button">📋 Copy ID</button>
                         <button class="btn-tag-action wa" id="btnShareMyIdWhatsApp" type="button">Share on WhatsApp</button>
                     </div>
                 </div>
 
-                <div>
+                <div class="add-friend-box">
                     <label class="field-label">ADD FRIEND TO NETWORK</label>
                     <div class="add-friend-inputs">
                         <input class="field-input" id="newFriendName" placeholder="Friend's Name (e.g. Alex)">
                         <input class="field-input" id="newFriendTag" placeholder="Friend's @AuraID (e.g. @alex)" style="font-family: var(--font-mono);">
                     </div>
-                    <button class="btn-primary" id="btnAddFriend" type="button" style="margin-top: 8px;">+ Add Friend</button>
+                    <button class="btn-primary" id="btnAddFriend" type="button" style="margin-top: 4px;">+ Add Friend</button>
                 </div>
 
                 <div class="friends-grid-list" id="friendsNetworkList"></div>
@@ -1700,17 +1913,17 @@
      DM CHAT MODAL
      ======================================================== -->
 <div class="modal-backdrop" id="dmModal">
-    <div class="modal-card" style="max-width: 420px; height: 500px; display: flex; flex-direction: column;">
-        <div class="modal-header">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div class="person-avatar" id="dmTargetAv">A</div>
+    <div class="dm-modal-card">
+        <div class="dm-modal-header">
+            <div class="dm-header-left">
+                <div class="dm-header-av" id="dmTargetAv">A</div>
                 <div>
                     <div style="font-weight: 800; font-size: 14px;" id="dmTargetName">Alex</div>
                     <div style="font-size: 10px; color: var(--brand-light); font-family: var(--font-mono);" id="dmTargetTag">@alex</div>
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-                <button class="btn-primary" style="padding: 6px 12px; font-size: 11px; width: auto;" id="btnCallFromDm" type="button">📹 Video Call</button>
+                <button class="btn-primary" style="padding: 6px 12px; font-size: 11px;" id="btnCallFromDm" type="button">📹 Video Call</button>
                 <button class="close-btn" id="btnCloseDm" type="button">✕</button>
             </div>
         </div>
@@ -1746,7 +1959,7 @@
         </div>
 
         <div class="hud-right">
-            <button class="hud-icon-btn" id="btnToggleLayout" title="Switch View (Floating / Split / Gallery Grid)">
+            <button class="hud-icon-btn" id="btnToggleLayout" title="Switch View (PiP / Split Screen)">
                 <svg class="icon-sm" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
             </button>
             <button class="hud-icon-btn" id="btnStudioFilter" title="Studio Lighting Enhancer">
@@ -1765,7 +1978,6 @@
         </div>
     </div>
 
-    <!-- Video Canvas Area -->
     <div class="video-canvas" id="canvasArea">
         <div class="main-hero-tile" id="mainCard">
             <div class="tile-avatar-view" id="mainPlaceholder">
@@ -1849,7 +2061,9 @@
     <div class="side-drawer" id="sideDrawer">
         <div class="drawer-head">
             <h3 id="drawerTitle">Live Chat</h3>
-            <button class="close-btn" id="btnCloseDrawer">✕</button>
+            <button class="close-btn" id="btnCloseDrawer">
+                <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
         </div>
 
         <div class="drawer-tabs">
@@ -1885,7 +2099,9 @@
     <div class="modal-card">
         <div class="modal-header">
             <h3>Invite to Meeting</h3>
-            <button class="close-btn" id="btnCloseShareModal">✕</button>
+            <button class="close-btn" id="btnCloseShareModal">
+                <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
         </div>
 
         <div class="qr-wrapper"><canvas id="qrCanvas"></canvas></div>
@@ -1901,8 +2117,7 @@
 
 <script>
 /**
- * AURASTREAM — COMPLETE BULLETPROOF P2P + MULTI-PARTY MESH ENGINE (UP TO 25 PARTICIPANTS)
- * Guaranteed Camera auto-preview, 1-tap PiP Swap, Split View & Multi-Party Mesh Relay.
+ * Aurastream Bulletproof P2P Video Mesh Engine
  */
 (function() {
     'use strict';
@@ -1937,7 +2152,7 @@
                 { urls: 'stun:stun2.l.google.com:19302' },
                 { urls: 'stun:stun.cloudflare.com:3478' }
             ],
-            iceCandidatePoolSize: 6
+            iceCandidatePoolSize: 4
         }
     };
 
@@ -2027,7 +2242,8 @@
         screen: false,
         studioFilter: false,
         swappedViews: false,
-        viewMode: 'pip', // 'pip' | 'split' | 'gallery'
+        isSplitView: false,
+        isFitZoom: false,
         facing: 'user',
         localStream: null,
         screenStream: null,
@@ -2036,7 +2252,6 @@
         roomPeer: null,
         peerCall: null,
         dataConn: null,
-        multiPeers: new Map(), // peerId -> { call, dataConn, stream, name, tag }
         broadcast: null,
         activeDmFriend: null,
         pendingCall: null,
@@ -2050,22 +2265,12 @@
         audioCtx: null
     };
 
-    function notify(msg, emoji = '✨') {
-        const box = $('toastShelf');
-        if (!box) return;
-        const item = document.createElement('div');
-        item.className = 'toast-item';
-        item.innerHTML = `<span>${emoji}</span> <span>${msg}</span>`;
-        box.appendChild(item);
-        setTimeout(() => item.remove(), 2600);
-    }
-
     // ========================================================
     // ACCOUNT ENGINE
     // ========================================================
     const AccountEngine = {
-        activeUserKey: 'aurastream_active_session_v26',
-        usersDbKey: 'aurastream_users_db_v26',
+        activeUserKey: 'aurastream_active_session_v19',
+        usersDbKey: 'aurastream_users_db_v19',
 
         getUsers() {
             try { return JSON.parse(localStorage.getItem(this.usersDbKey) || '{}'); } catch(e) { return {}; }
@@ -2096,7 +2301,6 @@
                 $('lobbyView')?.classList.remove('hidden');
                 updateProfileUI();
                 initPermanentPeer(App.myAuraTag);
-                setTimeout(() => { try { initCamera(); } catch(e){} }, 200);
             } else {
                 $('authView')?.classList.remove('hidden');
             }
@@ -2112,6 +2316,16 @@
         if ($('mainTileLabel')) $('mainTileLabel').textContent = App.userName;
         if ($('mainRoleTag')) $('mainRoleTag').textContent = `${App.isHost ? 'Host' : 'Guest'} · 720p HD`;
         if ($('myAuraTag')) $('myAuraTag').textContent = App.myAuraTag;
+    }
+
+    function notify(msg, emoji = '✨') {
+        const box = $('toastShelf');
+        if (!box) return;
+        const item = document.createElement('div');
+        item.className = 'toast-item';
+        item.innerHTML = `<span>${emoji}</span> <span>${msg}</span>`;
+        box.appendChild(item);
+        setTimeout(() => item.remove(), 2600);
     }
 
     bind('btnToggleRegPin', () => {
@@ -2177,7 +2391,6 @@
         $('lobbyView')?.classList.remove('hidden');
         updateProfileUI();
         initPermanentPeer(tag);
-        initCamera();
         Sound.init();
         notify(`Account created! Welcome, ${name}.`, '🎉');
     });
@@ -2211,7 +2424,6 @@
         $('lobbyView')?.classList.remove('hidden');
         updateProfileUI();
         initPermanentPeer(App.myAuraTag);
-        initCamera();
         FriendsNetwork.render();
         Sound.init();
         notify(`Logged in as ${App.userName}`, '🔓');
@@ -2224,8 +2436,212 @@
     });
 
     // ========================================================
-    // CAMERA & AUDIO METER (GUARANTEED PERSISTENT)
+    // FRIENDS NETWORK & DMS
     // ========================================================
+    const FriendsNetwork = {
+        key: 'aurastream_friends_global_v19',
+        msgPrefix: 'aurastream_dm_msgs_v19_',
+        getAll() {
+            try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
+        },
+        add(name, tag) {
+            if (!name || !tag) return notify('Please enter friend name and @AuraID', '⚠️');
+            let cleanTag = tag.trim();
+            if (!cleanTag.startsWith('@')) cleanTag = '@' + cleanTag;
+            
+            const list = this.getAll();
+            if (list.some(f => f.tag.toLowerCase() === cleanTag.toLowerCase())) {
+                return notify('Friend already in your network', 'ℹ️');
+            }
+
+            list.unshift({ id: Date.now(), name: name.trim(), tag: cleanTag });
+            localStorage.setItem(this.key, JSON.stringify(list));
+            this.render();
+            notify(`${name} added to your network`, '👥');
+        },
+        remove(id) {
+            let list = this.getAll();
+            list = list.filter(item => item.id !== id);
+            localStorage.setItem(this.key, JSON.stringify(list));
+            this.render();
+            notify('Friend removed', '🗑️');
+        },
+        getMessages(tag) {
+            try { return JSON.parse(localStorage.getItem(this.msgPrefix + tag.toLowerCase()) || '[]'); } catch(e) { return []; }
+        },
+        saveMessage(tag, msgObj) {
+            const msgs = this.getMessages(tag);
+            msgs.push(msgObj);
+            localStorage.setItem(this.msgPrefix + tag.toLowerCase(), JSON.stringify(msgs));
+        },
+        render() {
+            const list = this.getAll();
+            if ($('friendBadge')) $('friendBadge').textContent = list.length;
+
+            const container = $('friendsNetworkList');
+            if (!container) return;
+            container.innerHTML = list.length === 0 
+                ? '<div style="text-align:center; color:var(--text-3); font-size:13px; padding:32px;">No friends added yet. Enter their Name and @AuraID above!</div>' 
+                : list.map(f => `
+                    <div class="friend-net-item">
+                        <div class="friend-net-info">
+                            <div class="friend-net-av">
+                                ${f.name[0].toUpperCase()}
+                                <div class="online-dot-sub"></div>
+                            </div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 14px;">${f.name}</div>
+                                <div style="font-size: 11px; color: var(--brand-light); font-family: var(--font-mono);">${f.tag}</div>
+                            </div>
+                        </div>
+                        <div class="friend-net-actions">
+                            <button class="btn-chat-direct" onclick="openDirectMessage('${f.name}', '${f.tag}')">💬 Chat</button>
+                            <button class="btn-call-direct" onclick="callFriendDirectly('${f.name}', '${f.tag}')">📹 Call</button>
+                            <button class="btn-del-friend" onclick="FriendsNetwork.remove(${f.id})">✕</button>
+                        </div>
+                    </div>
+                `).join('');
+        }
+    };
+    window.FriendsNetwork = FriendsNetwork;
+
+    window.openDirectMessage = (name, tag) => {
+        App.activeDmFriend = { name, tag };
+        if ($('dmTargetName')) $('dmTargetName').textContent = name;
+        if ($('dmTargetTag')) $('dmTargetTag').textContent = tag;
+        if ($('dmTargetAv')) $('dmTargetAv').textContent = name[0].toUpperCase();
+        
+        renderDmMessages(tag);
+        $('dmModal')?.classList.add('show');
+    };
+
+    function renderDmMessages(tag) {
+        const feed = $('dmChatFeed');
+        if (!feed) return;
+        const msgs = FriendsNetwork.getMessages(tag);
+        feed.innerHTML = msgs.length === 0 
+            ? '<div style="text-align:center; color:var(--text-3); font-size:11px; margin-top:20px;">Encrypted 1-on-1 Direct Chat</div>'
+            : msgs.map(m => `
+                <div class="chat-msg ${m.side}">
+                    <span class="chat-author">${m.author}</span>
+                    <div class="chat-bubble">${m.text}</div>
+                </div>
+            `).join('');
+        feed.scrollTop = feed.scrollHeight;
+    }
+
+    bind('btnSendDm', () => {
+        const input = $('dmInput');
+        if (!input || !App.activeDmFriend) return;
+        const text = input.value.trim();
+        if (!text) return;
+
+        const msgObj = { author: 'You', side: 'me', text, time: Date.now() };
+        FriendsNetwork.saveMessage(App.activeDmFriend.tag, msgObj);
+        renderDmMessages(App.activeDmFriend.tag);
+        input.value = '';
+
+        const peerClean = App.activeDmFriend.tag.replace('@', '').toLowerCase();
+        try {
+            const conn = App.peer.connect(`aura_user_${peerClean}`);
+            conn.on('open', () => conn.send({ type: 'dm', text, author: App.userName, fromTag: App.myAuraTag }));
+        } catch(e){}
+
+        Sound.play('pop');
+    });
+
+    bind('dmInput', 'keydown', e => { if (e.key === 'Enter') $('btnSendDm')?.click(); });
+    bind('btnCloseDm', () => $('dmModal')?.classList.remove('show'));
+
+    window.callFriendDirectly = (name, tag) => {
+        App.isHost = false;
+        App.roomCode = tag.replace('@', '').toUpperCase();
+        if ($('waitingTitle')) $('waitingTitle').textContent = `Calling ${name}...`;
+        if ($('waitingSub')) $('waitingSub').textContent = `Ringing ${tag}`;
+        startMeetingSession();
+    };
+
+    bind('btnCallFromDm', () => {
+        if (!App.activeDmFriend) return;
+        $('dmModal')?.classList.remove('show');
+        callFriendDirectly(App.activeDmFriend.name, App.activeDmFriend.tag);
+    });
+
+    bind('btnAddFriend', () => {
+        const name = $('newFriendName')?.value;
+        const tag = $('newFriendTag')?.value;
+        FriendsNetwork.add(name, tag);
+        if ($('newFriendName')) $('newFriendName').value = '';
+        if ($('newFriendTag')) $('newFriendTag').value = '';
+    });
+
+    bind('btnCopyMyId', () => {
+        navigator.clipboard.writeText(App.myAuraTag).then(() => notify('Aura ID copied to clipboard', '📋'));
+    });
+
+    bind('btnShareMyIdWhatsApp', () => {
+        const shareUrl = `${window.location.origin}${window.location.pathname}#${App.myAuraTag.replace('@','')}`;
+        const msg = encodeURIComponent(`👋 Connect with me on Aurastream!\nMy ID: ${App.myAuraTag}\nDirect Call Link: ${shareUrl}`);
+        window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+    });
+
+    const HistoryManager = {
+        key: 'aurastream_recent_calls_v19',
+        getAll() {
+            try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
+        },
+        add(roomCode, duration) {
+            const list = this.getAll();
+            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            list.unshift({ id: Date.now(), roomCode, duration, time: timeStr });
+            if (list.length > 20) list.pop();
+            localStorage.setItem(this.key, JSON.stringify(list));
+            this.render();
+        },
+        clear() {
+            localStorage.removeItem(this.key);
+            this.render();
+            notify('Call history cleared', '🗑️');
+        },
+        render() {
+            const list = this.getAll();
+            const container = $('historyContainer');
+            if (!container) return;
+            container.innerHTML = list.length === 0 
+                ? '<div style="text-align:center; color:var(--text-3); font-size:12px; padding:24px;">No recent calls.</div>'
+                : list.map(h => `
+                    <div class="friend-net-item">
+                        <div class="friend-net-info">
+                            <div class="friend-net-av" style="background: rgba(255,255,255,0.08);">📞</div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 14px; font-family: var(--font-mono);">${h.roomCode}</div>
+                                <div style="font-size: 11px; color: var(--text-2);">${h.time} · Duration: ${h.duration}</div>
+                            </div>
+                        </div>
+                        <button class="btn-primary" style="width: auto; padding: 6px 14px; font-size: 12px;" onclick="reconnectCall('${h.roomCode}')">Join</button>
+                    </div>
+                `).join('');
+        }
+    };
+    window.reconnectCall = code => {
+        if ($('roomCodeInput')) $('roomCodeInput').value = code;
+        switchHubTab('tabCalls');
+        $('btnShowJoin')?.click();
+    };
+
+    bind('btnClearHistory', () => HistoryManager.clear());
+
+    function switchHubTab(targetId) {
+        document.querySelectorAll('.hub-tab').forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === targetId));
+        if (targetId === 'tabFriends') FriendsNetwork.render();
+        if (targetId === 'tabRecents') HistoryManager.render();
+    }
+
+    document.querySelectorAll('.hub-tab').forEach(btn => {
+        btn.onclick = () => switchHubTab(btn.dataset.target);
+    });
+
     function getMediaConstraints() {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         return {
@@ -2245,43 +2661,30 @@
 
     async function initCamera() {
         try {
-            if (App.localStream && App.localStream.active && App.localStream.getVideoTracks().length > 0) {
-                attachLocalStream(App.localStream);
-                return App.localStream;
-            }
-
             App.localStream = await navigator.mediaDevices.getUserMedia(getMediaConstraints());
             App.mic = true;
             App.cam = true;
             
-            attachLocalStream(App.localStream);
+            const lVid = $('lobbyVideo');
+            if (lVid) {
+                lVid.srcObject = App.localStream;
+                lVid.muted = true;
+                lVid.style.display = 'block';
+                lVid.play().catch(()=>{});
+            }
+            if ($('vfPlaceholder')) $('vfPlaceholder').style.display = 'none';
+            
+            $('lMicBtn')?.classList.remove('off');
+            $('lCamBtn')?.classList.remove('off');
+            
             initAudioMeter(App.localStream);
             Sound.init();
-            return App.localStream;
         } catch (e) {
             notify('Camera & Mic permission needed', '⚠️');
-            return null;
         }
     }
 
-    function attachLocalStream(stream) {
-        const lVid = $('lobbyVideo');
-        if (lVid && stream) {
-            lVid.srcObject = stream;
-            lVid.muted = true;
-            lVid.style.display = 'block';
-            lVid.play().catch(()=>{});
-        }
-        if ($('vfPlaceholder')) $('vfPlaceholder').style.display = 'none';
-        $('lMicBtn')?.classList.remove('off');
-        $('lCamBtn')?.classList.remove('off');
-    }
-
-    bind('btnTestCamera', () => {
-        initCamera().then(s => {
-            if (s) notify('Camera Connected', '📹');
-        });
-    });
+    bind('btnTestCamera', () => initCamera());
 
     function initAudioMeter(stream) {
         try {
@@ -2335,6 +2738,10 @@
         } catch (e) {}
     }
 
+    AccountEngine.init();
+    FriendsNetwork.render();
+    HistoryManager.render();
+
     bind('lMicBtn', () => {
         if (!App.localStream) return notify('Start camera preview first', '⚠️');
         App.mic = !App.mic;
@@ -2356,7 +2763,6 @@
     bind('btnShowJoin', () => {
         if ($('createFields')) $('createFields').style.display = 'none';
         if ($('joinFields')) $('joinFields').style.display = 'block';
-        setTimeout(() => $('roomCodeInput')?.focus(), 100);
     });
 
     bind('btnBack', () => {
@@ -2379,6 +2785,16 @@
         return r;
     }
 
+    bind('btnCreateRoom', () => {
+        App.isHost = true;
+        App.roomCode = genRoom();
+        
+        if ($('waitingTitle')) $('waitingTitle').textContent = `Room ${App.roomCode}`;
+        if ($('waitingSub')) $('waitingSub').textContent = `Waiting for friends to join meeting`;
+        
+        startMeetingSession();
+    });
+
     function normalizeCodeToClean(input) {
         if (!input) return '';
         let c = input.trim();
@@ -2386,15 +2802,7 @@
         return c.toUpperCase().replace('AUR-', '').replace(/[^A-Z0-9]/g, '').toLowerCase();
     }
 
-    bind('btnCreateRoom', () => {
-        App.isHost = true;
-        App.roomCode = genRoom();
-        if ($('waitingTitle')) $('waitingTitle').textContent = `Room ${App.roomCode}`;
-        if ($('waitingSub')) $('waitingSub').textContent = `Waiting for friends to join meeting`;
-        startMeetingSession();
-    });
-
-    function executeJoin() {
+    bind('btnJoinRoom', () => {
         const raw = $('roomCodeInput')?.value.trim();
         if (!raw) return notify('Enter a meeting code or friend @ID', '⚠️');
 
@@ -2408,46 +2816,47 @@
         if ($('waitingSub')) $('waitingSub').textContent = `Waiting for peer stream`;
 
         startMeetingSession();
-    }
-
-    bind('btnJoinRoom', () => executeJoin());
-    bind('roomCodeInput', 'keydown', e => { if (e.key === 'Enter') executeJoin(); });
+    });
 
     // ========================================================
-    // PERMANENT PEER (DIRECT 1-ON-1 CALLS & DMS)
+    // PERMANENT PEER (DIRECT INCOMING CALLS)
     // ========================================================
     function initPermanentPeer(tag) {
         const cleanTag = tag.replace('@', '').toLowerCase();
         const peerId = `aura_user_${cleanTag}`;
 
         try {
-            if (App.peer) App.peer.destroy();
-            App.peer = new Peer(peerId, PEER_CONFIG);
+            if (typeof Peer !== 'undefined') {
+                if (App.peer) App.peer.destroy();
+                App.peer = new Peer(peerId, PEER_CONFIG);
 
-            App.peer.on('call', call => {
-                App.pendingCall = call;
-                const callerTag = call.metadata?.callerTag || '@Friend';
-                const callerName = call.metadata?.callerName || 'Friend';
-                
-                if ($('incomingCallerName')) $('incomingCallerName').textContent = callerName;
-                if ($('incomingCallerTag')) $('incomingCallerTag').textContent = callerTag;
-                if ($('incomingAv')) $('incomingAv').textContent = callerName[0].toUpperCase();
+                App.peer.on('call', call => {
+                    App.pendingCall = call;
+                    const callerTag = call.metadata?.callerTag || '@Friend';
+                    const callerName = call.metadata?.callerName || 'Friend';
+                    
+                    if ($('incomingCallerName')) $('incomingCallerName').textContent = callerName;
+                    if ($('incomingCallerTag')) $('incomingCallerTag').textContent = callerTag;
+                    if ($('incomingAv')) $('incomingAv').textContent = callerName[0].toUpperCase();
 
-                $('incomingCallModal')?.classList.add('show');
-                Sound.startRingtone();
-            });
-
-            App.peer.on('connection', conn => {
-                conn.on('data', data => {
-                    if (data.type === 'dm') {
-                        FriendsNetwork.saveMessage(data.fromTag, { author: data.author, side: 'them', text: data.text, time: Date.now() });
-                        if (App.activeDmFriend && App.activeDmFriend.tag.toLowerCase() === data.fromTag.toLowerCase()) {
-                            renderDmMessages(data.fromTag);
-                        }
-                        Sound.play('chime');
-                    }
+                    $('incomingCallModal')?.classList.add('show');
+                    Sound.startRingtone();
                 });
-            });
+
+                App.peer.on('connection', conn => {
+                    conn.on('data', data => {
+                        if (data.type === 'dm') {
+                            FriendsNetwork.saveMessage(data.fromTag, { author: data.author, side: 'them', text: data.text, time: Date.now() });
+                            if (App.activeDmFriend && App.activeDmFriend.tag.toLowerCase() === data.fromTag.toLowerCase()) {
+                                renderDmMessages(data.fromTag);
+                            } else {
+                                showChatBanner(data.author, data.text);
+                            }
+                            Sound.play('chime');
+                        }
+                    });
+                });
+            }
         } catch(e) {}
     }
 
@@ -2460,7 +2869,7 @@
         await startMeetingSession();
         if (App.pendingCall && App.localStream) {
             App.pendingCall.answer(App.localStream);
-            App.pendingCall.on('stream', remoteStream => attachRemoteStream(remoteStream, App.pendingCall.peer));
+            App.pendingCall.on('stream', remoteStream => attachRemoteStream(remoteStream));
             App.peerCall = App.pendingCall;
         }
     });
@@ -2484,7 +2893,7 @@
 
         try {
             if (!App.localStream || !App.localStream.active) {
-                await initCamera();
+                App.localStream = await navigator.mediaDevices.getUserMedia(getMediaConstraints());
             }
             App.mic = true;
             App.cam = true;
@@ -2525,7 +2934,7 @@
     }
 
     // ========================================================
-    // DIRECT P2P & MULTI-PARTY MESH ENGINE (UP TO 25 PARTICIPANTS)
+    // DIRECT P2P ENGINE (ROOMS & DIRECT CALLS)
     // ========================================================
     function initP2PEngine() {
         const cleanCode = normalizeCodeToClean(App.roomCode);
@@ -2543,15 +2952,10 @@
                 App.roomPeer = new Peer(targetHostId, PEER_CONFIG);
 
                 App.roomPeer.on('call', call => {
-                    const callerId = call.peer;
                     App.peerCall = call;
                     if (App.localStream) call.answer(App.localStream);
-                    
-                    call.on('stream', remoteStream => {
-                        attachRemoteStream(remoteStream, callerId);
-                    });
-
-                    call.on('close', () => removeParticipantStream(callerId));
+                    call.on('stream', remoteStream => attachRemoteStream(remoteStream));
+                    notify('Peer connected to room!', '🟢');
                 });
 
                 App.roomPeer.on('connection', conn => {
@@ -2582,9 +2986,8 @@
                                 clearInterval(App.retryDialInterval);
                                 App.retryDialInterval = null;
                             }
-                            attachRemoteStream(remoteStream, targetHostId);
+                            attachRemoteStream(remoteStream);
                         });
-                        call.on('close', () => removeParticipantStream(targetHostId));
                     }
 
                     try {
@@ -2597,6 +3000,7 @@
 
                 App.roomPeer.on('open', () => {
                     attemptDial();
+                    // Smoothly retry dialing in background until connected (no timeouts kicking user)
                     App.retryDialInterval = setInterval(() => {
                         if (!App.remoteStream) attemptDial();
                         else if (App.retryDialInterval) {
@@ -2607,11 +3011,9 @@
                 });
 
                 App.roomPeer.on('call', call => {
-                    const callerId = call.peer;
                     App.peerCall = call;
                     if (App.localStream) call.answer(App.localStream);
-                    call.on('stream', remoteStream => attachRemoteStream(remoteStream, callerId));
-                    call.on('close', () => removeParticipantStream(callerId));
+                    call.on('stream', remoteStream => attachRemoteStream(remoteStream));
                 });
             } catch(e) {}
         }
@@ -2632,37 +3034,19 @@
         } catch (e) {}
     }
 
-    function attachRemoteStream(stream, peerId = 'peer') {
+    function attachRemoteStream(stream) {
         if (!stream) return;
-        
         App.remoteStream = stream;
-        App.multiPeers.set(peerId, { stream, name: `Participant ${App.multiPeers.size + 1}` });
-
         $('waitingHub')?.classList.add('hidden');
         updateVideoLayout();
         $('pipCard')?.classList.remove('hidden');
         Sound.play('join');
         notify('Connected · 720p HD', '🟢');
-        updateRosterCount(1 + App.multiPeers.size);
-    }
-
-    function removeParticipantStream(peerId) {
-        if (App.multiPeers.has(peerId)) {
-            App.multiPeers.delete(peerId);
-            const dynamicTile = document.getElementById(`dynTile_${peerId}`);
-            if (dynamicTile) dynamicTile.remove();
-        }
-        if (App.multiPeers.size === 0) {
-            App.remoteStream = null;
-            $('waitingHub')?.classList.remove('hidden');
-            $('pipCard')?.classList.add('hidden');
-        }
-        updateVideoLayout();
-        updateRosterCount(1 + App.multiPeers.size);
+        updateRosterCount(2);
     }
 
     // ========================================================
-    // VIDEO VIEWS & MODES (PiP, SPLIT SCREEN, GALLERY GRID)
+    // CLEAN 1-TAP SWAP & VIEW MODES
     // ========================================================
     function swapVideoViews() {
         if (!App.remoteStream) return;
@@ -2674,22 +3058,18 @@
     bind('dockSwap', () => swapVideoViews());
 
     bind('btnToggleLayout', () => {
-        if (App.viewMode === 'pip') {
-            App.viewMode = 'split';
-            $('canvasArea')?.classList.add('split-view');
-            $('canvasArea')?.classList.remove('gallery-grid');
-            notify('Split View (50/50)', '🔲');
-        } else if (App.viewMode === 'split') {
-            App.viewMode = 'gallery';
-            $('canvasArea')?.classList.remove('split-view');
-            $('canvasArea')?.classList.add('gallery-grid');
-            notify('Gallery Grid View (Multi-Party)', '▦');
-        } else {
-            App.viewMode = 'pip';
-            $('canvasArea')?.classList.remove('split-view', 'gallery-grid');
-            notify('Floating View (PiP)', '🔳');
-        }
-        $('btnToggleLayout')?.classList.toggle('active', App.viewMode !== 'pip');
+        if (!App.remoteStream) return notify('Connect with peer to split screen', 'ℹ️');
+        App.isSplitView = !App.isSplitView;
+        $('canvasArea')?.classList.toggle('split-view', App.isSplitView);
+        $('btnToggleLayout')?.classList.toggle('active', App.isSplitView);
+        notify(App.isSplitView ? 'Split Screen View (50/50)' : 'Floating View', '🔲');
+    });
+
+    bind('mainCard', 'dblclick', e => {
+        e.stopPropagation();
+        App.isFitZoom = !App.isFitZoom;
+        const mainVid = $('mainVideo');
+        if (mainVid) mainVid.style.objectFit = App.isFitZoom ? 'contain' : 'cover';
     });
 
     bind('canvasArea', e => {
@@ -2764,7 +3144,24 @@
     function handleIncomingChatMessage(text, author) {
         renderMsg(text, 'them', author);
         Sound.play('chime');
+        const drawer = $('sideDrawer');
+        if (drawer && !drawer.classList.contains('open')) showChatBanner(author, text);
     }
+
+    function showChatBanner(author, text) {
+        const banner = $('chatBanner');
+        if (!banner) return;
+        if ($('bannerAvatar')) $('bannerAvatar').textContent = author[0].toUpperCase();
+        if ($('bannerAuthor')) $('bannerAuthor').textContent = author;
+        if ($('bannerText')) $('bannerText').textContent = text.length > 30 ? text.substring(0, 28) + '...' : text;
+        banner.classList.add('show');
+        setTimeout(() => banner.classList.remove('show'), 3500);
+    }
+
+    bind('chatBanner', () => {
+        $('chatBanner')?.classList.remove('show');
+        toggleDrawer('chatTab');
+    });
 
     bind('dockMic', () => {
         App.mic = !App.mic;
@@ -2933,6 +3330,23 @@
 
     function updateRosterCount(count) {
         if ($('rosterCount')) $('rosterCount').textContent = count;
+        if (count === 2) {
+            const list = $('peopleList');
+            if (!list) return;
+            const item = document.createElement('div');
+            item.className = 'person-item';
+            item.innerHTML = `
+                <div class="person-info">
+                    <div class="person-avatar" style="background: var(--accent-purple); color: #fff;">A</div>
+                    <div>
+                        <div style="font-weight: 800; font-size: 13px;">Connected Peer</div>
+                        <div style="font-size: 11px; color: var(--text-2); font-weight:600;">Adaptive Stream</div>
+                    </div>
+                </div>
+                <button class="btn-grid-outline" style="padding:4px 8px; font-size:10px;" onclick="FriendsNetwork.add('Connected Peer', App.roomCode)">+ Friend</button>
+            `;
+            list.appendChild(item);
+        }
     }
 
     function renderQrCode(text) {
@@ -2946,7 +3360,7 @@
 
         function drawQrCorner(cx, x, y) {
             cx.fillRect(x, y, 44, 44);
-            cx.fillStyle = '#ffffff'; ctx.fillRect(x + 6, y + 6, 32, 32);
+            cx.fillStyle = '#ffffff'; cx.fillRect(x + 6, y + 6, 32, 32);
             cx.fillStyle = '#000000'; cx.fillRect(x + 13, y + 13, 18, 18);
         }
 
@@ -3012,7 +3426,7 @@
         }
 
         function onMove(e) {
-            if (App.viewMode !== 'pip') return;
+            if (App.isSplitView) return;
             const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
             const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
             
@@ -3046,215 +3460,7 @@
     }
 
     // ========================================================
-    // FRIENDS NETWORK & DMS
-    // ========================================================
-    const FriendsNetwork = {
-        key: 'aurastream_friends_global_v26',
-        msgPrefix: 'aurastream_dm_msgs_v26_',
-        getAll() {
-            try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
-        },
-        add(name, tag) {
-            if (!name || !tag) return notify('Please enter friend name and @AuraID', '⚠️');
-            let cleanTag = tag.trim();
-            if (!cleanTag.startsWith('@')) cleanTag = '@' + cleanTag;
-            
-            const list = this.getAll();
-            if (list.some(f => f.tag.toLowerCase() === cleanTag.toLowerCase())) {
-                return notify('Friend already in your network', 'ℹ️');
-            }
-
-            list.unshift({ id: Date.now(), name: name.trim(), tag: cleanTag });
-            localStorage.setItem(this.key, JSON.stringify(list));
-            this.render();
-            notify(`${name} added to your network`, '👥');
-        },
-        remove(id) {
-            let list = this.getAll().filter(item => item.id !== id);
-            localStorage.setItem(this.key, JSON.stringify(list));
-            this.render();
-            notify('Friend removed', '🗑️');
-        },
-        getMessages(tag) {
-            try { return JSON.parse(localStorage.getItem(this.msgPrefix + tag.toLowerCase()) || '[]'); } catch(e) { return []; }
-        },
-        saveMessage(tag, msgObj) {
-            const msgs = this.getMessages(tag);
-            msgs.push(msgObj);
-            localStorage.setItem(this.msgPrefix + tag.toLowerCase(), JSON.stringify(msgs));
-        },
-        render() {
-            const list = this.getAll();
-            if ($('friendBadge')) $('friendBadge').textContent = list.length;
-
-            const container = $('friendsNetworkList');
-            if (!container) return;
-            container.innerHTML = list.length === 0 
-                ? '<div style="text-align:center; color:var(--text-3); font-size:13px; padding:32px;">No friends added yet. Enter their Name and @AuraID above!</div>' 
-                : list.map(f => `
-                    <div class="friend-net-item">
-                        <div class="friend-net-info">
-                            <div class="friend-net-av">
-                                ${f.name[0].toUpperCase()}
-                                <div class="online-dot-sub"></div>
-                            </div>
-                            <div>
-                                <div style="font-weight: 800; font-size: 14px;">${f.name}</div>
-                                <div style="font-size: 11px; color: var(--brand-light); font-family: var(--font-mono);">${f.tag}</div>
-                            </div>
-                        </div>
-                        <div style="display:flex; gap:6px;">
-                            <button class="btn-chat-direct" onclick="openDirectMessage('${f.name}', '${f.tag}')">💬 Chat</button>
-                            <button class="btn-call-direct" onclick="callFriendDirectly('${f.name}', '${f.tag}')">📹 Call</button>
-                            <button class="close-btn" style="width:28px; height:28px;" onclick="FriendsNetwork.remove(${f.id})">✕</button>
-                        </div>
-                    </div>
-                `).join('');
-        }
-    };
-    window.FriendsNetwork = FriendsNetwork;
-
-    window.openDirectMessage = (name, tag) => {
-        App.activeDmFriend = { name, tag };
-        if ($('dmTargetName')) $('dmTargetName').textContent = name;
-        if ($('dmTargetTag')) $('dmTargetTag').textContent = tag;
-        if ($('dmTargetAv')) $('dmTargetAv').textContent = name[0].toUpperCase();
-        
-        renderDmMessages(tag);
-        $('dmModal')?.classList.add('show');
-    };
-
-    function renderDmMessages(tag) {
-        const feed = $('dmChatFeed');
-        if (!feed) return;
-        const msgs = FriendsNetwork.getMessages(tag);
-        feed.innerHTML = msgs.length === 0 
-            ? '<div style="text-align:center; color:var(--text-3); font-size:11px; margin-top:20px;">Encrypted 1-on-1 Direct Chat</div>'
-            : msgs.map(m => `
-                <div class="chat-msg ${m.side}">
-                    <span class="chat-author">${m.author}</span>
-                    <div class="chat-bubble">${m.text}</div>
-                </div>
-            `).join('');
-        feed.scrollTop = feed.scrollHeight;
-    }
-
-    bind('btnSendDm', () => {
-        const input = $('dmInput');
-        if (!input || !App.activeDmFriend) return;
-        const text = input.value.trim();
-        if (!text) return;
-
-        const msgObj = { author: 'You', side: 'me', text, time: Date.now() };
-        FriendsNetwork.saveMessage(App.activeDmFriend.tag, msgObj);
-        renderDmMessages(App.activeDmFriend.tag);
-        input.value = '';
-
-        const peerClean = App.activeDmFriend.tag.replace('@', '').toLowerCase();
-        try {
-            const conn = App.peer.connect(`aura_user_${peerClean}`);
-            conn.on('open', () => conn.send({ type: 'dm', text, author: App.userName, fromTag: App.myAuraTag }));
-        } catch(e){}
-
-        Sound.play('pop');
-    });
-
-    bind('dmInput', 'keydown', e => { if (e.key === 'Enter') $('btnSendDm')?.click(); });
-    bind('btnCloseDm', () => $('dmModal')?.classList.remove('show'));
-
-    window.callFriendDirectly = (name, tag) => {
-        App.isHost = false;
-        App.roomCode = tag.replace('@', '').toUpperCase();
-        startMeetingSession();
-    };
-
-    bind('btnCallFromDm', () => {
-        if (!App.activeDmFriend) return;
-        $('dmModal')?.classList.remove('show');
-        callFriendDirectly(App.activeDmFriend.name, App.activeDmFriend.tag);
-    });
-
-    bind('btnAddFriend', () => {
-        const name = $('newFriendName')?.value;
-        const tag = $('newFriendTag')?.value;
-        FriendsNetwork.add(name, tag);
-        if ($('newFriendName')) $('newFriendName').value = '';
-        if ($('newFriendTag')) $('newFriendTag').value = '';
-    });
-
-    bind('btnCopyMyId', () => {
-        navigator.clipboard.writeText(App.myAuraTag).then(() => notify('Aura ID copied to clipboard', '📋'));
-    });
-
-    bind('btnShareMyIdWhatsApp', () => {
-        const shareUrl = `${window.location.origin}${window.location.pathname}#${App.myAuraTag.replace('@','')}`;
-        const msg = encodeURIComponent(`👋 Connect with me on Aurastream!\nMy ID: ${App.myAuraTag}\nDirect Call Link: ${shareUrl}`);
-        window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
-    });
-
-    const HistoryManager = {
-        key: 'aurastream_recent_calls_v26',
-        getAll() {
-            try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
-        },
-        add(roomCode, duration, count = 1) {
-            const list = this.getAll();
-            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            list.unshift({ id: Date.now(), roomCode, duration, participants: count, time: timeStr });
-            if (list.length > 20) list.pop();
-            localStorage.setItem(this.key, JSON.stringify(list));
-            this.render();
-        },
-        clear() {
-            localStorage.removeItem(this.key);
-            this.render();
-            notify('Call history cleared', '🗑️');
-        },
-        render() {
-            const list = this.getAll();
-            const container = $('historyContainer');
-            if (!container) return;
-            container.innerHTML = list.length === 0 
-                ? '<div style="text-align:center; color:var(--text-3); font-size:12px; padding:24px;">No recent calls.</div>'
-                : list.map(h => `
-                    <div class="friend-net-item">
-                        <div class="friend-net-info">
-                            <div class="friend-net-av" style="background: rgba(255,255,255,0.08);">📹</div>
-                            <div>
-                                <div style="font-weight: 800; font-size: 14px; font-family: var(--font-mono);">${h.roomCode}</div>
-                                <div style="font-size: 11px; color: var(--text-2);">${h.time} · ${h.participants || 1} people · ${h.duration}</div>
-                            </div>
-                        </div>
-                        <button class="btn-primary" style="width: auto; padding: 6px 14px; font-size: 12px;" onclick="reconnectCall('${h.roomCode}')">Join</button>
-                    </div>
-                `).join('');
-        }
-    };
-    window.reconnectCall = code => {
-        if ($('roomCodeInput')) $('roomCodeInput').value = code;
-        switchHubTab('tabCalls');
-        $('btnShowJoin')?.click();
-    };
-
-    bind('btnClearHistory', () => HistoryManager.clear());
-
-    function switchHubTab(targetId) {
-        document.querySelectorAll('.hub-tab').forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === targetId));
-        if (targetId === 'tabFriends') FriendsNetwork.render();
-        if (targetId === 'tabRecents') HistoryManager.render();
-    }
-
-    document.querySelectorAll('.hub-tab').forEach(btn => {
-        btn.onclick = () => switchHubTab(btn.dataset.target);
-    });
-
-    AccountEngine.init();
-    FriendsNetwork.render();
-    HistoryManager.render();
-
-    // ========================================================
-    // END CALL & CLEANUP
+    // COMPLETE 2-WAY & THERMAL-SAFE CALL TERMINATION
     // ========================================================
     function endCallGracefully(isRemoteTerminated = false) {
         Sound.play('leave');
@@ -3272,7 +3478,7 @@
         }
 
         const dur = $('hudTimer')?.textContent || '00:00';
-        if (App.roomCode) HistoryManager.add(App.roomCode, dur, 1 + App.multiPeers.size);
+        if (App.roomCode) HistoryManager.add(App.roomCode, dur);
 
         if (App.localStream) {
             App.localStream.getTracks().forEach(t => {
@@ -3292,8 +3498,6 @@
             });
             App.remoteStream = null;
         }
-
-        App.multiPeers.clear();
 
         try { if (App.peerCall) App.peerCall.close(); } catch (e) {}
         try { if (App.roomPeer) App.roomPeer.destroy(); } catch (e) {}
@@ -3342,10 +3546,10 @@
         App.cam = true;
         App.screen = false;
         App.swappedViews = false;
-        App.viewMode = 'pip';
+        App.isSplitView = false;
 
-        $('canvasArea')?.classList.remove('split-view', 'gallery-grid');
-        $('callStage')?.classList.remove('active');
+        $('canvasArea')?.classList.remove('split-view');
+        $('callStage')?.classList.remove('active', 'immersive');
         $('sideDrawer')?.classList.remove('open');
         $('reactionMenu')?.classList.remove('show');
         $('shareModal')?.classList.remove('show');
