@@ -2194,6 +2194,13 @@
         if ($('createFields')) $('createFields').style.display = 'block';
     });
 
+    if (window.location.hash && window.location.hash.length > 2) {
+        const code = window.location.hash.replace('#', '').toUpperCase();
+        if ($('roomCodeInput')) $('roomCodeInput').value = code;
+        if ($('btnShowJoin')) $('btnShowJoin').click();
+        setTimeout(() => cleanUrlHash(), 100);
+    }
+
     function genRoom() {
         const c = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
         let r = 'AUR-';
@@ -2231,13 +2238,6 @@
     bind('roomCodeInput', 'keydown', e => {
         if (e.key === 'Enter') executeJoin();
     });
-
-    if (window.location.hash && window.location.hash.length > 2) {
-        const code = window.location.hash.replace('#', '').toUpperCase();
-        if ($('roomCodeInput')) $('roomCodeInput').value = code;
-        if ($('btnShowJoin')) $('btnShowJoin').click();
-        setTimeout(() => cleanUrlHash(), 100);
-    }
 
     // ========================================================
     // START MEETING SESSION (GUARANTEED ACTIVE FULLSCREEN)
@@ -2291,6 +2291,7 @@
             const vid = selfTile.querySelector('video');
             const placeholder = selfTile.querySelector('.tile-placeholder-card');
             const micIcon = selfTile.querySelector('.tile-mic-indicator');
+            
             if (vid) vid.style.display = App.cam ? 'block' : 'none';
             if (placeholder) placeholder.style.display = App.cam ? 'none' : 'flex';
             if (micIcon) micIcon.className = `tile-mic-indicator ${App.mic ? '' : 'muted'}`;
@@ -2314,18 +2315,30 @@
     function initDeterministicWebRTCEngine() {
         const clean = App.cleanRoom;
         
+        // Use deterministic fallback ID schema
+        const hostId = `aurastream_${clean}_host`;
+        const guestId = `aurastream_${clean}_p_${Math.random().toString(36).substring(2,8)}`;
+        
+        const myId = App.isHost ? hostId : guestId;
+
         try {
             if (App.meshPeer) {
                 try { App.meshPeer.destroy(); } catch (e) {}
             }
 
-            App.meshPeer = new Peer(PEER_CONFIG);
+            App.meshPeer = new Peer(myId, PEER_CONFIG);
 
             App.meshPeer.on('open', id => {
                 App.myPeerId = id;
-                console.log('PeerJS Registered ID:', id);
+                App.isHost = (id === hostId); // Confirm host status via peerjs connection
 
-                // Start Multi-Channel Discovery
+                // If I am NOT the host, I aggressively dial the host!
+                // This ensures WebRTC works even if MQTT/Sockets are entirely blocked on network
+                if (!App.isHost) {
+                    connectToPeer(hostId, { name: 'Host', isHost: true });
+                }
+
+                // Start Multi-Channel Discovery for other participants
                 connectMqttSignaling(clean, id);
                 connectBroadcastChannel(clean, id);
             });
@@ -2371,6 +2384,11 @@
 
             App.meshPeer.on('error', err => {
                 console.warn('PeerJS event:', err.type, err);
+                if (err.type === 'unavailable-id' && App.isHost) {
+                    // Host fallback: if host ID is already taken, become a guest
+                    App.isHost = false;
+                    initDeterministicWebRTCEngine();
+                }
             });
 
         } catch (e) {
@@ -2544,6 +2562,18 @@
                 tag: App.myAuraTag,
                 isHost: App.isHost
             });
+            
+            // SEND ROSTER IF HOST:
+            // This ensures if someone manually joins via host directly, they get told about all other guests.
+            if (App.isHost) {
+                const rosterList = [];
+                App.peers.forEach((p, pId) => {
+                    if (pId !== peerId) rosterList.push({ peerId: pId, name: p.name, tag: p.tag });
+                });
+                if (rosterList.length > 0) {
+                    conn.send({ type: 'mesh_roster', members: rosterList });
+                }
+            }
         });
 
         conn.on('data', data => handleMeshMessage(data, peerId));
@@ -2554,6 +2584,16 @@
         if (!data || !data.type) return;
 
         switch (data.type) {
+            case 'mesh_roster':
+                if (Array.isArray(data.members)) {
+                    data.members.forEach(member => {
+                        if (member.peerId && member.peerId !== App.myPeerId) {
+                            handlePeerDiscovery(member);
+                        }
+                    });
+                }
+                break;
+                
             case 'handshake':
                 if (data.peerId && App.peers.has(data.peerId)) {
                     const p = App.peers.get(data.peerId);
@@ -2737,6 +2777,7 @@
         if (vid) {
             vid.srcObject = stream;
             vid.play().catch(e => {
+                // If browser autoplay policy blocks unmuted audio:
                 vid.muted = true;
                 vid.play().then(() => { vid.muted = false; }).catch(()=>{});
             });
@@ -2828,6 +2869,7 @@
             const vid = tile.querySelector('video');
             const placeholder = tile.querySelector('.tile-placeholder-card');
             const micIcon = tile.querySelector('.tile-mic-indicator');
+            
             if (vid) vid.style.display = p.hasCam ? 'block' : 'none';
             if (placeholder) placeholder.style.display = p.hasCam ? 'none' : 'flex';
             if (micIcon) micIcon.className = `tile-mic-indicator ${p.hasMic ? '' : 'muted'}`;
@@ -3614,146 +3656,6 @@
         const waMsg = encodeURIComponent(`🎥 Join our Aurastream meeting!\n\nRoom Code: ${App.roomCode}\nDirect Link: ${shareUrl}`);
         window.open(`https://api.whatsapp.com/send?text=${waMsg}`, '_blank');
     });
-
-    // ========================================================
-    // FRIENDS NETWORK & HISTORY
-    // ========================================================
-    const FriendsNetwork = {
-        key: 'aurastream_friends_global_v50',
-        getAll() {
-            try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
-        },
-        add(name, tag) {
-            if (!name || !tag) return notify('Please enter friend name and @AuraID', '⚠️');
-            let cleanTag = tag.trim();
-            if (!cleanTag.startsWith('@')) cleanTag = '@' + cleanTag;
-            
-            const list = this.getAll();
-            if (list.some(f => f.tag.toLowerCase() === cleanTag.toLowerCase())) {
-                return notify('Friend already in your network', 'ℹ️');
-            }
-
-            list.unshift({ id: Date.now(), name: name.trim(), tag: cleanTag });
-            localStorage.setItem(this.key, JSON.stringify(list));
-            this.render();
-            notify(`${name} added to your network`, '👥');
-        },
-        remove(id) {
-            let list = this.getAll().filter(item => item.id !== id);
-            localStorage.setItem(this.key, JSON.stringify(list));
-            this.render();
-            notify('Friend removed', '🗑️');
-        },
-        render() {
-            const list = this.getAll();
-            if ($('friendBadge')) $('friendBadge').textContent = list.length;
-
-            const container = $('friendsNetworkList');
-            if (!container) return;
-            container.innerHTML = list.length === 0 
-                ? '<div style="text-align:center; color:var(--text-3); font-size:13px; padding:32px;">No friends added yet. Enter their Name and @AuraID above!</div>' 
-                : list.map(f => `
-                    <div class="friend-tile-item">
-                        <div class="friend-tile-left">
-                            <div class="friend-tile-avatar">${f.name[0].toUpperCase()}</div>
-                            <div>
-                                <div style="font-weight: 800; font-size: 14px;">${f.name}</div>
-                                <div style="font-size: 11px; color: var(--brand); font-family: var(--font-code);">${f.tag}</div>
-                            </div>
-                        </div>
-                        <div style="display:flex; gap:6px;">
-                            <button class="btn-gradient-primary" style="padding:6px 12px; font-size:11px; width:auto;" onclick="callFriendDirectly('${f.name}', '${f.tag}')">📹 Invite</button>
-                            <button class="btn-close-circle" style="width:28px; height:28px; font-size:12px;" onclick="FriendsNetwork.remove(${f.id})">✕</button>
-                        </div>
-                    </div>
-                `).join('');
-        }
-    };
-    window.FriendsNetwork = FriendsNetwork;
-
-    window.callFriendDirectly = (name, tag) => {
-        App.isHost = false;
-        App.roomCode = tag.replace('@', '').toUpperCase();
-        startMeetingSession();
-    };
-
-    bind('btnAddFriend', () => {
-        const name = $('newFriendName')?.value;
-        const tag = $('newFriendTag')?.value;
-        FriendsNetwork.add(name, tag);
-        if ($('newFriendName')) $('newFriendName').value = '';
-        if ($('newFriendTag')) $('newFriendTag').value = '';
-    });
-
-    bind('btnCopyMyId', () => {
-        navigator.clipboard.writeText(App.myAuraTag).then(() => notify('Aura ID copied', '📋'));
-    });
-
-    bind('btnShareMyIdWhatsApp', () => {
-        const shareUrl = `${window.location.origin}${window.location.pathname}#${App.myAuraTag.replace('@','')}`;
-        const msg = encodeURIComponent(`👋 Join my live Aurastream meeting!\nMy ID: ${App.myAuraTag}\nDirect Link: ${shareUrl}`);
-        window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
-    });
-
-    const HistoryManager = {
-        key: 'aurastream_recent_calls_v50',
-        getAll() {
-            try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
-        },
-        add(roomCode, duration, participantCount = 1) {
-            const list = this.getAll();
-            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            list.unshift({ id: Date.now(), roomCode, duration, participants: participantCount, time: timeStr });
-            if (list.length > 20) list.pop();
-            localStorage.setItem(this.key, JSON.stringify(list));
-            this.render();
-        },
-        clear() {
-            localStorage.removeItem(this.key);
-            this.render();
-            notify('Call history cleared', '🗑️');
-        },
-        render() {
-            const list = this.getAll();
-            const container = $('historyContainer');
-            if (!container) return;
-            container.innerHTML = list.length === 0 
-                ? '<div style="text-align:center; color:var(--text-3); font-size:12px; padding:24px;">No recent calls.</div>'
-                : list.map(h => `
-                    <div class="friend-tile-item">
-                        <div class="friend-tile-left">
-                            <div class="friend-tile-avatar" style="background: rgba(255,255,255,0.08);">📹</div>
-                            <div>
-                                <div style="font-weight: 800; font-size: 14px; font-family: var(--font-code);">${h.roomCode}</div>
-                                <div style="font-size: 11px; color: var(--text-2);">${h.time} · ${h.participants || 1} people · ${h.duration}</div>
-                            </div>
-                        </div>
-                        <button class="btn-gradient-primary" style="width: auto; padding: 6px 14px; font-size: 12px;" onclick="reconnectCall('${h.roomCode}')">Join</button>
-                    </div>
-                `).join('');
-        }
-    };
-    window.reconnectCall = code => {
-        if ($('roomCodeInput')) $('roomCodeInput').value = code;
-        switchHubTab('tabCalls');
-        $('btnShowJoin')?.click();
-    };
-
-    bind('btnClearHistory', () => HistoryManager.clear());
-
-    function switchHubTab(targetId) {
-        document.querySelectorAll('.stage-tab-item').forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
-        document.querySelectorAll('.stage-tab-panel').forEach(p => p.classList.toggle('active', p.id === targetId));
-        if (targetId === 'tabFriends') FriendsNetwork.render();
-        if (targetId === 'tabRecents') HistoryManager.render();
-    }
-
-    document.querySelectorAll('.stage-tab-item').forEach(btn => {
-        btn.onclick = () => switchHubTab(btn.dataset.target);
-    });
-
-    FriendsNetwork.render();
-    HistoryManager.render();
 
     // ========================================================
     // END CALL & CLEANUP
