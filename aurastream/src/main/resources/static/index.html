@@ -882,6 +882,15 @@
         .multi-video-grid[data-count="14"],
         .multi-video-grid[data-count="15"],
         .multi-video-grid[data-count="16"] { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); }
+        .multi-video-grid[data-count="17"],
+        .multi-video-grid[data-count="18"],
+        .multi-video-grid[data-count="19"],
+        .multi-video-grid[data-count="20"],
+        .multi-video-grid[data-count="21"],
+        .multi-video-grid[data-count="22"],
+        .multi-video-grid[data-count="23"],
+        .multi-video-grid[data-count="24"],
+        .multi-video-grid[data-count="25"] { grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); }
 
         @media (max-width: 768px) {
             .multi-video-grid[data-count="2"] { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
@@ -898,7 +907,16 @@
             .multi-video-grid[data-count="13"],
             .multi-video-grid[data-count="14"],
             .multi-video-grid[data-count="15"],
-            .multi-video-grid[data-count="16"] { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
+            .multi-video-grid[data-count="16"],
+            .multi-video-grid[data-count="17"],
+            .multi-video-grid[data-count="18"],
+            .multi-video-grid[data-count="19"],
+            .multi-video-grid[data-count="20"],
+            .multi-video-grid[data-count="21"],
+            .multi-video-grid[data-count="22"],
+            .multi-video-grid[data-count="23"],
+            .multi-video-grid[data-count="24"],
+            .multi-video-grid[data-count="25"] { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
         }
 
         .multi-video-grid.spotlight-mode {
@@ -1095,6 +1113,9 @@
             z-index: 2;
         }
 
+        /* ========================================================
+           STUDIO FLOATING DOCK
+           ======================================================== */
         .stage-dock-shelf {
             position: absolute;
             bottom: max(16px, var(--safe-bottom));
@@ -1240,6 +1261,9 @@
         }
         .filter-select-btn:hover { background: var(--brand-subtle); color: var(--brand); }
 
+        /* ========================================================
+           COLLABORATIVE WHITEBOARD MODAL
+           ======================================================== */
         .whiteboard-stage-overlay {
             position: fixed;
             inset: 0;
@@ -1307,6 +1331,9 @@
             display: block;
         }
 
+        /* ========================================================
+           SIDE DRAWER (CHAT / POLLS / PEOPLE)
+           ======================================================== */
         .stage-side-drawer {
             position: absolute;
             top: 0; right: 0; bottom: 0;
@@ -1489,6 +1516,7 @@
             font-size: 13px;
         }
 
+        /* Modals & Backdrop */
         .stage-backdrop-overlay {
             position: fixed;
             inset: 0;
@@ -1567,6 +1595,7 @@
             cursor: pointer;
         }
 
+        /* Reaction Floating Particles */
         .floating-reaction-emoji {
             position: fixed;
             bottom: 90px;
@@ -1581,6 +1610,7 @@
             100% { opacity: 0; transform: translate3d(var(--vx), -340px, 0) scale(1.3); }
         }
 
+        /* Toast Notifications */
         .toast-shelf-tray {
             position: fixed;
             top: calc(max(14px, var(--safe-top)) + 52px);
@@ -2041,7 +2071,7 @@
         </div>
 
         <div class="drawer-content-pane" id="rosterTab">
-            <div style="padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dim);">
+            <div style="padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle);">
                 <span style="font-size: 12px; font-weight: 800; color: var(--text-2);">PARTICIPANTS</span>
                 <button class="btn-surface-glass" id="btnMuteAll" style="padding: 4px 10px; font-size: 10px;">Mute All</button>
             </div>
@@ -2170,7 +2200,9 @@
         userName: 'John',
         myAuraTag: '@john',
         myPeerId: '',
+        anchorPeerId: '',
         roomCode: '',
+        isAnchor: false,
         isHost: false,
         mic: true,
         cam: true,
@@ -2184,6 +2216,7 @@
         unreadChatCount: 0,
         localStream: null,
         screenStream: null,
+        fallbackStream: null,
         meshPeer: null,
         broadcast: null,
         peers: new Map(), // peerId -> { call, dataConn, stream, name, tag, isHost, hasCam, hasMic, isHand, isScreen }
@@ -2201,31 +2234,31 @@
         audioCtx: null
     };
 
-    // Universal Fail-Safe Media Stream (Always Valid)
+    // ========================================================
+    // SYNTHETIC FALLBACK STREAM (GUARANTEES WEBRTC NEVER CRASHES)
+    // ========================================================
     function getValidStream() {
         if (App.screen && App.screenStream && App.screenStream.active) {
             return App.screenStream;
         }
-        if (App.localStream && App.localStream.active && App.localStream.getVideoTracks().length > 0) {
+        if (App.localStream && App.localStream.active) {
             return App.localStream;
         }
-        // Synthetic canvas black stream
+        
+        // Absolute fallback empty stream
         try {
             const canvas = document.createElement('canvas');
-            canvas.width = 640; canvas.height = 480;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#080812'; ctx.fillRect(0, 0, 640, 480);
-            const vTrack = canvas.captureStream(10).getVideoTracks()[0];
-
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            const aCtx = new AudioCtx();
-            const dst = aCtx.createMediaStreamDestination();
-            const aTrack = dst.stream.getAudioTracks()[0];
-            aTrack.enabled = false;
-
-            return new MediaStream([vTrack, aTrack]);
+            canvas.width = 1; canvas.height = 1;
+            const stream = canvas.captureStream(1);
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                const ctx = new AudioContext();
+                const dest = ctx.createMediaStreamDestination();
+                stream.addTrack(dest.stream.getAudioTracks()[0]);
+            } catch(e){}
+            return stream;
         } catch(e) {
-            return null;
+            return new MediaStream(); // empty
         }
     }
 
@@ -2434,7 +2467,7 @@
                             <div class="friend-tile-avatar">${f.name[0].toUpperCase()}</div>
                             <div>
                                 <div style="font-weight: 800; font-size: 14px;">${f.name}</div>
-                                <div style="font-size: 11px; color: var(--brand); font-family: var(--font-code);">${f.tag}</div>
+                                <div style="font-size: 11px; color: var(--brand-light); font-family: var(--font-code);">${f.tag}</div>
                             </div>
                         </div>
                         <div style="display:flex; gap:6px;">
@@ -2528,31 +2561,43 @@
         btn.onclick = () => switchHubTab(btn.dataset.target);
     });
 
-    // ========================================================
-    // BULLETPROOF CAMERA / MIC ACQUISITION
-    // ========================================================
+    function getMediaConstraints() {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        let videoConstraints = {
+            width: isMobile ? { ideal: 1280 } : { ideal: 1920 },
+            height: isMobile ? { ideal: 720 } : { ideal: 1080 },
+            frameRate: { ideal: 30, max: 30 }
+        };
+        if (isMobile) {
+            videoConstraints.facingMode = { ideal: App.facing };
+        }
+        return {
+            video: videoConstraints,
+            audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+        };
+    }
+
     async function requestUserMediaSafe() {
         if (App.localStream && App.localStream.active && App.localStream.getVideoTracks().length > 0) {
             return App.localStream;
         }
-
-        // Try standard constraints first
-        const tries = [
-            { video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true },
+        
+        const constraintsList = [
+            getMediaConstraints(),
             { video: true, audio: true },
             { video: true, audio: false },
             { video: false, audio: true }
         ];
 
-        for (const constraints of tries) {
+        for (let c of constraintsList) {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const stream = await navigator.mediaDevices.getUserMedia(c);
                 App.localStream = stream;
                 App.mic = stream.getAudioTracks().length > 0;
                 App.cam = stream.getVideoTracks().length > 0;
                 return stream;
             } catch(e) {
-                // Try next constraint
+                console.warn('Failed constraints:', c, e);
             }
         }
         return null;
@@ -2704,7 +2749,7 @@
     });
 
     // ========================================================
-    // START MEETING SESSION (GUARANTEED CAMERA & UI MOUNT)
+    // START MEETING SESSION (GUARANTEED MEDIA & UI MOUNT)
     // ========================================================
     async function startMeetingSession() {
         $('lobbyView')?.classList.add('hidden');
@@ -2712,28 +2757,24 @@
         if ($('hudRoomText')) $('hudRoomText').textContent = App.roomCode;
         window.location.hash = App.roomCode;
 
-        // Render self tile immediately
+        // Render self tile immediately so user sees UI
         renderSelfTile();
-        syncMediaState();
         startCallTimer();
         initWhiteboard();
         Sound.play('join');
 
-        // Request live hardware camera
+        // Request live hardware camera safely before starting WebRTC
         const stream = await requestUserMediaSafe();
         if (stream) {
             initAudioMeter(stream);
-            const selfTile = $('tile-self');
-            if (selfTile) {
-                const vid = selfTile.querySelector('video');
-                if (vid) {
-                    vid.srcObject = stream;
-                    vid.play().catch(()=>{});
-                }
-            }
-            syncMediaState();
+            notify('Camera & Microphone Connected', '📹');
+        } else {
+            notify('Could not access Camera/Mic. Proceeding without media.', '⚠️');
+            App.cam = false;
+            App.mic = false;
         }
 
+        syncMediaState();
         initMultiPartyMeshEngine();
     }
 
@@ -2750,7 +2791,14 @@
             const vid = selfTile.querySelector('video');
             const placeholder = selfTile.querySelector('.tile-placeholder-card');
             const micIcon = selfTile.querySelector('.tile-mic-indicator');
-            if (vid) vid.style.display = (App.cam && App.localStream) ? 'block' : 'none';
+            
+            if (vid) {
+                if (App.localStream && vid.srcObject !== App.localStream) {
+                    vid.srcObject = App.localStream;
+                    vid.play().catch(()=>{});
+                }
+                vid.style.display = (App.cam && App.localStream) ? 'block' : 'none';
+            }
             if (placeholder) placeholder.style.display = (App.cam && App.localStream) ? 'none' : 'flex';
             if (micIcon) micIcon.className = `tile-mic-indicator ${App.mic ? '' : 'muted'}`;
         }
@@ -2775,17 +2823,93 @@
         const randHex = Math.random().toString(36).substring(2, 6);
         
         // Deterministic slots for cross-device discovery
-        const primarySlotId = `aurastream_${cleanCode}_host`;
+        App.anchorPeerId = `aurastream_anchor_${cleanCode}`;
         const uniquePeerId = `aurastream_${cleanCode}_p_${randHex}`;
 
-        const idToTry = App.isHost ? primarySlotId : uniquePeerId;
+        if (App.meshPeer) {
+            try { App.meshPeer.destroy(); } catch(e){}
+        }
 
-        setupPeerInstance(idToTry, () => {
-            // Fallback if host slot is busy
-            setupPeerInstance(uniquePeerId, null, [primarySlotId]);
-        }, App.isHost ? [] : [primarySlotId]);
+        const peerIdToUse = App.isHost ? App.anchorPeerId : uniquePeerId;
 
-        // Local BroadcastChannel for same-device instant tabs
+        App.meshPeer = new Peer(peerIdToUse, PEER_CONFIG);
+
+        App.meshPeer.on('open', id => {
+            App.myPeerId = id;
+            App.isAnchor = (id === App.anchorPeerId);
+
+            // If I am NOT the anchor, I must call the anchor!
+            if (!App.isAnchor) {
+                connectToPeer(App.anchorPeerId);
+            }
+
+            // Announce presence over local broadcast channel
+            broadcastControlSignal({
+                type: 'peer_join',
+                peerId: id,
+                name: App.userName,
+                tag: App.myAuraTag,
+                isHost: App.isHost
+            });
+
+            // Announce initial media state shortly after
+            setTimeout(() => {
+                broadcastControlSignal({
+                    type: 'media_state',
+                    peerId: id,
+                    hasCam: App.cam,
+                    hasMic: App.mic
+                });
+            }, 1500);
+        });
+
+        App.meshPeer.on('error', err => {
+            if (err.type === 'unavailable-id' && App.isHost) {
+                // Host tried to take anchor but it's taken, fallback to unique
+                App.isHost = false; 
+                initMultiPartyMeshEngine();
+            } else if (err.type === 'peer-unavailable') {
+                console.log('Peer unavailable:', err);
+            }
+        });
+
+        App.meshPeer.on('call', call => {
+            const callerId = call.peer;
+            const meta = call.metadata || {};
+            const streamToSend = getValidStream();
+            
+            call.answer(streamToSend);
+
+            if (!App.peers.has(callerId)) {
+                App.peers.set(callerId, { 
+                    call, dataConn: null, stream: null, 
+                    name: meta.name || 'Peer', 
+                    tag: meta.tag || '@peer', 
+                    isHost: meta.isHost || false, 
+                    hasCam: true, hasMic: true, 
+                    isHand: false, isScreen: false 
+                });
+            } else {
+                App.peers.get(callerId).call = call;
+            }
+
+            call.on('stream', remoteStream => {
+                handleRemoteStream(callerId, remoteStream, meta);
+            });
+            call.on('close', () => removeParticipant(callerId));
+            call.on('error', () => removeParticipant(callerId));
+        });
+
+        App.meshPeer.on('connection', conn => {
+            bindDataConnection(conn);
+        });
+
+        App.meshPeer.on('disconnected', () => {
+            console.log('PeerJS disconnected, reconnecting...');
+            App.meshPeer.reconnect();
+        });
+
+        // Local Broadcast Channel setup
         try {
             if (App.broadcast) App.broadcast.close();
             App.broadcast = new BroadcastChannel(`aurastream_bcast_${cleanCode}`);
@@ -2793,104 +2917,20 @@
         } catch (e) {}
     }
 
-    function setupPeerInstance(myId, onUnavailable = null, targetPeersToConnect = []) {
-        try {
-            if (App.meshPeer) {
-                try { App.meshPeer.destroy(); } catch (e) {}
-            }
-
-            App.meshPeer = new Peer(myId, PEER_CONFIG);
-
-            App.meshPeer.on('open', id => {
-                App.myPeerId = id;
-
-                // Connect to deterministic room targets
-                targetPeersToConnect.forEach(targetId => {
-                    if (targetId !== id) connectToPeer(targetId);
-                });
-
-                // Announce presence over broadcast
-                broadcastControlSignal({
-                    type: 'peer_join',
-                    peerId: id,
-                    name: App.userName,
-                    tag: App.myAuraTag,
-                    isHost: App.isHost
-                });
-            });
-
-            App.meshPeer.on('call', call => {
-                const callerId = call.peer;
-                const meta = call.metadata || {};
-                const streamToSend = getValidStream();
-                call.answer(streamToSend);
-
-                call.on('stream', remoteStream => {
-                    handleRemoteStream(callerId, remoteStream, meta);
-                });
-
-                call.on('close', () => removeParticipant(callerId));
-                call.on('error', () => removeParticipant(callerId));
-
-                if (!App.peers.has(callerId)) {
-                    App.peers.set(callerId, {
-                        call,
-                        dataConn: null,
-                        stream: null,
-                        name: meta.name || 'Participant',
-                        tag: meta.tag || '@peer',
-                        isHost: meta.isHost || false,
-                        hasCam: true,
-                        hasMic: true,
-                        isHand: false,
-                        isScreen: false
-                    });
-                } else {
-                    App.peers.get(callerId).call = call;
-                }
-            });
-
-            App.meshPeer.on('connection', conn => {
-                bindDataConnection(conn);
-            });
-
-            App.meshPeer.on('error', err => {
-                if (err.type === 'unavailable-id' && onUnavailable) {
-                    onUnavailable();
-                } else if (err.type === 'peer-unavailable') {
-                    // Retry target connection after 1.5 seconds
-                    setTimeout(() => {
-                        targetPeersToConnect.forEach(tId => {
-                            if (tId !== App.myPeerId && App.meshPeer && !App.meshPeer.destroyed) {
-                                connectToPeer(tId);
-                            }
-                        });
-                    }, 1500);
-                }
-            });
-
-        } catch (e) {
-            console.error('PeerJS init failed:', e);
-        }
-    }
-
     function connectToPeer(targetPeerId, targetInfo = {}) {
         if (!targetPeerId || targetPeerId === App.myPeerId || App.peers.has(targetPeerId) || !App.meshPeer) return;
 
         const streamToSend = getValidStream();
         
-        const call = App.meshPeer.call(targetPeerId, streamToSend, {
-            metadata: {
-                name: App.userName,
-                tag: App.myAuraTag,
-                isHost: App.isHost,
-                isScreen: App.screen
-            }
-        });
+        const meta = {
+            name: App.userName,
+            tag: App.myAuraTag,
+            isHost: App.isHost,
+            isScreen: App.screen
+        };
 
-        const conn = App.meshPeer.connect(targetPeerId, {
-            metadata: { name: App.userName, tag: App.myAuraTag }
-        });
+        const call = App.meshPeer.call(targetPeerId, streamToSend, { metadata: meta });
+        const conn = App.meshPeer.connect(targetPeerId, { metadata: meta });
 
         App.peers.set(targetPeerId, {
             call,
@@ -2931,13 +2971,21 @@
                 isHost: App.isHost
             });
 
-            // Send mesh membership list
-            const rosterList = [];
-            App.peers.forEach((p, pId) => {
-                if (pId !== peerId) rosterList.push({ peerId: pId, name: p.name, tag: p.tag });
+            conn.send({
+                type: 'media_state',
+                peerId: App.myPeerId,
+                hasCam: App.cam,
+                hasMic: App.mic
             });
-            if (rosterList.length > 0) {
-                conn.send({ type: 'mesh_roster', members: rosterList });
+
+            if (App.isAnchor) {
+                const rosterList = [];
+                App.peers.forEach((p, pId) => {
+                    if (pId !== conn.peer) rosterList.push({ peerId: pId, name: p.name, tag: p.tag });
+                });
+                if (rosterList.length > 0) {
+                    conn.send({ type: 'mesh_roster', members: rosterList });
+                }
             }
         });
 
@@ -3074,61 +3122,15 @@
     // ========================================================
     // VIDEO GRID MANAGEMENT
     // ========================================================
-    function renderSelfTile() {
-        const grid = $('videoGrid');
-        if (!grid) return;
-
-        let selfTile = $('tile-self');
-        if (!selfTile) {
-            selfTile = document.createElement('div');
-            selfTile.className = 'video-tile mirrored';
-            selfTile.id = 'tile-self';
-            selfTile.innerHTML = `
-                <div class="tile-placeholder-card" style="display: flex;">
-                    <div class="tile-avatar-disc">${App.userName[0].toUpperCase()}</div>
-                    <span style="font-size: 13px; font-weight: 700; color: #fff;">${App.userName}</span>
-                </div>
-                <video autoplay playsinline webkit-playsinline muted style="display:none;"></video>
-                <div class="tile-nameplate-pill">
-                    <svg class="tile-mic-indicator ${App.mic ? '' : 'muted'}" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-                    <span>${App.userName} (You)</span>
-                </div>
-                <button class="tile-pin-button" onclick="toggleSpotlightTile('tile-self')" title="Pin/Focus View">📌</button>
-            `;
-            grid.appendChild(selfTile);
-        }
-
-        const vid = selfTile.querySelector('video');
-        if (vid && App.localStream) {
-            vid.srcObject = App.localStream;
-            vid.style.display = 'block';
-            vid.play().catch(()=>{});
-        }
-
-        recalculateGridLayout();
-    }
-
     function handleRemoteStream(peerId, stream, meta = {}) {
         if (!stream) return;
         
         let p = App.peers.get(peerId);
-        if (!p) {
-            p = {
-                call: null,
-                dataConn: null,
-                stream,
-                name: meta.name || 'Participant',
-                tag: meta.tag || '@peer',
-                isHost: meta.isHost || false,
-                hasCam: true,
-                hasMic: true,
-                isHand: false,
-                isScreen: false
-            };
-            App.peers.set(peerId, p);
-        } else {
-            p.stream = stream;
-        }
+        if (!p) return; 
+
+        p.stream = stream;
+        if (meta.name) p.name = meta.name;
+        if (meta.tag) p.tag = meta.tag;
 
         const grid = $('videoGrid');
         if (!grid) return;
@@ -3155,15 +3157,22 @@
 
         const vid = tile.querySelector('video');
         if (vid) {
-            vid.srcObject = stream;
-            vid.play().catch(()=>{});
+            if (vid.srcObject !== stream) {
+                vid.srcObject = stream;
+            }
+            // Auto play remote video, mute NOT needed since user interacted with "Join"
+            vid.play().catch(e => console.error('Autoplay blocked:', e));
         }
 
         $('waitingHub')?.classList.add('hidden');
         recalculateGridLayout();
         renderParticipantsRoster();
-        Sound.play('join');
-        notify(`${p.name} joined the meeting`, '🟢');
+        
+        if (!p.hasPlayedJoin) {
+            Sound.play('join');
+            notify(`${p.name} joined the meeting`, '🟢');
+            p.hasPlayedJoin = true;
+        }
     }
 
     function removeParticipant(peerId) {
@@ -3243,6 +3252,7 @@
             const vid = tile.querySelector('video');
             const placeholder = tile.querySelector('.tile-placeholder-card');
             const micIcon = tile.querySelector('.tile-mic-indicator');
+            
             if (vid) vid.style.display = p.hasCam ? 'block' : 'none';
             if (placeholder) placeholder.style.display = p.hasCam ? 'none' : 'flex';
             if (micIcon) micIcon.className = `tile-mic-indicator ${p.hasMic ? '' : 'muted'}`;
@@ -3989,7 +3999,7 @@
 
         function drawQrCorner(cx, x, y) {
             cx.fillRect(x, y, 44, 44);
-            cx.fillStyle = '#ffffff'; ctx.fillRect(x + 6, y + 6, 32, 32);
+            cx.fillStyle = '#ffffff'; cx.fillRect(x + 6, y + 6, 32, 32);
             cx.fillStyle = '#000000'; cx.fillRect(x + 13, y + 13, 18, 18);
         }
 
