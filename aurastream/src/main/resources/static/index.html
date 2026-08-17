@@ -9,6 +9,9 @@
     <!-- PeerJS WebRTC Signaling Engine -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     
+    <!-- MQTT WebSocket Real-Time Discovery Engine (Guaranteed Cross-Device Mesh) -->
+    <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
+    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -194,7 +197,7 @@
         }
 
         /* ========================================================
-           LOBBY / DASHBOARD VIEW (FIXED POSITION)
+           LOBBY / DASHBOARD VIEW (FIXED FULLSCREEN)
            ======================================================== */
         .lobby-stage-view {
             position: fixed;
@@ -1873,7 +1876,8 @@
 
 <script>
 /**
- * AURASTREAM — GUARANTEED WEBRTC ENGINE & UNIVERSAL CAMERA / PEERJS DISCOVERY
+ * AURASTREAM — RESILIENT WEBRTC MESH WITH MQTT WEBSOCKET REAL-TIME DISCOVERY
+ * Zero-Collision Auto-Reconnecting Mesh for Guaranteed Cross-Device Meetings
  */
 (function() {
     'use strict';
@@ -1906,9 +1910,11 @@
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
                 { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' },
+                { urls: 'stun:stun4.l.google.com:19302' },
                 { urls: 'stun:stun.cloudflare.com:3478' }
             ],
-            iceCandidatePoolSize: 8
+            iceCandidatePoolSize: 10
         }
     };
 
@@ -1968,6 +1974,7 @@
         myAuraTag: localStorage.getItem('aurastream_tag') || '@user',
         myPeerId: '',
         roomCode: '',
+        cleanRoom: '',
         isHost: false,
         mic: true,
         cam: true,
@@ -1982,6 +1989,8 @@
         localStream: null,
         screenStream: null,
         meshPeer: null,
+        mqttClient: null,
+        mqttHeartbeat: null,
         broadcast: null,
         peers: new Map(), // peerId -> { call, dataConn, stream, name, tag, isHost, hasCam, hasMic, isHand, isScreen }
         polls: [],
@@ -1998,7 +2007,7 @@
         audioCtx: null
     };
 
-    // Generate guaranteed working fallback video/audio stream
+    // Guaranteed working fallback stream
     function createSyntheticStream() {
         try {
             const canvas = document.createElement('canvas');
@@ -2227,6 +2236,7 @@
     // START MEETING SESSION (GUARANTEED ACTIVE FULLSCREEN)
     // ========================================================
     async function startMeetingSession() {
+        App.cleanRoom = normalizeCodeToClean(App.roomCode);
         $('lobbyView')?.classList.add('hidden');
         $('callStage')?.classList.add('active');
         if ($('hudRoomText')) $('hudRoomText').textContent = App.roomCode;
@@ -2258,7 +2268,7 @@
         }
 
         syncMediaState();
-        initMultiPartyMeshEngine();
+        initGuaranteedWebRTCEngine();
     }
 
     function syncMediaState() {
@@ -2292,53 +2302,28 @@
     }
 
     // ========================================================
-    // BULLETPROOF MESH RENDEZVOUS SIGNALING ENGINE
+    // GUARANTEED WEBRTC + MQTT REAL-TIME SIGNALING ENGINE
     // ========================================================
-    function initMultiPartyMeshEngine() {
-        const cleanCode = normalizeCodeToClean(App.roomCode);
-        const randHex = Math.random().toString(36).substring(2, 6);
+    function initGuaranteedWebRTCEngine() {
+        const clean = App.cleanRoom;
         
-        const primarySlotId = `aurastream_${cleanCode}_host`;
-        const uniquePeerId = `aurastream_${cleanCode}_p_${randHex}`;
-
-        const idToTry = App.isHost ? primarySlotId : uniquePeerId;
-
-        setupPeerInstance(idToTry, () => {
-            setupPeerInstance(uniquePeerId, null, [primarySlotId]);
-        }, App.isHost ? [] : [primarySlotId]);
-
-        // Local BroadcastChannel for instant same-browser cross-tab joining
-        try {
-            if (App.broadcast) App.broadcast.close();
-            App.broadcast = new BroadcastChannel(`aurastream_bcast_${cleanCode}`);
-            App.broadcast.onmessage = e => handleMeshMessage(e.data);
-        } catch (e) {}
-    }
-
-    function setupPeerInstance(myId, onUnavailable = null, targetPeersToConnect = []) {
+        // 1. Initialize clean unique PeerJS peer without custom ID conflicts
         try {
             if (App.meshPeer) {
                 try { App.meshPeer.destroy(); } catch (e) {}
             }
 
-            App.meshPeer = new Peer(myId, PEER_CONFIG);
+            App.meshPeer = new Peer(PEER_CONFIG);
 
             App.meshPeer.on('open', id => {
                 App.myPeerId = id;
+                console.log('Registered with PeerJS ID:', id);
 
-                // Connect to deterministic room targets
-                targetPeersToConnect.forEach(targetId => {
-                    if (targetId !== id) connectToPeer(targetId);
-                });
+                // Start MQTT signaling discovery across internet
+                connectMqttSignaling(clean, id);
 
-                // Announce presence over broadcast
-                broadcastControlSignal({
-                    type: 'peer_join',
-                    peerId: id,
-                    name: App.userName,
-                    tag: App.myAuraTag,
-                    isHost: App.isHost
-                });
+                // Start Local BroadcastChannel for instant same-browser tabs
+                connectBroadcastChannel(clean, id);
             });
 
             App.meshPeer.on('call', call => {
@@ -2354,8 +2339,9 @@
                 call.on('close', () => removeParticipant(callerId));
                 call.on('error', () => removeParticipant(callerId));
 
-                if (!App.peers.has(callerId)) {
-                    App.peers.set(callerId, {
+                let peerRecord = App.peers.get(callerId);
+                if (!peerRecord) {
+                    peerRecord = {
                         call,
                         dataConn: null,
                         stream: null,
@@ -2366,9 +2352,10 @@
                         hasMic: true,
                         isHand: false,
                         isScreen: false
-                    });
+                    };
+                    App.peers.set(callerId, peerRecord);
                 } else {
-                    App.peers.get(callerId).call = call;
+                    peerRecord.call = call;
                 }
             });
 
@@ -2377,18 +2364,7 @@
             });
 
             App.meshPeer.on('error', err => {
-                if (err.type === 'unavailable-id' && onUnavailable) {
-                    onUnavailable();
-                } else if (err.type === 'peer-unavailable') {
-                    // Retry target connection after 1.5 seconds
-                    setTimeout(() => {
-                        targetPeersToConnect.forEach(tId => {
-                            if (tId !== App.myPeerId && App.meshPeer && !App.meshPeer.destroyed) {
-                                connectToPeer(tId);
-                            }
-                        });
-                    }, 1500);
-                }
+                console.warn('PeerJS error:', err.type, err);
             });
 
         } catch (e) {
@@ -2396,8 +2372,114 @@
         }
     }
 
+    // MQTT Public WebSocket Broker Signaling Relay
+    function connectMqttSignaling(roomCode, myPeerId) {
+        if (!window.mqtt) return;
+        
+        const topic = `aurastream/v48/room/${roomCode}`;
+        const brokerUrl = 'wss://broker.emqx.io:8084/mqtt';
+
+        try {
+            if (App.mqttClient) {
+                try { App.mqttClient.end(true); } catch(e){}
+            }
+
+            const client = mqtt.connect(brokerUrl, {
+                clientId: `aura_${Math.random().toString(16).substring(2, 10)}`,
+                keepalive: 30,
+                clean: true
+            });
+
+            App.mqttClient = client;
+
+            client.on('connect', () => {
+                client.subscribe(topic, { qos: 0 });
+
+                // Announce presence immediately
+                announcePresence();
+
+                // Periodic heartbeat broadcast every 2.5s
+                if (App.mqttHeartbeat) clearInterval(App.mqttHeartbeat);
+                App.mqttHeartbeat = setInterval(() => announcePresence(), 2500);
+            });
+
+            client.on('message', (t, payload) => {
+                try {
+                    const msg = JSON.parse(payload.toString());
+                    if (!msg || msg.peerId === myPeerId) return;
+
+                    if (msg.type === 'announce') {
+                        // We found another peer in the room!
+                        // If we have not connected or call is not established:
+                        if (!App.peers.has(msg.peerId) || !App.peers.get(msg.peerId).stream) {
+                            connectToPeer(msg.peerId, {
+                                name: msg.name,
+                                tag: msg.tag,
+                                isHost: msg.isHost
+                            });
+                        }
+                    } else {
+                        handleMeshMessage(msg, msg.peerId);
+                    }
+                } catch(e) {}
+            });
+
+        } catch (e) {
+            console.warn('MQTT signaling init error:', e);
+        }
+    }
+
+    function announcePresence() {
+        if (!App.myPeerId) return;
+        const msg = {
+            type: 'announce',
+            peerId: App.myPeerId,
+            name: App.userName,
+            tag: App.myAuraTag,
+            isHost: App.isHost,
+            room: App.cleanRoom
+        };
+
+        // Send via MQTT
+        if (App.mqttClient && App.mqttClient.connected) {
+            App.mqttClient.publish(`aurastream/v48/room/${App.cleanRoom}`, JSON.stringify(msg));
+        }
+
+        // Send via BroadcastChannel
+        if (App.broadcast) {
+            try { App.broadcast.postMessage(msg); } catch(e){}
+        }
+    }
+
+    function connectBroadcastChannel(roomCode, myPeerId) {
+        try {
+            if (App.broadcast) App.broadcast.close();
+            App.broadcast = new BroadcastChannel(`aurastream_bcast_${roomCode}`);
+            App.broadcast.onmessage = e => {
+                const msg = e.data;
+                if (!msg || msg.peerId === myPeerId) return;
+
+                if (msg.type === 'announce') {
+                    if (!App.peers.has(msg.peerId) || !App.peers.get(msg.peerId).stream) {
+                        connectToPeer(msg.peerId, {
+                            name: msg.name,
+                            tag: msg.tag,
+                            isHost: msg.isHost
+                        });
+                    }
+                } else {
+                    handleMeshMessage(msg, msg.peerId);
+                }
+            };
+        } catch(e) {}
+    }
+
     function connectToPeer(targetPeerId, targetInfo = {}) {
-        if (!targetPeerId || targetPeerId === App.myPeerId || App.peers.has(targetPeerId) || !App.meshPeer) return;
+        if (!targetPeerId || targetPeerId === App.myPeerId || !App.meshPeer) return;
+
+        // Prevent duplicate simultaneous calls if already active
+        const existing = App.peers.get(targetPeerId);
+        if (existing && existing.stream) return;
 
         const streamToSend = getValidStream();
         
@@ -2452,15 +2534,6 @@
                 tag: App.myAuraTag,
                 isHost: App.isHost
             });
-
-            // Send mesh roster
-            const rosterList = [];
-            App.peers.forEach((p, pId) => {
-                if (pId !== peerId) rosterList.push({ peerId: pId, name: p.name, tag: p.tag });
-            });
-            if (rosterList.length > 0) {
-                conn.send({ type: 'mesh_roster', members: rosterList });
-            }
         });
 
         conn.on('data', data => handleMeshMessage(data, peerId));
@@ -2471,36 +2544,6 @@
         if (!data || !data.type) return;
 
         switch (data.type) {
-            case 'peer_join':
-                if (data.peerId && data.peerId !== App.myPeerId) {
-                    connectToPeer(data.peerId, data);
-                    broadcastControlSignal({
-                        type: 'peer_presence',
-                        peerId: App.myPeerId,
-                        targetId: data.peerId,
-                        name: App.userName,
-                        tag: App.myAuraTag,
-                        isHost: App.isHost
-                    });
-                }
-                break;
-
-            case 'mesh_roster':
-                if (Array.isArray(data.members)) {
-                    data.members.forEach(member => {
-                        if (member.peerId && member.peerId !== App.myPeerId) {
-                            connectToPeer(member.peerId, member);
-                        }
-                    });
-                }
-                break;
-
-            case 'peer_presence':
-                if (data.targetId === App.myPeerId && data.peerId !== App.myPeerId) {
-                    connectToPeer(data.peerId, data);
-                }
-                break;
-
             case 'handshake':
                 if (data.peerId && App.peers.has(data.peerId)) {
                     const p = App.peers.get(data.peerId);
@@ -2583,8 +2626,14 @@
     }
 
     function broadcastControlSignal(msgObj) {
+        msgObj.peerId = App.myPeerId;
+        msgObj.room = App.cleanRoom;
+
         try {
             if (App.broadcast) App.broadcast.postMessage(msgObj);
+            if (App.mqttClient && App.mqttClient.connected) {
+                App.mqttClient.publish(`aurastream/v48/room/${App.cleanRoom}`, JSON.stringify(msgObj));
+            }
             App.peers.forEach(peer => {
                 if (peer.dataConn && peer.dataConn.open) {
                     peer.dataConn.send(msgObj);
@@ -2677,14 +2726,18 @@
         const vid = tile.querySelector('video');
         if (vid) {
             vid.srcObject = stream;
-            vid.play().catch(()=>{});
+            vid.play().catch(e => {
+                // If browser autoplay policy blocks unmuted audio:
+                vid.muted = true;
+                vid.play().then(() => { vid.muted = false; }).catch(()=>{});
+            });
         }
 
         $('waitingHub')?.classList.add('hidden');
         recalculateGridLayout();
         renderParticipantsRoster();
         Sound.play('join');
-        notify(`${p.name} joined the meeting`, '🟢');
+        notify(`${p.name} connected live!`, '🟢');
     }
 
     function removeParticipant(peerId) {
@@ -3555,7 +3608,7 @@
     // FRIENDS NETWORK & HISTORY
     // ========================================================
     const FriendsNetwork = {
-        key: 'aurastream_friends_global_v45',
+        key: 'aurastream_friends_global_v48',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -3632,7 +3685,7 @@
     });
 
     const HistoryManager = {
-        key: 'aurastream_recent_calls_v45',
+        key: 'aurastream_recent_calls_v48',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -3719,6 +3772,9 @@
         });
         App.peers.clear();
 
+        if (App.mqttHeartbeat) { clearInterval(App.mqttHeartbeat); App.mqttHeartbeat = null; }
+        if (App.mqttClient) { try { App.mqttClient.end(true); } catch(e){} App.mqttClient = null; }
+
         try { if (App.meshPeer) App.meshPeer.destroy(); } catch (e) {}
         try { if (App.broadcast) App.broadcast.close(); } catch (e) {}
 
@@ -3746,7 +3802,6 @@
         $('lobbyView')?.classList.remove('hidden');
         cleanUrlHash();
         
-        // Re-attach camera to lobby video preview
         if (App.localStream) {
             attachToLobbyVideo(App.localStream);
         }
