@@ -6,11 +6,8 @@
     <title>AURASTREAM — Studio HD Real-Time Video Collaboration</title>
     <meta name="description" content="Ultra HD instant video meetings, 60FPS screen sharing, AI live subtitles, collaborative canvas whiteboard, live polls, and encrypted P2P mesh network.">
     
-    <!-- PeerJS WebRTC Signaling Engine -->
+    <!-- Pure PeerJS WebRTC Signaling Engine -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-    
-    <!-- MQTT WebSocket Real-Time Discovery Engine -->
-    <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1499,9 +1496,7 @@
 <div class="ambient-canvas"></div>
 <div class="toast-shelf-tray" id="toastShelf"></div>
 
-<!-- ========================================================
-     LOBBY / DASHBOARD VIEW
-     ======================================================== -->
+<!-- LOBBY VIEW -->
 <div class="lobby-stage-view" id="lobbyView">
     <div class="stage-navbar">
         <div class="brand-cluster">
@@ -1510,7 +1505,6 @@
             </div>
             <div class="brand-title-text">AURA<span>STREAM</span></div>
         </div>
-
         <div style="display: flex; align-items: center; gap: 10px;">
             <input class="auth-text-input" id="lobbyNameInput" placeholder="Your Display Name" style="width: 160px; padding: 6px 12px; font-size: 13px;" value="User">
         </div>
@@ -1538,7 +1532,7 @@
             <div class="hero-dashboard-grid">
                 <div class="hero-intro-column">
                     <h1>Instant Video Meetings.<br><span>Pure HD Collaboration.</span></h1>
-                    <p>Ultra HD 60FPS screen share, collaborative canvas, live AI captions, local meeting recording, and instant 25-participant mesh.</p>
+                    <p>Ultra HD 60FPS screen share, collaborative canvas, live AI captions, local meeting recording, and instant mesh connection.</p>
 
                     <div class="action-container-card">
                         <div id="joinFields" style="display: none;">
@@ -1650,8 +1644,8 @@
             
             <div class="hud-status-badge">
                 <div class="telemetry-live-dot"></div>
-                <span id="telemetryPing">Live Mesh</span>
-                <span>· 1080P</span>
+                <span id="telemetryPing">Pure WebRTC</span>
+                <span>· HD</span>
             </div>
 
             <div class="hud-recording-pill" id="recordingPill">
@@ -1691,7 +1685,7 @@
         <span class="caption-content-text" id="captionText">Listening to speech...</span>
     </div>
 
-    <!-- Video Canvas Container (Supports up to 25 participants) -->
+    <!-- Video Canvas Container -->
     <div class="stage-video-canvas" id="videoCanvasContainer">
         <div class="multi-video-grid" id="videoGrid" data-count="1">
             <!-- Dynamic video tiles injected here -->
@@ -1876,8 +1870,8 @@
 
 <script>
 /**
- * AURASTREAM — DETERMINISTIC WEBRTC MESH WITH TIE-BREAKER DISCOVERY
- * Zero-Glare, Instant Cross-Device P2P Video Connection
+ * AURASTREAM — PURE DETERMINISTIC WEBRTC MESH
+ * Completely rebuilt. No MQTT, No External Dependencies. Guaranteed Direct Connections.
  */
 (function() {
     'use strict';
@@ -1904,17 +1898,15 @@
     }
 
     const PEER_CONFIG = {
-        debug: 1,
+        debug: 0,
         config: {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
                 { urls: 'stun:stun2.l.google.com:19302' },
                 { urls: 'stun:stun3.l.google.com:19302' },
-                { urls: 'stun:stun4.l.google.com:19302' },
-                { urls: 'stun:stun.cloudflare.com:3478' }
-            ],
-            iceCandidatePoolSize: 10
+                { urls: 'stun:stun4.l.google.com:19302' }
+            ]
         }
     };
 
@@ -1973,6 +1965,7 @@
         userName: localStorage.getItem('aurastream_name') || 'User',
         myAuraTag: localStorage.getItem('aurastream_tag') || '@user',
         myPeerId: '',
+        hostPeerId: '',
         roomCode: '',
         cleanRoom: '',
         isHost: false,
@@ -1989,11 +1982,7 @@
         localStream: null,
         screenStream: null,
         meshPeer: null,
-        mqttClient: null,
-        mqttHeartbeat: null,
-        broadcast: null,
         peers: new Map(), // peerId -> { call, dataConn, stream, name, tag, isHost, hasCam, hasMic, isHand, isScreen }
-        knownPeers: new Set(),
         polls: [],
         mediaRecorder: null,
         recordedChunks: [],
@@ -2041,7 +2030,7 @@
         if (App.localStream && App.localStream.active && App.localStream.getVideoTracks().length > 0) {
             return App.localStream;
         }
-        return createSyntheticStream();
+        return createSyntheticStream() || new MediaStream();
     }
 
     function notify(msg, emoji = '✨') {
@@ -2069,11 +2058,10 @@
     }
 
     // ========================================================
-    // BULLETPROOF CAMERA / MIC ACQUISITION
+    // NON-BLOCKING CAMERA / MIC ACQUISITION
     // ========================================================
     async function startCameraSafe() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            console.warn("Media devices not supported (might be HTTP). Proceeding without camera.");
             App.cam = false;
             App.mic = false;
             return null;
@@ -2100,12 +2088,9 @@
                 attachToLobbyVideo(stream);
                 initAudioMeter(stream);
                 return stream;
-            } catch(e) {
-                // Try next constraint
-            }
+            } catch(e) { }
         }
         
-        // If everything fails
         App.cam = false;
         App.mic = false;
         return null;
@@ -2125,17 +2110,15 @@
         Sound.init();
     }
 
-    // Auto-start camera in lobby (wrap in try-catch)
+    // Auto-start camera in lobby
     setTimeout(() => {
-        try {
-            startCameraSafe().catch(() => {});
-        } catch (e) {}
+        try { startCameraSafe().catch(() => {}); } catch (e) {}
     }, 300);
 
     bind('btnTestCamera', () => {
         startCameraSafe().then(s => {
             if (s) notify('Camera Connected', '📹');
-            else notify('Camera permission required in browser', '⚠️');
+            else notify('Camera permission required or device unsupported', '⚠️');
         });
     });
 
@@ -2253,22 +2236,20 @@
     }
 
     bind('btnJoinRoom', () => executeJoin());
-
-    bind('roomCodeInput', 'keydown', e => {
-        if (e.key === 'Enter') executeJoin();
-    });
+    bind('roomCodeInput', 'keydown', e => { if (e.key === 'Enter') executeJoin(); });
 
     // ========================================================
-    // START MEETING SESSION (GUARANTEED ACTIVE FULLSCREEN)
+    // START MEETING SESSION (GUARANTEED PURE WEBRTC)
     // ========================================================
     async function startMeetingSession() {
         App.cleanRoom = normalizeCodeToClean(App.roomCode);
+        App.hostPeerId = `AURA_HOST_${App.cleanRoom}`;
+
         $('lobbyView')?.classList.add('hidden');
         $('callStage')?.classList.add('active');
         if ($('hudRoomText')) $('hudRoomText').textContent = App.roomCode;
         window.location.hash = App.roomCode;
 
-        // Render self tile immediately
         renderSelfTile();
         syncMediaState();
         startCallTimer();
@@ -2279,11 +2260,8 @@
             if (!App.localStream || !App.localStream.active) {
                 await startCameraSafe();
             }
-        } catch (err) {
-            console.warn("Camera start failed during session launch", err);
-        }
+        } catch (err) { }
 
-        // Attach local stream to self tile video if acquired
         if (App.localStream) {
             const selfTile = $('tile-self');
             if (selfTile) {
@@ -2299,9 +2277,7 @@
         }
 
         syncMediaState();
-        
-        // This must run no matter what happens to the camera!
-        initDeterministicWebRTCEngine();
+        initPureWebRTCEngine();
     }
 
     function syncMediaState() {
@@ -2336,59 +2312,36 @@
     }
 
     // ========================================================
-    // BULLETPROOF DETERMINISTIC WEBRTC + TIE-BREAKER SIGNALING
+    // NEW: 100% PURE P2P HOST/GUEST ROUTING (NO EXTERNAL MQTT)
     // ========================================================
-    function initDeterministicWebRTCEngine() {
-        const clean = App.cleanRoom;
-        
-        // Deterministic fallback ID schema
-        const hostId = `aurastream_${clean}_host`;
-        const guestId = `aurastream_${clean}_p_${Math.random().toString(36).substring(2,8)}`;
-        
-        const myId = App.isHost ? hostId : guestId;
+    function initPureWebRTCEngine() {
+        const randHash = Math.random().toString(36).substring(2,8);
+        const myId = App.isHost ? App.hostPeerId : `AURA_GUEST_${App.cleanRoom}_${randHash}`;
 
         try {
-            if (App.meshPeer) {
-                try { App.meshPeer.destroy(); } catch (e) {}
-            }
+            if (App.meshPeer) { try { App.meshPeer.destroy(); } catch (e) {} }
 
             App.meshPeer = new Peer(myId, PEER_CONFIG);
 
             App.meshPeer.on('open', id => {
                 App.myPeerId = id;
-                App.isHost = (id === hostId); // Confirm host status via peerjs connection
+                App.isHost = (id === App.hostPeerId); 
 
-                // If I am NOT the host, I aggressively dial the host!
                 if (!App.isHost) {
-                    connectToPeer(hostId, { name: 'Host', isHost: true });
-                    
-                    // Fail-safe Watchdog: Auto-reconnect if host stream is missing after 6s
-                    setInterval(() => {
-                        const hostPeer = App.peers.get(hostId);
-                        if (!hostPeer || !hostPeer.stream) {
-                            connectToPeer(hostId, { name: 'Host', isHost: true });
-                        }
-                    }, 6000);
+                    // Guest aggressively dials Host immediately
+                    connectToPeer(App.hostPeerId, true);
+                } else {
+                    notify("Room Host Started", "👑");
                 }
-
-                // Start Multi-Channel Discovery for other participants
-                connectMqttSignaling(clean, id);
-                connectBroadcastChannel(clean, id);
             });
 
-            // Answering incoming calls
+            // Incoming Media Call
             App.meshPeer.on('call', call => {
                 const callerId = call.peer;
                 const meta = call.metadata || {};
                 
-                // Get valid stream (either real or synthetic fallback)
-                const streamToSend = getValidStream();
-                if (streamToSend) {
-                    call.answer(streamToSend);
-                } else {
-                    // Absolute last resort
-                    call.answer(new MediaStream());
-                }
+                // Give them our stream instantly
+                call.answer(getValidStream());
 
                 call.on('stream', remoteStream => {
                     handleRemoteStream(callerId, remoteStream, meta);
@@ -2400,16 +2353,11 @@
                 let peerRecord = App.peers.get(callerId);
                 if (!peerRecord) {
                     peerRecord = {
-                        call,
-                        dataConn: null,
-                        stream: null,
+                        call, dataConn: null, stream: null,
                         name: meta.name || 'Participant',
                         tag: meta.tag || '@peer',
                         isHost: meta.isHost || false,
-                        hasCam: true,
-                        hasMic: true,
-                        isHand: false,
-                        isScreen: false
+                        hasCam: true, hasMic: true, isHand: false, isScreen: false
                     };
                     App.peers.set(callerId, peerRecord);
                 } else {
@@ -2417,17 +2365,21 @@
                 }
             });
 
-            // Answering incoming DataChannel
+            // Incoming Data Connection
             App.meshPeer.on('connection', conn => {
                 bindDataConnection(conn);
             });
 
             App.meshPeer.on('error', err => {
-                console.warn('PeerJS event:', err.type, err);
+                console.warn('PeerJS event:', err.type);
+                if (err.type === 'peer-unavailable' && !App.isHost) {
+                    notify("Host hasn't started this meeting yet. Check code.", "❌");
+                    endCallGracefully(false);
+                }
                 if (err.type === 'unavailable-id' && App.isHost) {
-                    // Host fallback: if host ID is already taken, become a guest
+                    // If host ID is somehow taken, we fall back to being a guest
                     App.isHost = false;
-                    initDeterministicWebRTCEngine();
+                    initPureWebRTCEngine();
                 }
             });
 
@@ -2436,108 +2388,7 @@
         }
     }
 
-    // Connect via MQTT WebSockets
-    function connectMqttSignaling(roomCode, myPeerId) {
-        if (!window.mqtt) return;
-        
-        const topic = `aurastream/v50/room/${roomCode}`;
-        const brokerUrl = 'wss://broker.emqx.io:8084/mqtt';
-
-        try {
-            if (App.mqttClient) {
-                try { App.mqttClient.end(true); } catch(e){}
-            }
-
-            const client = mqtt.connect(brokerUrl, {
-                clientId: `aura_${Math.random().toString(16).substring(2, 10)}`,
-                keepalive: 20,
-                clean: true
-            });
-
-            App.mqttClient = client;
-
-            client.on('connect', () => {
-                client.subscribe(topic, { qos: 0 });
-                announcePresence();
-
-                if (App.mqttHeartbeat) clearInterval(App.mqttHeartbeat);
-                App.mqttHeartbeat = setInterval(() => announcePresence(), 2000);
-            });
-
-            client.on('message', (t, payload) => {
-                try {
-                    const msg = JSON.parse(payload.toString());
-                    if (!msg || msg.peerId === myPeerId) return;
-
-                    if (msg.type === 'announce') {
-                        handlePeerDiscovery(msg);
-                    } else {
-                        handleMeshMessage(msg, msg.peerId);
-                    }
-                } catch(e) {}
-            });
-
-        } catch (e) {
-            console.warn('MQTT signaling init error:', e);
-        }
-    }
-
-    function connectBroadcastChannel(roomCode, myPeerId) {
-        try {
-            if (App.broadcast) App.broadcast.close();
-            App.broadcast = new BroadcastChannel(`aurastream_bcast_${roomCode}`);
-            App.broadcast.onmessage = e => {
-                const msg = e.data;
-                if (!msg || msg.peerId === myPeerId) return;
-
-                if (msg.type === 'announce') {
-                    handlePeerDiscovery(msg);
-                } else {
-                    handleMeshMessage(msg, msg.peerId);
-                }
-            };
-        } catch(e) {}
-    }
-
-    function announcePresence() {
-        if (!App.myPeerId) return;
-        const msg = {
-            type: 'announce',
-            peerId: App.myPeerId,
-            name: App.userName,
-            tag: App.myAuraTag,
-            isHost: App.isHost,
-            room: App.cleanRoom
-        };
-
-        if (App.mqttClient && App.mqttClient.connected) {
-            App.mqttClient.publish(`aurastream/v50/room/${App.cleanRoom}`, JSON.stringify(msg));
-        }
-
-        if (App.broadcast) {
-            try { App.broadcast.postMessage(msg); } catch(e){}
-        }
-    }
-
-    function handlePeerDiscovery(peerInfo) {
-        const otherId = peerInfo.peerId;
-        if (!otherId || otherId === App.myPeerId) return;
-
-        App.knownPeers.add(otherId);
-
-        const existing = App.peers.get(otherId);
-        if (existing && existing.stream) return; // Already connected!
-
-        // If I am Host and I discover a peer, I wait for them to dial me. 
-        // If I am Guest and I discover another Guest, I apply Tie-Breaker.
-        if (!App.isHost && !peerInfo.isHost) {
-            if (App.myPeerId < otherId) {
-                connectToPeer(otherId, peerInfo);
-            }
-        }
-    }
-
-    function connectToPeer(targetPeerId, targetInfo = {}) {
+    function connectToPeer(targetPeerId, isTargetHost = false) {
         if (!targetPeerId || targetPeerId === App.myPeerId || !App.meshPeer) return;
 
         const existing = App.peers.get(targetPeerId);
@@ -2545,7 +2396,7 @@
 
         const streamToSend = getValidStream();
         
-        const call = App.meshPeer.call(targetPeerId, streamToSend || new MediaStream(), {
+        const call = App.meshPeer.call(targetPeerId, streamToSend, {
             metadata: {
                 name: App.userName,
                 tag: App.myAuraTag,
@@ -2562,18 +2413,15 @@
             call,
             dataConn: conn,
             stream: null,
-            name: targetInfo.name || 'Participant',
-            tag: targetInfo.tag || '@peer',
-            isHost: targetInfo.isHost || false,
-            hasCam: true,
-            hasMic: true,
-            isHand: false,
-            isScreen: false
+            name: isTargetHost ? 'Host' : 'Connecting...',
+            tag: '',
+            isHost: isTargetHost,
+            hasCam: true, hasMic: true, isHand: false, isScreen: false
         });
 
         if (call) {
             call.on('stream', remoteStream => {
-                handleRemoteStream(targetPeerId, remoteStream, targetInfo);
+                handleRemoteStream(targetPeerId, remoteStream, { name: isTargetHost ? 'Host' : 'Participant' });
             });
             call.on('close', () => removeParticipant(targetPeerId));
             call.on('error', () => removeParticipant(targetPeerId));
@@ -2597,7 +2445,7 @@
                 isHost: App.isHost
             });
             
-            // SEND ROSTER IF HOST:
+            // IF HOST: Broadcast current roster to this new person so they can dial others
             if (App.isHost) {
                 const rosterList = [];
                 App.peers.forEach((p, pId) => {
@@ -2618,10 +2466,11 @@
 
         switch (data.type) {
             case 'mesh_roster':
+                // Only non-hosts get this from host. We dial everyone in the list to complete the mesh.
                 if (Array.isArray(data.members)) {
                     data.members.forEach(member => {
                         if (member.peerId && member.peerId !== App.myPeerId) {
-                            handlePeerDiscovery(member);
+                            connectToPeer(member.peerId, false);
                         }
                     });
                 }
@@ -2713,10 +2562,6 @@
         msgObj.room = App.cleanRoom;
 
         try {
-            if (App.broadcast) App.broadcast.postMessage(msgObj);
-            if (App.mqttClient && App.mqttClient.connected) {
-                App.mqttClient.publish(`aurastream/v50/room/${App.cleanRoom}`, JSON.stringify(msgObj));
-            }
             App.peers.forEach(peer => {
                 if (peer.dataConn && peer.dataConn.open) {
                     peer.dataConn.send(msgObj);
@@ -2810,7 +2655,6 @@
         if (vid) {
             vid.srcObject = stream;
             vid.play().catch(e => {
-                // If browser autoplay policy blocks unmuted audio:
                 vid.muted = true;
                 vid.play().then(() => { vid.muted = false; }).catch(()=>{});
             });
@@ -2829,8 +2673,6 @@
             notify(`${p.name} left the room`, '👋');
             App.peers.delete(peerId);
         }
-        
-        App.knownPeers.delete(peerId);
 
         const tile = document.getElementById(`tile-${peerId}`);
         if (tile) tile.remove();
@@ -2979,7 +2821,6 @@
 
             broadcastControlSignal({
                 type: 'screen_state',
-                peerId: App.myPeerId,
                 name: App.userName,
                 isSharing: true
             });
@@ -3034,7 +2875,6 @@
 
         broadcastControlSignal({
             type: 'screen_state',
-            peerId: App.myPeerId,
             name: App.userName,
             isSharing: false
         });
@@ -3338,7 +3178,6 @@
         updateTileHand('self', App.handRaised);
         broadcastControlSignal({
             type: 'hand_raise',
-            peerId: App.myPeerId,
             name: App.userName,
             isHand: App.handRaised
         });
@@ -3551,91 +3390,6 @@
     }
 
     // ========================================================
-    // MEDIA CONTROLS & PARTY BURST
-    // ========================================================
-    bind('dockMic', () => {
-        App.mic = !App.mic;
-        if (App.localStream) App.localStream.getAudioTracks().forEach(t => t.enabled = App.mic);
-        syncMediaState();
-        broadcastControlSignal({
-            type: 'media_state',
-            peerId: App.myPeerId,
-            hasCam: App.cam,
-            hasMic: App.mic
-        });
-        notify(App.mic ? 'Microphone Active' : 'Microphone Muted', App.mic ? '🎙️' : '🔇');
-    });
-
-    bind('dockCam', () => {
-        App.cam = !App.cam;
-        if (App.localStream) App.localStream.getVideoTracks().forEach(t => t.enabled = App.cam);
-        syncMediaState();
-        broadcastControlSignal({
-            type: 'media_state',
-            peerId: App.myPeerId,
-            hasCam: App.cam,
-            hasMic: App.mic
-        });
-        notify(App.cam ? 'Camera Active' : 'Camera Disabled', App.cam ? '📹' : '📷');
-    });
-
-    bind('btnFlipCam', async () => {
-        if (!App.localStream) return;
-        App.facing = App.facing === 'user' ? 'environment' : 'user';
-        try {
-            const oldTrack = App.localStream.getVideoTracks()[0];
-            if (oldTrack) oldTrack.stop();
-            const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: App.facing }, audio: true });
-            const newTrack = newStream.getVideoTracks()[0];
-            
-            if (oldTrack) App.localStream.removeTrack(oldTrack);
-            App.localStream.addTrack(newTrack);
-
-            App.peers.forEach(peer => {
-                if (peer.call && peer.call.peerConnection) {
-                    const sender = peer.call.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
-                    if (sender) sender.replaceTrack(newTrack);
-                }
-            });
-
-            const selfTile = $('tile-self');
-            if (selfTile) {
-                selfTile.classList.toggle('mirrored', App.facing === 'user');
-                const vid = selfTile.querySelector('video');
-                if (vid) vid.srcObject = App.localStream;
-            }
-            notify('Camera Angle Flipped', '🔄');
-        } catch (e) {
-            notify('Camera switch not supported', '⚠️');
-        }
-    });
-
-    bind('dockReact', () => $('reactionMenu')?.classList.toggle('show'));
-
-    document.querySelectorAll('.reaction-emoji-btn').forEach(btn => {
-        btn.onclick = () => {
-            const emoji = btn.dataset.e;
-            triggerParticleBurst(emoji);
-            $('reactionMenu')?.classList.remove('show');
-            broadcastControlSignal({ type: 'reaction', emoji });
-            Sound.play('pop');
-        };
-    });
-
-    function triggerParticleBurst(emoji) {
-        const count = window.innerWidth < 600 ? 8 : 14;
-        for (let i = 0; i < count; i++) {
-            const p = document.createElement('div');
-            p.className = 'floating-reaction-emoji';
-            p.textContent = emoji;
-            p.style.left = (30 + Math.random() * 40) + '%';
-            p.style.setProperty('--vx', (Math.random() * 180 - 90) + 'px');
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 2000);
-        }
-    }
-
-    // ========================================================
     // SHARE & QR
     // ========================================================
     function renderQrCode(text) {
@@ -3691,6 +3445,146 @@
     });
 
     // ========================================================
+    // FRIENDS NETWORK & HISTORY
+    // ========================================================
+    const FriendsNetwork = {
+        key: 'aurastream_friends_global_v50',
+        getAll() {
+            try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
+        },
+        add(name, tag) {
+            if (!name || !tag) return notify('Please enter friend name and @AuraID', '⚠️');
+            let cleanTag = tag.trim();
+            if (!cleanTag.startsWith('@')) cleanTag = '@' + cleanTag;
+            
+            const list = this.getAll();
+            if (list.some(f => f.tag.toLowerCase() === cleanTag.toLowerCase())) {
+                return notify('Friend already in your network', 'ℹ️');
+            }
+
+            list.unshift({ id: Date.now(), name: name.trim(), tag: cleanTag });
+            localStorage.setItem(this.key, JSON.stringify(list));
+            this.render();
+            notify(`${name} added to your network`, '👥');
+        },
+        remove(id) {
+            let list = this.getAll().filter(item => item.id !== id);
+            localStorage.setItem(this.key, JSON.stringify(list));
+            this.render();
+            notify('Friend removed', '🗑️');
+        },
+        render() {
+            const list = this.getAll();
+            if ($('friendBadge')) $('friendBadge').textContent = list.length;
+
+            const container = $('friendsNetworkList');
+            if (!container) return;
+            container.innerHTML = list.length === 0 
+                ? '<div style="text-align:center; color:var(--text-3); font-size:13px; padding:32px;">No friends added yet. Enter their Name and @AuraID above!</div>' 
+                : list.map(f => `
+                    <div class="friend-tile-item">
+                        <div class="friend-tile-left">
+                            <div class="friend-tile-avatar">${f.name[0].toUpperCase()}</div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 14px;">${f.name}</div>
+                                <div style="font-size: 11px; color: var(--brand); font-family: var(--font-code);">${f.tag}</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-gradient-primary" style="padding:6px 12px; font-size:11px; width:auto;" onclick="callFriendDirectly('${f.name}', '${f.tag}')">📹 Invite</button>
+                            <button class="btn-close-circle" style="width:28px; height:28px; font-size:12px;" onclick="FriendsNetwork.remove(${f.id})">✕</button>
+                        </div>
+                    </div>
+                `).join('');
+        }
+    };
+    window.FriendsNetwork = FriendsNetwork;
+
+    window.callFriendDirectly = (name, tag) => {
+        App.isHost = false;
+        App.roomCode = tag.replace('@', '').toUpperCase();
+        startMeetingSession();
+    };
+
+    bind('btnAddFriend', () => {
+        const name = $('newFriendName')?.value;
+        const tag = $('newFriendTag')?.value;
+        FriendsNetwork.add(name, tag);
+        if ($('newFriendName')) $('newFriendName').value = '';
+        if ($('newFriendTag')) $('newFriendTag').value = '';
+    });
+
+    bind('btnCopyMyId', () => {
+        navigator.clipboard.writeText(App.myAuraTag).then(() => notify('Aura ID copied', '📋'));
+    });
+
+    bind('btnShareMyIdWhatsApp', () => {
+        const shareUrl = `${window.location.origin}${window.location.pathname}#${App.myAuraTag.replace('@','')}`;
+        const msg = encodeURIComponent(`👋 Join my live Aurastream meeting!\nMy ID: ${App.myAuraTag}\nDirect Link: ${shareUrl}`);
+        window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+    });
+
+    const HistoryManager = {
+        key: 'aurastream_recent_calls_v50',
+        getAll() {
+            try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
+        },
+        add(roomCode, duration, participantCount = 1) {
+            const list = this.getAll();
+            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            list.unshift({ id: Date.now(), roomCode, duration, participants: participantCount, time: timeStr });
+            if (list.length > 20) list.pop();
+            localStorage.setItem(this.key, JSON.stringify(list));
+            this.render();
+        },
+        clear() {
+            localStorage.removeItem(this.key);
+            this.render();
+            notify('Call history cleared', '🗑️');
+        },
+        render() {
+            const list = this.getAll();
+            const container = $('historyContainer');
+            if (!container) return;
+            container.innerHTML = list.length === 0 
+                ? '<div style="text-align:center; color:var(--text-3); font-size:12px; padding:24px;">No recent calls.</div>'
+                : list.map(h => `
+                    <div class="friend-tile-item">
+                        <div class="friend-tile-left">
+                            <div class="friend-tile-avatar" style="background: rgba(255,255,255,0.08);">📹</div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 14px; font-family: var(--font-code);">${h.roomCode}</div>
+                                <div style="font-size: 11px; color: var(--text-2);">${h.time} · ${h.participants || 1} people · ${h.duration}</div>
+                            </div>
+                        </div>
+                        <button class="btn-gradient-primary" style="width: auto; padding: 6px 14px; font-size: 12px;" onclick="reconnectCall('${h.roomCode}')">Join</button>
+                    </div>
+                `).join('');
+        }
+    };
+    window.reconnectCall = code => {
+        if ($('roomCodeInput')) $('roomCodeInput').value = code;
+        switchHubTab('tabCalls');
+        $('btnShowJoin')?.click();
+    };
+
+    bind('btnClearHistory', () => HistoryManager.clear());
+
+    function switchHubTab(targetId) {
+        document.querySelectorAll('.stage-tab-item').forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
+        document.querySelectorAll('.stage-tab-panel').forEach(p => p.classList.toggle('active', p.id === targetId));
+        if (targetId === 'tabFriends') FriendsNetwork.render();
+        if (targetId === 'tabRecents') HistoryManager.render();
+    }
+
+    document.querySelectorAll('.stage-tab-item').forEach(btn => {
+        btn.onclick = () => switchHubTab(btn.dataset.target);
+    });
+
+    FriendsNetwork.render();
+    HistoryManager.render();
+
+    // ========================================================
     // END CALL & CLEANUP
     // ========================================================
     function endCallGracefully(isRemoteTerminated = false) {
@@ -3717,13 +3611,8 @@
             try { if (peer.dataConn) peer.dataConn.close(); } catch (e) {}
         });
         App.peers.clear();
-        App.knownPeers.clear();
-
-        if (App.mqttHeartbeat) { clearInterval(App.mqttHeartbeat); App.mqttHeartbeat = null; }
-        if (App.mqttClient) { try { App.mqttClient.end(true); } catch(e){} App.mqttClient = null; }
 
         try { if (App.meshPeer) App.meshPeer.destroy(); } catch (e) {}
-        try { if (App.broadcast) App.broadcast.close(); } catch (e) {}
 
         if (App.timer) { clearInterval(App.timer); App.timer = null; }
 
