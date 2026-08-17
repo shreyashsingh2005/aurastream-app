@@ -9,7 +9,7 @@
     <!-- PeerJS WebRTC Signaling Engine -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     
-    <!-- MQTT WebSocket Real-Time Discovery Engine (Guaranteed Cross-Device Mesh) -->
+    <!-- MQTT WebSocket Real-Time Discovery Engine -->
     <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
     
     <!-- Google Fonts -->
@@ -1650,7 +1650,7 @@
             
             <div class="hud-status-badge">
                 <div class="telemetry-live-dot"></div>
-                <span id="telemetryPing">16ms</span>
+                <span id="telemetryPing">Live Mesh</span>
                 <span>· 1080P</span>
             </div>
 
@@ -1705,12 +1705,12 @@
                 <div class="sonar-pulse-core"></div>
             </div>
             <div style="display: flex; flex-direction: column;">
-                <span style="font-size: 13px; font-weight: 800; color: #fff;" id="waitingTitle">Room AUR-XXXX</span>
-                <span style="font-size: 11px; color: var(--text-2); font-weight: 600;" id="waitingSub">Waiting for participants to join...</span>
+                <span style="font-size: 13px; font-weight: 800; color: #fff;" id="waitingTitle">Room Active</span>
+                <span style="font-size: 11px; color: var(--text-2); font-weight: 600;" id="waitingSub">Share code to connect other devices...</span>
             </div>
             <button class="btn-gradient-primary" id="btnWaitingQuickShare" style="width: auto; padding: 7px 14px; font-size: 11px;">
                 <svg class="icon-sm" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-                Invite
+                Share
             </button>
         </div>
     </div>
@@ -1876,8 +1876,8 @@
 
 <script>
 /**
- * AURASTREAM — RESILIENT WEBRTC MESH WITH MQTT WEBSOCKET REAL-TIME DISCOVERY
- * Zero-Collision Auto-Reconnecting Mesh for Guaranteed Cross-Device Meetings
+ * AURASTREAM — DETERMINISTIC WEBRTC MESH WITH TIE-BREAKER DISCOVERY
+ * Zero-Glare, Instant Cross-Device P2P Video Connection
  */
 (function() {
     'use strict';
@@ -1904,7 +1904,7 @@
     }
 
     const PEER_CONFIG = {
-        debug: 0,
+        debug: 1,
         config: {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
@@ -1993,6 +1993,7 @@
         mqttHeartbeat: null,
         broadcast: null,
         peers: new Map(), // peerId -> { call, dataConn, stream, name, tag, isHost, hasCam, hasMic, isHand, isScreen }
+        knownPeers: new Set(),
         polls: [],
         mediaRecorder: null,
         recordedChunks: [],
@@ -2007,7 +2008,6 @@
         audioCtx: null
     };
 
-    // Guaranteed working fallback stream
     function createSyntheticStream() {
         try {
             const canvas = document.createElement('canvas');
@@ -2185,6 +2185,7 @@
     bind('btnShowJoin', () => {
         if ($('createFields')) $('createFields').style.display = 'none';
         if ($('joinFields')) $('joinFields').style.display = 'block';
+        setTimeout(() => $('roomCodeInput')?.focus(), 100);
     });
 
     bind('btnBack', () => {
@@ -2192,13 +2193,6 @@
         if ($('joinFields')) $('joinFields').style.display = 'none';
         if ($('createFields')) $('createFields').style.display = 'block';
     });
-
-    if (window.location.hash && window.location.hash.length > 2) {
-        const code = window.location.hash.replace('#', '').toUpperCase();
-        if ($('roomCodeInput')) $('roomCodeInput').value = code;
-        if ($('btnShowJoin')) $('btnShowJoin').click();
-        setTimeout(() => cleanUrlHash(), 100);
-    }
 
     function genRoom() {
         const c = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -2220,7 +2214,7 @@
         startMeetingSession();
     });
 
-    bind('btnJoinRoom', () => {
+    function executeJoin() {
         const raw = $('roomCodeInput')?.value.trim();
         if (!raw) return notify('Enter a meeting code or friend @ID', '⚠️');
 
@@ -2230,7 +2224,20 @@
         App.isHost = false;
         App.roomCode = raw.startsWith('@') ? raw : `AUR-${clean.toUpperCase()}`;
         startMeetingSession();
+    }
+
+    bind('btnJoinRoom', () => executeJoin());
+
+    bind('roomCodeInput', 'keydown', e => {
+        if (e.key === 'Enter') executeJoin();
     });
+
+    if (window.location.hash && window.location.hash.length > 2) {
+        const code = window.location.hash.replace('#', '').toUpperCase();
+        if ($('roomCodeInput')) $('roomCodeInput').value = code;
+        if ($('btnShowJoin')) $('btnShowJoin').click();
+        setTimeout(() => cleanUrlHash(), 100);
+    }
 
     // ========================================================
     // START MEETING SESSION (GUARANTEED ACTIVE FULLSCREEN)
@@ -2268,7 +2275,7 @@
         }
 
         syncMediaState();
-        initGuaranteedWebRTCEngine();
+        initDeterministicWebRTCEngine();
     }
 
     function syncMediaState() {
@@ -2302,12 +2309,11 @@
     }
 
     // ========================================================
-    // GUARANTEED WEBRTC + MQTT REAL-TIME SIGNALING ENGINE
+    // BULLETPROOF DETERMINISTIC WEBRTC + TIE-BREAKER SIGNALING
     // ========================================================
-    function initGuaranteedWebRTCEngine() {
+    function initDeterministicWebRTCEngine() {
         const clean = App.cleanRoom;
         
-        // 1. Initialize clean unique PeerJS peer without custom ID conflicts
         try {
             if (App.meshPeer) {
                 try { App.meshPeer.destroy(); } catch (e) {}
@@ -2317,15 +2323,14 @@
 
             App.meshPeer.on('open', id => {
                 App.myPeerId = id;
-                console.log('Registered with PeerJS ID:', id);
+                console.log('PeerJS Registered ID:', id);
 
-                // Start MQTT signaling discovery across internet
+                // Start Multi-Channel Discovery
                 connectMqttSignaling(clean, id);
-
-                // Start Local BroadcastChannel for instant same-browser tabs
                 connectBroadcastChannel(clean, id);
             });
 
+            // Answering incoming calls
             App.meshPeer.on('call', call => {
                 const callerId = call.peer;
                 const meta = call.metadata || {};
@@ -2359,12 +2364,13 @@
                 }
             });
 
+            // Answering incoming DataChannel
             App.meshPeer.on('connection', conn => {
                 bindDataConnection(conn);
             });
 
             App.meshPeer.on('error', err => {
-                console.warn('PeerJS error:', err.type, err);
+                console.warn('PeerJS event:', err.type, err);
             });
 
         } catch (e) {
@@ -2372,11 +2378,11 @@
         }
     }
 
-    // MQTT Public WebSocket Broker Signaling Relay
+    // Connect via MQTT WebSockets
     function connectMqttSignaling(roomCode, myPeerId) {
         if (!window.mqtt) return;
         
-        const topic = `aurastream/v48/room/${roomCode}`;
+        const topic = `aurastream/v50/room/${roomCode}`;
         const brokerUrl = 'wss://broker.emqx.io:8084/mqtt';
 
         try {
@@ -2386,7 +2392,7 @@
 
             const client = mqtt.connect(brokerUrl, {
                 clientId: `aura_${Math.random().toString(16).substring(2, 10)}`,
-                keepalive: 30,
+                keepalive: 20,
                 clean: true
             });
 
@@ -2394,13 +2400,10 @@
 
             client.on('connect', () => {
                 client.subscribe(topic, { qos: 0 });
-
-                // Announce presence immediately
                 announcePresence();
 
-                // Periodic heartbeat broadcast every 2.5s
                 if (App.mqttHeartbeat) clearInterval(App.mqttHeartbeat);
-                App.mqttHeartbeat = setInterval(() => announcePresence(), 2500);
+                App.mqttHeartbeat = setInterval(() => announcePresence(), 2000);
             });
 
             client.on('message', (t, payload) => {
@@ -2409,15 +2412,7 @@
                     if (!msg || msg.peerId === myPeerId) return;
 
                     if (msg.type === 'announce') {
-                        // We found another peer in the room!
-                        // If we have not connected or call is not established:
-                        if (!App.peers.has(msg.peerId) || !App.peers.get(msg.peerId).stream) {
-                            connectToPeer(msg.peerId, {
-                                name: msg.name,
-                                tag: msg.tag,
-                                isHost: msg.isHost
-                            });
-                        }
+                        handlePeerDiscovery(msg);
                     } else {
                         handleMeshMessage(msg, msg.peerId);
                     }
@@ -2427,6 +2422,23 @@
         } catch (e) {
             console.warn('MQTT signaling init error:', e);
         }
+    }
+
+    function connectBroadcastChannel(roomCode, myPeerId) {
+        try {
+            if (App.broadcast) App.broadcast.close();
+            App.broadcast = new BroadcastChannel(`aurastream_bcast_${roomCode}`);
+            App.broadcast.onmessage = e => {
+                const msg = e.data;
+                if (!msg || msg.peerId === myPeerId) return;
+
+                if (msg.type === 'announce') {
+                    handlePeerDiscovery(msg);
+                } else {
+                    handleMeshMessage(msg, msg.peerId);
+                }
+            };
+        } catch(e) {}
     }
 
     function announcePresence() {
@@ -2440,44 +2452,42 @@
             room: App.cleanRoom
         };
 
-        // Send via MQTT
         if (App.mqttClient && App.mqttClient.connected) {
-            App.mqttClient.publish(`aurastream/v48/room/${App.cleanRoom}`, JSON.stringify(msg));
+            App.mqttClient.publish(`aurastream/v50/room/${App.cleanRoom}`, JSON.stringify(msg));
         }
 
-        // Send via BroadcastChannel
         if (App.broadcast) {
             try { App.broadcast.postMessage(msg); } catch(e){}
         }
     }
 
-    function connectBroadcastChannel(roomCode, myPeerId) {
-        try {
-            if (App.broadcast) App.broadcast.close();
-            App.broadcast = new BroadcastChannel(`aurastream_bcast_${roomCode}`);
-            App.broadcast.onmessage = e => {
-                const msg = e.data;
-                if (!msg || msg.peerId === myPeerId) return;
+    // THE CRITICAL TIE-BREAKER: Prevents WebRTC Glare / Collision
+    function handlePeerDiscovery(peerInfo) {
+        const otherId = peerInfo.peerId;
+        if (!otherId || otherId === App.myPeerId) return;
 
-                if (msg.type === 'announce') {
-                    if (!App.peers.has(msg.peerId) || !App.peers.get(msg.peerId).stream) {
-                        connectToPeer(msg.peerId, {
-                            name: msg.name,
-                            tag: msg.tag,
-                            isHost: msg.isHost
-                        });
-                    }
-                } else {
-                    handleMeshMessage(msg, msg.peerId);
+        App.knownPeers.add(otherId);
+
+        const existing = App.peers.get(otherId);
+        if (existing && existing.stream) return; // Already connected!
+
+        // Deterministic Tie-Breaker: Only the peer with smaller string ID initiates the call
+        if (App.myPeerId < otherId) {
+            connectToPeer(otherId, peerInfo);
+        } else {
+            // Higher ID peer waits. If after 3.5 seconds no call received, initiates fallback
+            setTimeout(() => {
+                const check = App.peers.get(otherId);
+                if ((!check || !check.stream) && App.knownPeers.has(otherId)) {
+                    connectToPeer(otherId, peerInfo);
                 }
-            };
-        } catch(e) {}
+            }, 3500);
+        }
     }
 
     function connectToPeer(targetPeerId, targetInfo = {}) {
         if (!targetPeerId || targetPeerId === App.myPeerId || !App.meshPeer) return;
 
-        // Prevent duplicate simultaneous calls if already active
         const existing = App.peers.get(targetPeerId);
         if (existing && existing.stream) return;
 
@@ -2632,7 +2642,7 @@
         try {
             if (App.broadcast) App.broadcast.postMessage(msgObj);
             if (App.mqttClient && App.mqttClient.connected) {
-                App.mqttClient.publish(`aurastream/v48/room/${App.cleanRoom}`, JSON.stringify(msgObj));
+                App.mqttClient.publish(`aurastream/v50/room/${App.cleanRoom}`, JSON.stringify(msgObj));
             }
             App.peers.forEach(peer => {
                 if (peer.dataConn && peer.dataConn.open) {
@@ -2727,7 +2737,6 @@
         if (vid) {
             vid.srcObject = stream;
             vid.play().catch(e => {
-                // If browser autoplay policy blocks unmuted audio:
                 vid.muted = true;
                 vid.play().then(() => { vid.muted = false; }).catch(()=>{});
             });
@@ -2747,6 +2756,8 @@
             App.peers.delete(peerId);
         }
         
+        App.knownPeers.delete(peerId);
+
         const tile = document.getElementById(`tile-${peerId}`);
         if (tile) tile.remove();
 
@@ -3608,7 +3619,7 @@
     // FRIENDS NETWORK & HISTORY
     // ========================================================
     const FriendsNetwork = {
-        key: 'aurastream_friends_global_v48',
+        key: 'aurastream_friends_global_v50',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -3685,7 +3696,7 @@
     });
 
     const HistoryManager = {
-        key: 'aurastream_recent_calls_v48',
+        key: 'aurastream_recent_calls_v50',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -3771,6 +3782,7 @@
             try { if (peer.dataConn) peer.dataConn.close(); } catch (e) {}
         });
         App.peers.clear();
+        App.knownPeers.clear();
 
         if (App.mqttHeartbeat) { clearInterval(App.mqttHeartbeat); App.mqttHeartbeat = null; }
         if (App.mqttClient) { try { App.mqttClient.end(true); } catch(e){} App.mqttClient = null; }
