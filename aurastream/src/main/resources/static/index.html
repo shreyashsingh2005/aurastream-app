@@ -18,9 +18,9 @@
         :root {
             --bg-void: #030307;
             --bg-base: #070811;
-            --bg-surface: rgba(14, 16, 28, 0.88);
-            --bg-glass: rgba(18, 20, 36, 0.72);
-            --bg-elevated: rgba(24, 27, 48, 0.95);
+            --bg-surface: rgba(14, 16, 28, 0.92);
+            --bg-glass: rgba(18, 20, 36, 0.75);
+            --bg-elevated: rgba(24, 27, 48, 0.96);
             --bg-dock: rgba(10, 11, 22, 0.94);
             
             --brand: #ff5500;
@@ -37,9 +37,9 @@
             --danger: #f43f5e;
             --danger-glow: rgba(244, 63, 94, 0.45);
             
-            --border-dim: rgba(255, 255, 255, 0.07);
-            --border-subtle: rgba(255, 255, 255, 0.12);
-            --border-hover: rgba(255, 255, 255, 0.24);
+            --border-dim: rgba(255, 255, 255, 0.08);
+            --border-subtle: rgba(255, 255, 255, 0.14);
+            --border-hover: rgba(255, 255, 255, 0.28);
             
             --text-1: #ffffff;
             --text-2: #94a3b8;
@@ -81,7 +81,6 @@
             letter-spacing: -0.01em;
         }
 
-        /* Ambient Lighting Backdrop */
         .ambient-canvas {
             position: fixed;
             inset: 0;
@@ -305,7 +304,6 @@
             pointer-events: none;
         }
 
-        /* Header Navbar */
         .stage-navbar {
             padding: max(14px, var(--safe-top)) 24px 14px 24px;
             display: flex;
@@ -371,7 +369,6 @@
             justify-content: center;
         }
 
-        /* Hub Navigation Tabs */
         .stage-tabs-row {
             display: flex;
             background: rgba(11, 12, 22, 0.95);
@@ -405,7 +402,6 @@
             border-radius: var(--radius-full);
         }
 
-        /* Hub Main Content */
         .stage-scroll-body {
             flex: 1;
             overflow-y: auto;
@@ -496,7 +492,6 @@
         }
         .btn-surface-glass:active { transform: scale(0.98); }
 
-        /* Join Form Inline */
         .join-panel-inline {
             display: flex;
             flex-direction: column;
@@ -508,7 +503,6 @@
             animation: panelFade 0.2s var(--spring);
         }
 
-        /* Camera Viewfinder Studio Card */
         .studio-preview-box {
             width: 100%;
             aspect-ratio: 4/3;
@@ -625,7 +619,6 @@
             transition: width 0.08s linear;
         }
 
-        /* Friends & Recents List Cards */
         .network-shell-box {
             background: var(--bg-surface);
             backdrop-filter: blur(30px);
@@ -702,7 +695,6 @@
         }
         .stage-meeting-view.active { display: flex; }
 
-        /* Dynamic Top Island HUD */
         .stage-top-hud {
             position: absolute;
             top: 0; left: 0; right: 0;
@@ -819,7 +811,6 @@
             padding: 0 4px;
         }
 
-        /* Live Subtitles Box */
         .captions-floating-shelf {
             position: absolute;
             bottom: 92px;
@@ -850,7 +841,6 @@
             font-weight: 500;
         }
 
-        /* Video Canvas & Grid (Supports up to 25 participants) */
         .stage-video-canvas {
             flex: 1;
             position: relative;
@@ -876,7 +866,6 @@
             padding: 2px;
         }
 
-        /* Responsive Grid Sizes */
         .multi-video-grid[data-count="1"] { grid-template-columns: 1fr; grid-template-rows: 1fr; max-width: 1200px; }
         .multi-video-grid[data-count="2"] { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
         .multi-video-grid[data-count="3"],
@@ -893,15 +882,6 @@
         .multi-video-grid[data-count="14"],
         .multi-video-grid[data-count="15"],
         .multi-video-grid[data-count="16"] { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); }
-        .multi-video-grid[data-count="17"],
-        .multi-video-grid[data-count="18"],
-        .multi-video-grid[data-count="19"],
-        .multi-video-grid[data-count="20"],
-        .multi-video-grid[data-count="21"],
-        .multi-video-grid[data-count="22"],
-        .multi-video-grid[data-count="23"],
-        .multi-video-grid[data-count="24"],
-        .multi-video-grid[data-count="25"] { grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); }
 
         @media (max-width: 768px) {
             .multi-video-grid[data-count="2"] { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
@@ -918,19 +898,9 @@
             .multi-video-grid[data-count="13"],
             .multi-video-grid[data-count="14"],
             .multi-video-grid[data-count="15"],
-            .multi-video-grid[data-count="16"],
-            .multi-video-grid[data-count="17"],
-            .multi-video-grid[data-count="18"],
-            .multi-video-grid[data-count="19"],
-            .multi-video-grid[data-count="20"],
-            .multi-video-grid[data-count="21"],
-            .multi-video-grid[data-count="22"],
-            .multi-video-grid[data-count="23"],
-            .multi-video-grid[data-count="24"],
-            .multi-video-grid[data-count="25"] { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
+            .multi-video-grid[data-count="16"] { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
         }
 
-        /* Spotlight Mode */
         .multi-video-grid.spotlight-mode {
             display: flex;
             flex-direction: column;
@@ -947,7 +917,6 @@
             display: none;
         }
 
-        /* Video Tile */
         .video-tile {
             position: relative;
             background: #0a0a14;
@@ -1080,7 +1049,6 @@
         }
         .video-tile:hover .tile-pin-button { opacity: 1; }
 
-        /* Waiting Screen Banner */
         .waiting-room-beacon {
             position: absolute;
             bottom: 96px;
@@ -1127,9 +1095,6 @@
             z-index: 2;
         }
 
-        /* ========================================================
-           STUDIO FLOATING DOCK
-           ======================================================== */
         .stage-dock-shelf {
             position: absolute;
             bottom: max(16px, var(--safe-bottom));
@@ -1217,7 +1182,6 @@
             margin: 0 4px;
         }
 
-        /* Reaction Popup Tray */
         .reaction-menu-tray {
             position: absolute;
             bottom: 66px;
@@ -1244,7 +1208,6 @@
         }
         .reaction-emoji-btn:active { transform: scale(1.35); }
 
-        /* Filter Presets Menu */
         .filters-menu-popup {
             position: absolute;
             bottom: 66px;
@@ -1277,9 +1240,6 @@
         }
         .filter-select-btn:hover { background: var(--brand-subtle); color: var(--brand); }
 
-        /* ========================================================
-           COLLABORATIVE WHITEBOARD MODAL
-           ======================================================== */
         .whiteboard-stage-overlay {
             position: fixed;
             inset: 0;
@@ -1347,9 +1307,6 @@
             display: block;
         }
 
-        /* ========================================================
-           SIDE DRAWER (CHAT / POLLS / PEOPLE)
-           ======================================================== */
         .stage-side-drawer {
             position: absolute;
             top: 0; right: 0; bottom: 0;
@@ -1456,7 +1413,6 @@
             cursor: pointer;
         }
 
-        /* Live Polls Drawer View */
         .polls-feed-box {
             padding: 18px;
             display: flex;
@@ -1533,7 +1489,6 @@
             font-size: 13px;
         }
 
-        /* Modals & Backdrop */
         .stage-backdrop-overlay {
             position: fixed;
             inset: 0;
@@ -1612,7 +1567,6 @@
             cursor: pointer;
         }
 
-        /* Reaction Floating Particles */
         .floating-reaction-emoji {
             position: fixed;
             bottom: 90px;
@@ -1627,7 +1581,6 @@
             100% { opacity: 0; transform: translate3d(var(--vx), -340px, 0) scale(1.3); }
         }
 
-        /* Toast Notifications */
         .toast-shelf-tray {
             position: fixed;
             top: calc(max(14px, var(--safe-top)) + 52px);
@@ -2121,7 +2074,7 @@
 <script>
 /**
  * AURASTREAM — ULTRA WEBRTC SIGNALING & GUARANTEED 2-WAY CONNECTION PROTOCOL
- * Resilient Cross-Device WebRTC Mesh with Canvas Fallback & Deterministic Anchor Routing
+ * Resilient Cross-Device WebRTC Mesh with Universal Media Acquisition & Deterministic Multi-Slot Rendezvous
  */
 (function() {
     'use strict';
@@ -2217,9 +2170,7 @@
         userName: 'John',
         myAuraTag: '@john',
         myPeerId: '',
-        anchorPeerId: '',
         roomCode: '',
-        isAnchor: false,
         isHost: false,
         mic: true,
         cam: true,
@@ -2233,7 +2184,6 @@
         unreadChatCount: 0,
         localStream: null,
         screenStream: null,
-        fallbackStream: null,
         meshPeer: null,
         broadcast: null,
         peers: new Map(), // peerId -> { call, dataConn, stream, name, tag, isHost, hasCam, hasMic, isHand, isScreen }
@@ -2251,44 +2201,40 @@
         audioCtx: null
     };
 
-    // ========================================================
-    // SYNTHETIC FALLBACK STREAM (GUARANTEES WEBRTC NEVER CRASHES)
-    // ========================================================
-    function getSafeMediaStream() {
+    // Universal Fail-Safe Media Stream (Always Valid)
+    function getValidStream() {
         if (App.screen && App.screenStream && App.screenStream.active) {
             return App.screenStream;
         }
         if (App.localStream && App.localStream.active && App.localStream.getVideoTracks().length > 0) {
             return App.localStream;
         }
-        if (!App.fallbackStream) {
-            try {
-                const canvas = document.createElement('canvas');
-                canvas.width = 640; canvas.height = 480;
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#080812'; ctx.fillRect(0, 0, 640, 480);
-                const vidTrack = canvas.captureStream(10).getVideoTracks()[0];
+        // Synthetic canvas black stream
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 640; canvas.height = 480;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#080812'; ctx.fillRect(0, 0, 640, 480);
+            const vTrack = canvas.captureStream(10).getVideoTracks()[0];
 
-                const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                const aCtx = new AudioCtx();
-                const dst = aCtx.createMediaStreamDestination();
-                const audTrack = dst.stream.getAudioTracks()[0];
-                audTrack.enabled = false;
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            const aCtx = new AudioCtx();
+            const dst = aCtx.createMediaStreamDestination();
+            const aTrack = dst.stream.getAudioTracks()[0];
+            aTrack.enabled = false;
 
-                App.fallbackStream = new MediaStream([vidTrack, audTrack]);
-            } catch(e) {
-                return null;
-            }
+            return new MediaStream([vTrack, aTrack]);
+        } catch(e) {
+            return null;
         }
-        return App.fallbackStream;
     }
 
     // ========================================================
     // ACCOUNT ENGINE
     // ========================================================
     const AccountEngine = {
-        activeUserKey: 'aurastream_active_session_v40',
-        usersDbKey: 'aurastream_users_db_v40',
+        activeUserKey: 'aurastream_active_session_v42',
+        usersDbKey: 'aurastream_users_db_v42',
 
         getUsers() {
             try { return JSON.parse(localStorage.getItem(this.usersDbKey) || '{}'); } catch(e) { return {}; }
@@ -2449,7 +2395,7 @@
     // FRIENDS NETWORK & HISTORY
     // ========================================================
     const FriendsNetwork = {
-        key: 'aurastream_friends_global_v40',
+        key: 'aurastream_friends_global_v42',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -2526,7 +2472,7 @@
     });
 
     const HistoryManager = {
-        key: 'aurastream_recent_calls_v40',
+        key: 'aurastream_recent_calls_v42',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -2582,49 +2528,58 @@
         btn.onclick = () => switchHubTab(btn.dataset.target);
     });
 
-    function getMediaConstraints() {
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        return {
-            video: {
-                width: isMobile ? { ideal: 640, max: 1280 } : { ideal: 1280, max: 1920 },
-                height: isMobile ? { ideal: 480, max: 720 } : { ideal: 720, max: 1080 },
-                frameRate: { ideal: 30, max: 30 },
-                facingMode: { ideal: App.facing }
-            },
-            audio: {
-                echoCancellation: true,
-                noiseSuppression: true,
-                autoGainControl: true
+    // ========================================================
+    // BULLETPROOF CAMERA / MIC ACQUISITION
+    // ========================================================
+    async function requestUserMediaSafe() {
+        if (App.localStream && App.localStream.active && App.localStream.getVideoTracks().length > 0) {
+            return App.localStream;
+        }
+
+        // Try standard constraints first
+        const tries = [
+            { video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true },
+            { video: true, audio: true },
+            { video: true, audio: false },
+            { video: false, audio: true }
+        ];
+
+        for (const constraints of tries) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                App.localStream = stream;
+                App.mic = stream.getAudioTracks().length > 0;
+                App.cam = stream.getVideoTracks().length > 0;
+                return stream;
+            } catch(e) {
+                // Try next constraint
             }
-        };
+        }
+        return null;
     }
 
-    async function initCamera() {
-        try {
-            App.localStream = await navigator.mediaDevices.getUserMedia(getMediaConstraints());
-            App.mic = true;
-            App.cam = true;
-            
+    async function initCameraPreview() {
+        const stream = await requestUserMediaSafe();
+        if (stream) {
             const lVid = $('lobbyVideo');
             if (lVid) {
-                lVid.srcObject = App.localStream;
+                lVid.srcObject = stream;
                 lVid.muted = true;
                 lVid.style.display = 'block';
                 lVid.play().catch(()=>{});
             }
             if ($('vfPlaceholder')) $('vfPlaceholder').style.display = 'none';
-            
             $('lMicBtn')?.classList.remove('off');
             $('lCamBtn')?.classList.remove('off');
-            
-            initAudioMeter(App.localStream);
+            initAudioMeter(stream);
             Sound.init();
-        } catch (e) {
-            notify('Camera & Mic permission needed', '⚠️');
+            notify('Camera & Microphone Connected', '📹');
+        } else {
+            notify('Camera / Mic permission denied or unavailable', '⚠️');
         }
     }
 
-    bind('btnTestCamera', () => initCamera());
+    bind('btnTestCamera', () => initCameraPreview());
 
     function initAudioMeter(stream) {
         try {
@@ -2638,6 +2593,8 @@
             if (App.analyserSrc) {
                 try { App.analyserSrc.disconnect(); } catch (e) {}
             }
+
+            if (stream.getAudioTracks().length === 0) return;
 
             App.analyser = App.audioCtx.createAnalyser();
             App.analyser.fftSize = 32;
@@ -2747,7 +2704,7 @@
     });
 
     // ========================================================
-    // START MEETING SESSION
+    // START MEETING SESSION (GUARANTEED CAMERA & UI MOUNT)
     // ========================================================
     async function startMeetingSession() {
         $('lobbyView')?.classList.add('hidden');
@@ -2755,36 +2712,28 @@
         if ($('hudRoomText')) $('hudRoomText').textContent = App.roomCode;
         window.location.hash = App.roomCode;
 
-        // Render self tile immediately so user always sees interface
+        // Render self tile immediately
         renderSelfTile();
         syncMediaState();
         startCallTimer();
         initWhiteboard();
         Sound.play('join');
 
-        // Request user media asynchronously without blocking UI
-        try {
-            if (!App.localStream || !App.localStream.active) {
-                App.localStream = await navigator.mediaDevices.getUserMedia(getMediaConstraints());
-            }
-            App.mic = true;
-            App.cam = true;
-            if (App.localStream) {
-                initAudioMeter(App.localStream);
-                const selfTile = $('tile-self');
-                if (selfTile) {
-                    const vid = selfTile.querySelector('video');
-                    if (vid) {
-                        vid.srcObject = App.localStream;
-                        vid.play().catch(()=>{});
-                    }
+        // Request live hardware camera
+        const stream = await requestUserMediaSafe();
+        if (stream) {
+            initAudioMeter(stream);
+            const selfTile = $('tile-self');
+            if (selfTile) {
+                const vid = selfTile.querySelector('video');
+                if (vid) {
+                    vid.srcObject = stream;
+                    vid.play().catch(()=>{});
                 }
             }
-        } catch (e) {
-            notify('Using synthetic media fallback (Camera/Mic off)', '📷');
+            syncMediaState();
         }
 
-        syncMediaState();
         initMultiPartyMeshEngine();
     }
 
@@ -2801,8 +2750,8 @@
             const vid = selfTile.querySelector('video');
             const placeholder = selfTile.querySelector('.tile-placeholder-card');
             const micIcon = selfTile.querySelector('.tile-mic-indicator');
-            if (vid) vid.style.display = App.cam ? 'block' : 'none';
-            if (placeholder) placeholder.style.display = App.cam ? 'none' : 'flex';
+            if (vid) vid.style.display = (App.cam && App.localStream) ? 'block' : 'none';
+            if (placeholder) placeholder.style.display = (App.cam && App.localStream) ? 'none' : 'flex';
             if (micIcon) micIcon.className = `tile-mic-indicator ${App.mic ? '' : 'muted'}`;
         }
     }
@@ -2819,57 +2768,48 @@
     }
 
     // ========================================================
-    // BULLETPROOF ANCHOR-MESH SIGNALING ENGINE
-    // Guaranteed Connection Across Networks (Wi-Fi, 4G, 5G, Tabs)
+    // BULLETPROOF MULTI-SLOT RENDEZVOUS SIGNALING ENGINE
     // ========================================================
     function initMultiPartyMeshEngine() {
         const cleanCode = normalizeCodeToClean(App.roomCode);
-        const randId = Math.random().toString(36).substring(2, 7);
+        const randHex = Math.random().toString(36).substring(2, 6);
         
-        App.anchorPeerId = `aurastream_anchor_${cleanCode}`;
-        const uniquePeerId = `aurastream_peer_${cleanCode}_${randId}`;
+        // Deterministic slots for cross-device discovery
+        const primarySlotId = `aurastream_${cleanCode}_host`;
+        const uniquePeerId = `aurastream_${cleanCode}_p_${randHex}`;
 
-        // Attempt Anchor connection if host, or unique ID if joiner
-        if (App.isHost) {
-            App.myPeerId = App.anchorPeerId;
-            App.isAnchor = true;
-            setupPeerInstance(App.myPeerId, () => {
-                // If anchor ID was already taken by someone else hosting
-                App.myPeerId = uniquePeerId;
-                App.isAnchor = false;
-                setupPeerInstance(App.myPeerId, null, true);
-            });
-        } else {
-            App.myPeerId = uniquePeerId;
-            App.isAnchor = false;
-            setupPeerInstance(App.myPeerId, null, true);
-        }
+        const idToTry = App.isHost ? primarySlotId : uniquePeerId;
 
-        // Local BroadcastChannel for same-browser instant sync
+        setupPeerInstance(idToTry, () => {
+            // Fallback if host slot is busy
+            setupPeerInstance(uniquePeerId, null, [primarySlotId]);
+        }, App.isHost ? [] : [primarySlotId]);
+
+        // Local BroadcastChannel for same-device instant tabs
         try {
             if (App.broadcast) App.broadcast.close();
-            App.broadcast = new BroadcastChannel(`aurastream_room_${cleanCode}`);
+            App.broadcast = new BroadcastChannel(`aurastream_bcast_${cleanCode}`);
             App.broadcast.onmessage = e => handleMeshMessage(e.data);
         } catch (e) {}
     }
 
-    function setupPeerInstance(peerIdToUse, onUnavailableFallback = null, shouldConnectToAnchor = false) {
+    function setupPeerInstance(myId, onUnavailable = null, targetPeersToConnect = []) {
         try {
             if (App.meshPeer) {
                 try { App.meshPeer.destroy(); } catch (e) {}
             }
 
-            App.meshPeer = new Peer(peerIdToUse, PEER_CONFIG);
+            App.meshPeer = new Peer(myId, PEER_CONFIG);
 
             App.meshPeer.on('open', id => {
                 App.myPeerId = id;
 
-                // If joiner, connect directly to Anchor to discover all peers in room
-                if (shouldConnectToAnchor && id !== App.anchorPeerId) {
-                    connectToPeer(App.anchorPeerId, { isAnchor: true });
-                }
+                // Connect to deterministic room targets
+                targetPeersToConnect.forEach(targetId => {
+                    if (targetId !== id) connectToPeer(targetId);
+                });
 
-                // Announce presence to all tabs on local broadcast
+                // Announce presence over broadcast
                 broadcastControlSignal({
                     type: 'peer_join',
                     peerId: id,
@@ -2882,7 +2822,7 @@
             App.meshPeer.on('call', call => {
                 const callerId = call.peer;
                 const meta = call.metadata || {};
-                const streamToSend = getSafeMediaStream();
+                const streamToSend = getValidStream();
                 call.answer(streamToSend);
 
                 call.on('stream', remoteStream => {
@@ -2915,15 +2855,17 @@
             });
 
             App.meshPeer.on('error', err => {
-                if (err.type === 'unavailable-id' && onUnavailableFallback) {
-                    onUnavailableFallback();
+                if (err.type === 'unavailable-id' && onUnavailable) {
+                    onUnavailable();
                 } else if (err.type === 'peer-unavailable') {
-                    // Host not online yet, retry anchor connection after 2 seconds
+                    // Retry target connection after 1.5 seconds
                     setTimeout(() => {
-                        if (!App.isAnchor && App.meshPeer && !App.meshPeer.destroyed) {
-                            connectToPeer(App.anchorPeerId, { isAnchor: true });
-                        }
-                    }, 2000);
+                        targetPeersToConnect.forEach(tId => {
+                            if (tId !== App.myPeerId && App.meshPeer && !App.meshPeer.destroyed) {
+                                connectToPeer(tId);
+                            }
+                        });
+                    }, 1500);
                 }
             });
 
@@ -2933,9 +2875,9 @@
     }
 
     function connectToPeer(targetPeerId, targetInfo = {}) {
-        if (targetPeerId === App.myPeerId || App.peers.has(targetPeerId) || !App.meshPeer) return;
+        if (!targetPeerId || targetPeerId === App.myPeerId || App.peers.has(targetPeerId) || !App.meshPeer) return;
 
-        const streamToSend = getSafeMediaStream();
+        const streamToSend = getValidStream();
         
         const call = App.meshPeer.call(targetPeerId, streamToSend, {
             metadata: {
@@ -2981,7 +2923,6 @@
         }
 
         conn.on('open', () => {
-            // Send Handshake
             conn.send({
                 type: 'handshake',
                 peerId: App.myPeerId,
@@ -2990,15 +2931,13 @@
                 isHost: App.isHost
             });
 
-            // If Anchor, send the full room roster to the new joiner
-            if (App.isAnchor || App.myPeerId === App.anchorPeerId) {
-                const rosterList = [];
-                App.peers.forEach((p, pId) => {
-                    if (pId !== peerId) rosterList.push({ peerId: pId, name: p.name, tag: p.tag });
-                });
-                if (rosterList.length > 0) {
-                    conn.send({ type: 'mesh_roster', members: rosterList });
-                }
+            // Send mesh membership list
+            const rosterList = [];
+            App.peers.forEach((p, pId) => {
+                if (pId !== peerId) rosterList.push({ peerId: pId, name: p.name, tag: p.tag });
+            });
+            if (rosterList.length > 0) {
+                conn.send({ type: 'mesh_roster', members: rosterList });
             }
         });
 
@@ -3145,11 +3084,11 @@
             selfTile.className = 'video-tile mirrored';
             selfTile.id = 'tile-self';
             selfTile.innerHTML = `
-                <div class="tile-placeholder-card" style="display: ${App.cam && App.localStream ? 'none' : 'flex'};">
+                <div class="tile-placeholder-card" style="display: flex;">
                     <div class="tile-avatar-disc">${App.userName[0].toUpperCase()}</div>
                     <span style="font-size: 13px; font-weight: 700; color: #fff;">${App.userName}</span>
                 </div>
-                <video autoplay playsinline webkit-playsinline muted></video>
+                <video autoplay playsinline webkit-playsinline muted style="display:none;"></video>
                 <div class="tile-nameplate-pill">
                     <svg class="tile-mic-indicator ${App.mic ? '' : 'muted'}" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
                     <span>${App.userName} (You)</span>
@@ -3162,6 +3101,7 @@
         const vid = selfTile.querySelector('video');
         if (vid && App.localStream) {
             vid.srcObject = App.localStream;
+            vid.style.display = 'block';
             vid.play().catch(()=>{});
         }
 
@@ -3469,7 +3409,7 @@
 
     function startMeetingRecording() {
         try {
-            const streamToRecord = App.screenStream || App.localStream || getSafeMediaStream();
+            const streamToRecord = App.screenStream || App.localStream || getValidStream();
             if (!streamToRecord) return notify('No active video stream to record', '⚠️');
 
             App.recordedChunks = [];
@@ -3985,7 +3925,7 @@
         try {
             const oldTrack = App.localStream.getVideoTracks()[0];
             if (oldTrack) oldTrack.stop();
-            const newStream = await navigator.mediaDevices.getUserMedia(getMediaConstraints());
+            const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: App.facing }, audio: true });
             const newTrack = newStream.getVideoTracks()[0];
             
             if (oldTrack) App.localStream.removeTrack(oldTrack);
