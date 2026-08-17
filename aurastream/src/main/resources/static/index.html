@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AURASTREAM — Next-Gen Video Meetings & Collaboration</title>
-    <meta name="description" content="Ultra HD real-time video meetings, 60FPS screen sharing, AI live subtitles, collaborative whiteboard, instant polls, and encrypted P2P mesh network.">
+    <title>AURASTREAM — Studio HD Real-Time Video Collaboration</title>
+    <meta name="description" content="Ultra HD instant video meetings, 60FPS screen sharing, AI live subtitles, collaborative canvas whiteboard, live polls, and encrypted P2P mesh network.">
     
-    <!-- PeerJS P2P Signaling Engine -->
+    <!-- PeerJS WebRTC Signaling Engine -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     
     <!-- Google Fonts -->
@@ -16,28 +16,30 @@
 
     <style>
         :root {
-            --bg-void: #05050a;
-            --bg-base: #090a12;
-            --bg-card: rgba(15, 16, 26, 0.85);
-            --bg-glass: rgba(18, 20, 34, 0.75);
-            --bg-elevated: rgba(26, 28, 48, 0.95);
-            --bg-dock: rgba(10, 11, 20, 0.92);
+            --bg-void: #030307;
+            --bg-base: #070811;
+            --bg-surface: rgba(14, 16, 28, 0.88);
+            --bg-glass: rgba(18, 20, 36, 0.72);
+            --bg-elevated: rgba(24, 27, 48, 0.95);
+            --bg-dock: rgba(10, 11, 22, 0.94);
             
             --brand: #ff5500;
             --brand-glow: rgba(255, 85, 0, 0.45);
             --brand-gradient: linear-gradient(135deg, #ff4500 0%, #ff6a00 50%, #ff1155 100%);
             --brand-subtle: rgba(255, 85, 0, 0.12);
-            --brand-border: rgba(255, 85, 0, 0.35);
+            --brand-border: rgba(255, 85, 0, 0.38);
 
             --accent-cyan: #06b6d4;
             --accent-purple: #a855f7;
             --accent-green: #22c55e;
+            --accent-green-glow: rgba(34, 197, 94, 0.35);
             --accent-gold: #eab308;
             --danger: #f43f5e;
             --danger-glow: rgba(244, 63, 94, 0.45);
             
-            --border-subtle: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(255, 255, 255, 0.18);
+            --border-dim: rgba(255, 255, 255, 0.07);
+            --border-subtle: rgba(255, 255, 255, 0.12);
+            --border-hover: rgba(255, 255, 255, 0.24);
             
             --text-1: #ffffff;
             --text-2: #94a3b8;
@@ -47,9 +49,10 @@
             --font-head: 'Space Grotesk', sans-serif;
             --font-code: 'JetBrains Mono', monospace;
             
+            --radius-xs: 8px;
             --radius-sm: 12px;
-            --radius-md: 20px;
-            --radius-lg: 28px;
+            --radius-md: 18px;
+            --radius-lg: 26px;
             --radius-full: 9999px;
             
             --spring: cubic-bezier(0.16, 1, 0.3, 1);
@@ -78,15 +81,15 @@
             letter-spacing: -0.01em;
         }
 
-        /* Ambient Lighting Mesh */
+        /* Ambient Lighting Backdrop */
         .ambient-canvas {
             position: fixed;
             inset: 0;
             pointer-events: none;
             z-index: 0;
             background: 
-                radial-gradient(circle at 10% 20%, rgba(255, 85, 0, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 85% 80%, rgba(168, 85, 247, 0.09) 0%, transparent 50%),
+                radial-gradient(circle at 15% 15%, rgba(255, 85, 0, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 60%);
         }
 
@@ -117,7 +120,7 @@
             flex-shrink: 0;
         }
 
-        .btn-close {
+        .btn-close-circle {
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--border-subtle);
             color: #ffffff;
@@ -130,7 +133,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        .btn-close:active {
+        .btn-close-circle:active {
             background: var(--danger);
             transform: scale(0.92);
         }
@@ -156,23 +159,23 @@
             transform: scale(0.96);
         }
 
-        .auth-card {
+        .auth-card-box {
             width: 100%;
-            max-width: 400px;
-            background: var(--bg-card);
-            backdrop-filter: blur(30px);
+            max-width: 410px;
+            background: var(--bg-surface);
+            backdrop-filter: blur(35px);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-lg);
-            padding: 32px 24px;
+            padding: 34px 26px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
             box-shadow: 0 25px 70px rgba(0,0,0,0.85);
         }
-        .auth-badge-icon {
-            width: 56px;
-            height: 56px;
+        .auth-glyph-badge {
+            width: 58px;
+            height: 58px;
             border-radius: 18px;
             background: var(--brand-gradient);
             display: flex;
@@ -181,29 +184,29 @@
             margin-bottom: 16px;
             box-shadow: 0 10px 30px var(--brand-glow);
         }
-        .auth-card h2 {
+        .auth-card-box h2 {
             font-family: var(--font-head);
             font-size: 22px;
             font-weight: 800;
             margin-bottom: 6px;
         }
-        .auth-card p {
+        .auth-card-box p {
             font-size: 13px;
             color: var(--text-2);
             line-height: 1.5;
             margin-bottom: 22px;
         }
 
-        .auth-segmented-ctrl {
+        .auth-tabs-segmented {
             display: flex;
             width: 100%;
             background: rgba(0,0,0,0.4);
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border-dim);
             border-radius: var(--radius-sm);
             padding: 4px;
             margin-bottom: 20px;
         }
-        .auth-seg-btn {
+        .auth-seg-item {
             flex: 1;
             padding: 9px;
             border-radius: 8px;
@@ -214,18 +217,18 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        .auth-seg-btn.active {
+        .auth-seg-item.active {
             background: var(--bg-elevated);
             color: #fff;
             box-shadow: 0 4px 14px rgba(0,0,0,0.4);
         }
 
-        .auth-field-group {
+        .auth-group-field {
             width: 100%;
             text-align: left;
             margin-bottom: 14px;
         }
-        .auth-label {
+        .auth-label-tag {
             font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
@@ -234,29 +237,29 @@
             margin-bottom: 6px;
             display: block;
         }
-        .auth-input-box {
+        .auth-input-wrapper {
             position: relative;
             display: flex;
             align-items: center;
             width: 100%;
         }
-        .auth-input {
+        .auth-text-input {
             width: 100%;
             padding: 13px 14px;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border-dim);
             border-radius: var(--radius-sm);
             color: #fff;
             font-size: 14px;
             font-weight: 600;
             transition: all 0.2s ease;
         }
-        .auth-input:focus {
+        .auth-text-input:focus {
             border-color: var(--brand);
             background: var(--brand-subtle);
             box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.16);
         }
-        .auth-pass-toggle {
+        .auth-toggle-pass {
             position: absolute;
             right: 12px;
             background: transparent;
@@ -265,7 +268,7 @@
             font-size: 14px;
         }
 
-        .btn-brand-primary {
+        .btn-gradient-primary {
             background: var(--brand-gradient);
             color: #000;
             padding: 14px 20px;
@@ -282,45 +285,43 @@
             transition: all 0.15s ease;
             margin-top: 4px;
         }
-        .btn-brand-primary:active {
-            transform: scale(0.98);
-        }
+        .btn-gradient-primary:active { transform: scale(0.98); }
 
         /* ========================================================
            LOBBY / DASHBOARD
            ======================================================== */
-        .lobby-view {
+        .lobby-stage-view {
             position: fixed;
             inset: 0;
             z-index: 500;
             display: flex;
             flex-direction: column;
-            background: radial-gradient(circle at 50% 15%, #141026 0%, var(--bg-void) 80%);
+            background: radial-gradient(circle at 50% 12%, #16112d 0%, var(--bg-void) 80%);
             transition: opacity 0.3s var(--spring);
             overflow: hidden;
         }
-        .lobby-view.hidden {
+        .lobby-stage-view.hidden {
             opacity: 0;
             pointer-events: none;
         }
 
         /* Header Navbar */
-        .hub-navbar {
+        .stage-navbar {
             padding: max(14px, var(--safe-top)) 24px 14px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(8, 9, 16, 0.85);
+            background: rgba(8, 9, 17, 0.85);
             backdrop-filter: blur(25px);
-            border-bottom: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-dim);
             z-index: 50;
         }
-        .brand-logo {
+        .brand-cluster {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        .brand-glyph {
+        .brand-icon-box {
             width: 36px;
             height: 36px;
             border-radius: 11px;
@@ -330,19 +331,19 @@
             justify-content: center;
             box-shadow: 0 4px 16px var(--brand-glow);
         }
-        .brand-title {
+        .brand-title-text {
             font-family: var(--font-head);
             font-size: 20px;
             font-weight: 800;
             letter-spacing: -0.03em;
         }
-        .brand-title span {
+        .brand-title-text span {
             background: var(--brand-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .user-profile-badge {
+        .user-chip-menu {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-subtle);
             padding: 6px 14px;
@@ -353,11 +354,11 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        .user-profile-badge:hover {
+        .user-chip-menu:hover {
             background: rgba(255, 255, 255, 0.09);
             border-color: var(--border-hover);
         }
-        .user-badge-av {
+        .user-chip-avatar {
             width: 24px;
             height: 24px;
             border-radius: 50%;
@@ -371,14 +372,14 @@
         }
 
         /* Hub Navigation Tabs */
-        .hub-tabs-row {
+        .stage-tabs-row {
             display: flex;
             background: rgba(11, 12, 22, 0.95);
-            border-bottom: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-dim);
             padding: 0 24px;
             gap: 8px;
         }
-        .hub-tab-item {
+        .stage-tab-item {
             padding: 14px 12px;
             font-size: 13px;
             font-weight: 700;
@@ -391,11 +392,11 @@
             gap: 8px;
             transition: all 0.2s ease;
         }
-        .hub-tab-item.active {
+        .stage-tab-item.active {
             color: var(--brand);
             border-bottom-color: var(--brand);
         }
-        .count-pill {
+        .count-bubble {
             background: rgba(255, 85, 0, 0.15);
             color: var(--brand);
             font-size: 10px;
@@ -405,7 +406,7 @@
         }
 
         /* Hub Main Content */
-        .hub-main-area {
+        .stage-scroll-body {
             flex: 1;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
@@ -414,50 +415,50 @@
             justify-content: center;
         }
 
-        .hub-panel {
+        .stage-tab-panel {
             width: 100%;
             max-width: 1000px;
             display: none;
             animation: panelFade 0.25s var(--spring);
         }
-        .hub-panel.active { display: block; }
+        .stage-tab-panel.active { display: block; }
         @keyframes panelFade {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .lobby-hero-grid {
+        .hero-dashboard-grid {
             display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
+            grid-template-columns: 1.15fr 0.85fr;
             gap: 28px;
             align-items: start;
         }
 
-        .hero-lead-section {
+        .hero-intro-column {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
-        .hero-lead-section h1 {
+        .hero-intro-column h1 {
             font-family: var(--font-head);
             font-size: 32px;
             font-weight: 800;
             line-height: 1.15;
             letter-spacing: -0.04em;
         }
-        .hero-lead-section h1 span {
+        .hero-intro-column h1 span {
             background: var(--brand-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .hero-lead-section p {
+        .hero-intro-column p {
             font-size: 14px;
             color: var(--text-2);
             line-height: 1.6;
         }
 
-        .action-hero-card {
-            background: var(--bg-card);
+        .action-container-card {
+            background: var(--bg-surface);
             backdrop-filter: blur(30px);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-lg);
@@ -469,12 +470,12 @@
             margin-top: 10px;
         }
 
-        .action-row-buttons {
+        .action-buttons-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
-        .btn-glass-secondary {
+        .btn-surface-glass {
             background: rgba(255, 255, 255, 0.05);
             color: #fff;
             border: 1px solid var(--border-subtle);
@@ -489,14 +490,14 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        .btn-glass-secondary:hover {
+        .btn-surface-glass:hover {
             background: rgba(255, 255, 255, 0.09);
             border-color: var(--border-hover);
         }
-        .btn-glass-secondary:active { transform: scale(0.98); }
+        .btn-surface-glass:active { transform: scale(0.98); }
 
         /* Join Form Inline */
-        .join-inline-box {
+        .join-panel-inline {
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -508,7 +509,7 @@
         }
 
         /* Camera Viewfinder Studio Card */
-        .camera-studio-viewfinder {
+        .studio-preview-box {
             width: 100%;
             aspect-ratio: 4/3;
             background: #070710;
@@ -518,7 +519,7 @@
             overflow: hidden;
             box-shadow: 0 25px 65px rgba(0,0,0,0.85);
         }
-        .vf-status-chip {
+        .studio-telemetry-badge {
             position: absolute;
             top: 14px; left: 14px;
             background: rgba(9, 10, 18, 0.85);
@@ -535,7 +536,7 @@
             align-items: center;
             gap: 8px;
         }
-        .vf-status-dot {
+        .telemetry-live-dot {
             width: 6px;
             height: 6px;
             border-radius: 50%;
@@ -543,7 +544,7 @@
             box-shadow: 0 0 8px var(--accent-green);
         }
 
-        .vf-media-preview-off {
+        .studio-camera-off-state {
             position: absolute;
             inset: 0;
             display: flex;
@@ -554,7 +555,7 @@
             background: radial-gradient(circle at center, #17142d 0%, #070710 100%);
             z-index: 2;
         }
-        .vf-avatar-circle {
+        .studio-avatar-ring {
             width: 72px;
             height: 72px;
             border-radius: 50%;
@@ -580,7 +581,7 @@
             z-index: 1;
         }
 
-        .vf-controls-bar {
+        .studio-media-toolbar {
             position: absolute;
             bottom: 14px;
             left: 50%;
@@ -590,7 +591,7 @@
             gap: 12px;
             z-index: 10;
         }
-        .vf-ctrl-btn {
+        .studio-ctrl-btn {
             width: 44px;
             height: 44px;
             border-radius: var(--radius-full);
@@ -604,20 +605,20 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        .vf-ctrl-btn.off {
+        .studio-ctrl-btn.off {
             background: var(--danger);
             border-color: transparent;
         }
-        .vf-ctrl-btn:active { transform: scale(0.92); }
+        .studio-ctrl-btn:active { transform: scale(0.92); }
 
-        .vf-audio-meter-track {
+        .studio-eq-bar-wrap {
             position: absolute;
             bottom: 0; left: 0; right: 0;
             height: 4px;
             background: rgba(255, 255, 255, 0.05);
             z-index: 5;
         }
-        .vf-audio-meter-fill {
+        .studio-eq-bar-fill {
             height: 100%;
             width: 0%;
             background: var(--brand-gradient);
@@ -625,8 +626,8 @@
         }
 
         /* Friends & Recents List Cards */
-        .network-card-shell {
-            background: var(--bg-card);
+        .network-shell-box {
+            background: var(--bg-surface);
             backdrop-filter: blur(30px);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-lg);
@@ -637,7 +638,7 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.7);
         }
 
-        .my-id-card-banner {
+        .id-badge-banner {
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -646,35 +647,35 @@
             border: 1px solid var(--brand-border);
             border-radius: var(--radius-md);
         }
-        .my-id-text {
+        .id-badge-value {
             font-family: var(--font-code);
             font-size: 18px;
             font-weight: 800;
             color: var(--brand);
         }
 
-        .friends-list-container {
+        .friends-list-feed {
             display: flex;
             flex-direction: column;
             gap: 10px;
             max-height: 440px;
             overflow-y: auto;
         }
-        .friend-row-item {
+        .friend-tile-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 12px 16px;
             background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border-dim);
             border-radius: var(--radius-sm);
         }
-        .friend-row-left {
+        .friend-tile-left {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        .friend-row-av {
+        .friend-tile-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -689,7 +690,7 @@
         /* ========================================================
            ACTIVE IN-MEETING STAGE
            ======================================================== */
-        .meeting-stage {
+        .stage-meeting-view {
             display: none;
             height: 100vh;
             height: 100dvh;
@@ -699,10 +700,10 @@
             overflow: hidden;
             background: #020205;
         }
-        .meeting-stage.active { display: flex; }
+        .stage-meeting-view.active { display: flex; }
 
-        /* Dynamic Island Top HUD */
-        .stage-hud-top {
+        /* Dynamic Top Island HUD */
+        .stage-top-hud {
             position: absolute;
             top: 0; left: 0; right: 0;
             padding: max(14px, var(--safe-top)) 20px 10px 20px;
@@ -713,14 +714,14 @@
             z-index: 100;
             pointer-events: none;
         }
-        .hud-group {
+        .hud-side-group {
             pointer-events: auto;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .hud-island-pill {
+        .hud-island-chip {
             background: rgba(14, 16, 28, 0.9);
             backdrop-filter: blur(25px);
             border: 1px solid var(--border-subtle);
@@ -733,28 +734,28 @@
             box-shadow: 0 8px 24px rgba(0,0,0,0.6);
             transition: all 0.2s ease;
         }
-        .hud-island-pill:hover {
+        .hud-island-chip:hover {
             border-color: var(--brand-border);
         }
-        .hud-room-code {
+        .hud-room-code-tag {
             font-family: var(--font-code);
             font-size: 13px;
             font-weight: 800;
             color: #fff;
             letter-spacing: 0.5px;
         }
-        .hud-timer-badge {
+        .hud-timer-text {
             font-family: var(--font-code);
             font-size: 12px;
             color: var(--text-2);
-            border-left: 1px solid var(--border-subtle);
+            border-left: 1px solid var(--border-dim);
             padding-left: 10px;
             font-weight: 700;
         }
 
-        .hud-telemetry-chip {
+        .hud-status-badge {
             background: rgba(14, 16, 28, 0.85);
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border-dim);
             padding: 5px 12px;
             border-radius: var(--radius-full);
             display: flex;
@@ -765,7 +766,7 @@
             font-weight: 700;
             color: var(--text-2);
         }
-        .hud-rec-pill {
+        .hud-recording-pill {
             background: rgba(244, 63, 94, 0.2);
             border: 1px solid var(--danger);
             color: #fff;
@@ -778,9 +779,9 @@
             gap: 6px;
             animation: pulseGlow 1.4s infinite;
         }
-        .hud-rec-pill.active { display: flex; }
+        .hud-recording-pill.active { display: flex; }
 
-        .hud-circle-btn {
+        .hud-action-round-btn {
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -795,15 +796,15 @@
             position: relative;
             transition: all 0.2s ease;
         }
-        .hud-circle-btn:hover {
+        .hud-action-round-btn:hover {
             border-color: var(--border-hover);
         }
-        .hud-circle-btn.active {
+        .hud-action-round-btn.active {
             background: var(--brand-subtle);
             color: var(--brand);
             border-color: var(--brand-border);
         }
-        .hud-circle-btn .hud-badge {
+        .hud-action-round-btn .hud-num-badge {
             position: absolute;
             top: -4px; right: -4px;
             background: var(--brand);
@@ -819,14 +820,14 @@
         }
 
         /* Live Subtitles Box */
-        .live-captions-overlay {
+        .captions-floating-shelf {
             position: absolute;
             bottom: 92px;
             left: 50%;
             transform: translateX(-50%);
             width: auto;
             max-width: 85%;
-            background: rgba(6, 7, 14, 0.9);
+            background: rgba(6, 7, 14, 0.92);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.12);
             padding: 10px 20px;
@@ -836,8 +837,8 @@
             text-align: center;
             box-shadow: 0 10px 35px rgba(0,0,0,0.85);
         }
-        .live-captions-overlay.show { display: block; }
-        .caption-speaker-tag {
+        .captions-floating-shelf.show { display: block; }
+        .caption-speaker-label {
             color: var(--brand);
             font-weight: 800;
             font-size: 12px;
@@ -850,7 +851,7 @@
         }
 
         /* Video Canvas & Grid (Supports up to 25 participants) */
-        .video-stage-canvas {
+        .stage-video-canvas {
             flex: 1;
             position: relative;
             width: 100%;
@@ -992,7 +993,7 @@
             filter: sepia(0.2) saturate(1.2) contrast(1.05);
         }
 
-        .tile-placeholder-view {
+        .tile-placeholder-card {
             position: absolute;
             inset: 0;
             display: flex;
@@ -1003,7 +1004,7 @@
             background: radial-gradient(circle at center, #1b1736 0%, #080812 100%);
             z-index: 2;
         }
-        .tile-avatar-badge {
+        .tile-avatar-disc {
             width: 64px;
             height: 64px;
             border-radius: 50%;
@@ -1017,7 +1018,7 @@
             box-shadow: 0 8px 25px var(--brand-glow);
         }
 
-        .tile-user-tag-pill {
+        .tile-nameplate-pill {
             position: absolute;
             bottom: 10px; left: 10px;
             background: rgba(8, 9, 16, 0.85);
@@ -1038,13 +1039,13 @@
             white-space: nowrap;
             border: 1px solid rgba(255,255,255,0.08);
         }
-        .tile-mic-status {
+        .tile-mic-indicator {
             width: 12px; height: 12px;
             color: var(--accent-green);
         }
-        .tile-mic-status.muted { color: var(--danger); }
+        .tile-mic-indicator.muted { color: var(--danger); }
 
-        .tile-hand-icon-badge {
+        .tile-hand-raised-badge {
             position: absolute;
             top: 10px; left: 10px;
             background: var(--accent-gold);
@@ -1061,7 +1062,7 @@
             to { transform: translateY(-5px); }
         }
 
-        .tile-pin-focus-btn {
+        .tile-pin-button {
             position: absolute;
             top: 10px; right: 10px;
             width: 30px; height: 30px;
@@ -1077,10 +1078,10 @@
             transition: opacity 0.2s ease;
             z-index: 6;
         }
-        .video-tile:hover .tile-pin-focus-btn { opacity: 1; }
+        .video-tile:hover .tile-pin-button { opacity: 1; }
 
         /* Waiting Screen Banner */
-        .waiting-room-banner {
+        .waiting-room-beacon {
             position: absolute;
             bottom: 96px;
             left: 50%;
@@ -1097,28 +1098,28 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.9);
             animation: panelFade 0.3s var(--spring);
         }
-        .waiting-room-banner.hidden { display: none; }
+        .waiting-room-beacon.hidden { display: none; }
 
-        .sonar-wave-circle {
+        .sonar-pulse-box {
             position: relative;
             width: 26px; height: 26px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .sonar-ring {
+        .sonar-pulse-ring {
             position: absolute;
             inset: 0;
             border-radius: 50%;
             background: rgba(255, 85, 0, 0.25);
             animation: sonarPulse 1.6s infinite cubic-bezier(0, 0.2, 0.8, 1);
         }
-        .sonar-ring:nth-child(2) { animation-delay: 0.8s; }
+        .sonar-pulse-ring:nth-child(2) { animation-delay: 0.8s; }
         @keyframes sonarPulse {
             0% { transform: scale(0.5); opacity: 1; }
             100% { transform: scale(2.2); opacity: 0; }
         }
-        .sonar-core {
+        .sonar-pulse-core {
             width: 10px; height: 10px;
             border-radius: 50%;
             background: var(--brand);
@@ -1129,7 +1130,7 @@
         /* ========================================================
            STUDIO FLOATING DOCK
            ======================================================== */
-        .stage-dock-wrapper {
+        .stage-dock-shelf {
             position: absolute;
             bottom: max(16px, var(--safe-bottom));
             left: 50%;
@@ -1139,7 +1140,7 @@
             max-width: 96%;
         }
 
-        .studio-dock-bar {
+        .studio-dock-capsule {
             display: flex;
             align-items: center;
             gap: 6px;
@@ -1151,7 +1152,7 @@
             box-shadow: 0 25px 60px rgba(0,0,0,0.95);
         }
 
-        .dock-control-btn {
+        .dock-action-btn {
             width: 44px; height: 44px;
             border-radius: var(--radius-full);
             background: rgba(255, 255, 255, 0.06);
@@ -1163,42 +1164,42 @@
             transition: all 0.2s ease;
             position: relative;
         }
-        .dock-control-btn:hover {
+        .dock-action-btn:hover {
             background: rgba(255, 255, 255, 0.12);
         }
-        .dock-control-btn:active { transform: scale(0.92); }
+        .dock-action-btn:active { transform: scale(0.92); }
 
-        .dock-control-btn.active {
+        .dock-action-btn.active {
             background: var(--brand-subtle);
             color: var(--brand);
             border: 1px solid var(--brand-border);
         }
-        .dock-control-btn.screenshare-active {
+        .dock-action-btn.screenshare-active {
             background: rgba(34, 197, 94, 0.2);
             color: var(--accent-green);
             border: 1px solid var(--accent-green);
         }
-        .dock-control-btn.hand-active {
+        .dock-action-btn.hand-active {
             background: rgba(234, 179, 8, 0.2);
             color: var(--accent-gold);
             border: 1px solid var(--accent-gold);
         }
-        .dock-control-btn.muted {
+        .dock-action-btn.muted {
             background: rgba(244, 63, 94, 0.18);
             color: var(--danger);
             border: 1px solid rgba(244, 63, 94, 0.4);
         }
 
-        .dock-control-btn.btn-call-end {
+        .dock-action-btn.btn-hangup {
             width: 52px;
             background: var(--danger);
             color: #fff;
             box-shadow: 0 6px 20px var(--danger-glow);
         }
-        .dock-control-btn.btn-call-end:active { background: #e11d48; }
-        .dock-control-btn.btn-call-end svg { transform: rotate(135deg); }
+        .dock-action-btn.btn-hangup:active { background: #e11d48; }
+        .dock-action-btn.btn-hangup svg { transform: rotate(135deg); }
 
-        .dock-control-btn .badge-dot-indicator {
+        .dock-action-btn .badge-dot-mark {
             position: absolute;
             top: 4px; right: 4px;
             width: 8px; height: 8px;
@@ -1207,17 +1208,17 @@
             border: 2px solid #000;
             display: none;
         }
-        .dock-control-btn .badge-dot-indicator.show { display: block; }
+        .dock-action-btn .badge-dot-mark.show { display: block; }
 
-        .dock-split-divider {
+        .dock-pipe-separator {
             width: 1px;
             height: 24px;
-            background: var(--border-subtle);
+            background: var(--border-dim);
             margin: 0 4px;
         }
 
         /* Reaction Popup Tray */
-        .reaction-tray-popup {
+        .reaction-menu-tray {
             position: absolute;
             bottom: 66px;
             left: 50%;
@@ -1232,8 +1233,8 @@
             box-shadow: 0 16px 40px rgba(0,0,0,0.9);
             z-index: 110;
         }
-        .reaction-tray-popup.show { display: flex; }
-        .emoji-burst-btn {
+        .reaction-menu-tray.show { display: flex; }
+        .reaction-emoji-btn {
             font-size: 20px;
             background: transparent;
             padding: 4px 6px;
@@ -1241,10 +1242,10 @@
             cursor: pointer;
             transition: transform 0.15s ease;
         }
-        .emoji-burst-btn:active { transform: scale(1.35); }
+        .reaction-emoji-btn:active { transform: scale(1.35); }
 
         /* Filter Presets Menu */
-        .filter-presets-menu {
+        .filters-menu-popup {
             position: absolute;
             bottom: 66px;
             left: 110px;
@@ -1260,8 +1261,8 @@
             z-index: 110;
             width: 190px;
         }
-        .filter-presets-menu.show { display: flex; }
-        .filter-item-btn {
+        .filters-menu-popup.show { display: flex; }
+        .filter-select-btn {
             background: rgba(255,255,255,0.06);
             color: #fff;
             padding: 9px 12px;
@@ -1274,12 +1275,12 @@
             gap: 8px;
             transition: all 0.15s ease;
         }
-        .filter-item-btn:hover { background: var(--brand-subtle); color: var(--brand); }
+        .filter-select-btn:hover { background: var(--brand-subtle); color: var(--brand); }
 
         /* ========================================================
            COLLABORATIVE WHITEBOARD MODAL
            ======================================================== */
-        .whiteboard-stage-modal {
+        .whiteboard-stage-overlay {
             position: fixed;
             inset: 0;
             background: rgba(4, 5, 10, 0.94);
@@ -1289,15 +1290,15 @@
             flex-direction: column;
             padding: 16px;
         }
-        .whiteboard-stage-modal.show { display: flex; }
+        .whiteboard-stage-overlay.show { display: flex; }
 
-        .wb-head-bar {
+        .wb-header-panel {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 14px;
         }
-        .wb-toolbar-pill {
+        .wb-toolbar-capsule {
             display: flex;
             align-items: center;
             gap: 8px;
@@ -1306,7 +1307,7 @@
             border-radius: var(--radius-full);
             border: 1px solid var(--border-subtle);
         }
-        .wb-tool-icon-btn {
+        .wb-tool-button {
             width: 32px; height: 32px;
             border-radius: 50%;
             background: transparent;
@@ -1316,22 +1317,22 @@
             justify-content: center;
             cursor: pointer;
         }
-        .wb-tool-icon-btn.active {
+        .wb-tool-button.active {
             background: var(--brand);
             color: #000;
         }
-        .wb-color-swatch {
+        .wb-color-dot {
             width: 20px; height: 20px;
             border-radius: 50%;
             cursor: pointer;
             border: 2px solid rgba(255,255,255,0.3);
         }
-        .wb-color-swatch.active {
+        .wb-color-dot.active {
             border-color: #fff;
             transform: scale(1.15);
         }
 
-        .wb-canvas-viewport {
+        .wb-canvas-container {
             flex: 1;
             background: #ffffff;
             border-radius: var(--radius-lg);
@@ -1349,36 +1350,36 @@
         /* ========================================================
            SIDE DRAWER (CHAT / POLLS / PEOPLE)
            ======================================================== */
-        .side-panel-drawer {
+        .stage-side-drawer {
             position: absolute;
             top: 0; right: 0; bottom: 0;
             width: 360px;
-            background: var(--bg-card);
+            background: var(--bg-surface);
             backdrop-filter: blur(30px);
-            border-left: 1px solid var(--border-subtle);
+            border-left: 1px solid var(--border-dim);
             display: flex;
             flex-direction: column;
             transform: translateX(100%);
             transition: transform 0.25s var(--spring);
             z-index: 150;
         }
-        .side-panel-drawer.open { transform: translateX(0); }
+        .stage-side-drawer.open { transform: translateX(0); }
 
-        .drawer-top-header {
+        .drawer-top-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: max(16px, var(--safe-top)) 20px 14px 20px;
-            border-bottom: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-dim);
         }
-        .drawer-top-header h3 { font-size: 16px; font-weight: 800; font-family: var(--font-head); }
+        .drawer-top-bar h3 { font-size: 16px; font-weight: 800; font-family: var(--font-head); }
 
-        .drawer-nav-tabs {
+        .drawer-segmented-tabs {
             display: flex;
-            border-bottom: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-dim);
             padding: 0 10px;
         }
-        .drawer-tab-btn {
+        .drawer-seg-btn {
             flex: 1;
             padding: 12px 4px;
             font-size: 11px;
@@ -1391,18 +1392,18 @@
             cursor: pointer;
             text-align: center;
         }
-        .drawer-tab-btn.active { color: var(--brand); border-bottom-color: var(--brand); }
+        .drawer-seg-btn.active { color: var(--brand); border-bottom-color: var(--brand); }
 
-        .drawer-tab-panel {
+        .drawer-content-pane {
             flex: 1;
             overflow-y: auto;
             display: none;
             flex-direction: column;
             -webkit-overflow-scrolling: touch;
         }
-        .drawer-tab-panel.active { display: flex; }
+        .drawer-content-pane.active { display: flex; }
 
-        .chat-stream-feed {
+        .chat-bubbles-feed {
             flex: 1;
             overflow-y: auto;
             padding: 16px;
@@ -1410,41 +1411,41 @@
             flex-direction: column;
             gap: 12px;
         }
-        .chat-bubble-row { display: flex; flex-direction: column; max-width: 85%; }
-        .chat-bubble-row.me { align-self: flex-end; align-items: flex-end; }
-        .chat-bubble-row.them { align-self: flex-start; align-items: flex-start; }
-        .chat-sender-name { font-size: 10px; font-weight: 800; color: var(--text-2); margin-bottom: 2px; padding: 0 4px; }
-        .chat-bubble-box { padding: 10px 14px; font-size: 13px; line-height: 1.45; word-wrap: break-word; }
-        .chat-bubble-row.me .chat-bubble-box {
+        .chat-bubble-unit { display: flex; flex-direction: column; max-width: 85%; }
+        .chat-bubble-unit.me { align-self: flex-end; align-items: flex-end; }
+        .chat-bubble-unit.them { align-self: flex-start; align-items: flex-start; }
+        .chat-author-tag { font-size: 10px; font-weight: 800; color: var(--text-2); margin-bottom: 2px; padding: 0 4px; }
+        .chat-message-bubble { padding: 10px 14px; font-size: 13px; line-height: 1.45; word-wrap: break-word; }
+        .chat-bubble-unit.me .chat-message-bubble {
             background: var(--brand-gradient);
             color: #000;
             border-radius: 16px 16px 4px 16px;
             font-weight: 700;
         }
-        .chat-bubble-row.them .chat-bubble-box {
+        .chat-bubble-unit.them .chat-message-bubble {
             background: rgba(255,255,255,0.07);
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border-dim);
             color: #fff;
             border-radius: 16px 16px 16px 4px;
         }
 
-        .chat-bottom-input-bar {
+        .chat-input-bottom-bar {
             padding: 12px 16px max(12px, var(--safe-bottom)) 16px;
-            border-top: 1px solid var(--border-subtle);
+            border-top: 1px solid var(--border-dim);
             background: rgba(0,0,0,0.5);
         }
-        .chat-input-container {
+        .chat-input-pill {
             display: flex;
             align-items: center;
             gap: 8px;
             background: rgba(255,255,255,0.06);
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border-dim);
             border-radius: var(--radius-full);
             padding: 5px 8px 5px 14px;
         }
-        .chat-input-container:focus-within { border-color: var(--brand); }
-        .chat-input-container input { flex: 1; background: transparent; color: #fff; font-size: 13px; padding: 6px 0; }
-        .chat-send-trigger {
+        .chat-input-pill:focus-within { border-color: var(--brand); }
+        .chat-input-pill input { flex: 1; background: transparent; color: #fff; font-size: 13px; padding: 6px 0; }
+        .chat-send-btn-icon {
             width: 32px; height: 32px;
             border-radius: 50%;
             background: var(--brand-gradient);
@@ -1456,22 +1457,22 @@
         }
 
         /* Live Polls Drawer View */
-        .polls-drawer-content {
+        .polls-feed-box {
             padding: 18px;
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
-        .poll-creator-box {
+        .poll-create-card {
             background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border-dim);
             border-radius: var(--radius-md);
             padding: 16px;
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
-        .poll-display-card {
+        .poll-item-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--brand-border);
             border-radius: var(--radius-md);
@@ -1480,7 +1481,7 @@
             flex-direction: column;
             gap: 10px;
         }
-        .poll-vote-button {
+        .poll-vote-action-btn {
             width: 100%;
             background: rgba(255, 255, 255, 0.08);
             color: #fff;
@@ -1496,7 +1497,7 @@
             overflow: hidden;
             transition: all 0.2s ease;
         }
-        .poll-bar-progress {
+        .poll-bar-fill-track {
             position: absolute;
             left: 0; top: 0; bottom: 0;
             background: rgba(255, 85, 0, 0.28);
@@ -1504,23 +1505,23 @@
             transition: width 0.3s ease;
         }
 
-        .participants-list-view {
+        .participants-scroll-list {
             padding: 14px;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-        .participant-item-card {
+        .participant-card-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 10px 14px;
             background: rgba(255,255,255,0.04);
             border-radius: var(--radius-sm);
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border-dim);
         }
-        .participant-left-group { display: flex; align-items: center; gap: 10px; }
-        .participant-avatar-icon {
+        .participant-meta-left { display: flex; align-items: center; gap: 10px; }
+        .participant-avatar-pill {
             width: 36px; height: 36px;
             border-radius: 50%;
             background: linear-gradient(135deg, #a855f7, var(--brand));
@@ -1533,7 +1534,7 @@
         }
 
         /* Modals & Backdrop */
-        .stage-modal-backdrop {
+        .stage-backdrop-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.85);
@@ -1544,27 +1545,27 @@
             justify-content: center;
             padding: 16px;
         }
-        .stage-modal-backdrop.show { display: flex; }
+        .stage-backdrop-overlay.show { display: flex; }
 
-        .modal-inner-card {
+        .modal-body-card {
             width: 100%;
             max-width: 380px;
-            background: var(--bg-card);
+            background: var(--bg-surface);
             border: 1px solid var(--brand-border);
             border-radius: var(--radius-lg);
             padding: 26px 22px;
             box-shadow: 0 25px 70px rgba(0,0,0,0.9);
             position: relative;
         }
-        .modal-head-row {
+        .modal-top-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 18px;
         }
-        .modal-head-row h3 { font-size: 17px; font-weight: 800; font-family: var(--font-head); }
+        .modal-top-row h3 { font-size: 17px; font-weight: 800; font-family: var(--font-head); }
 
-        .qr-canvas-holder {
+        .qr-render-box {
             background: #fff;
             padding: 10px;
             border-radius: var(--radius-sm);
@@ -1574,15 +1575,15 @@
             align-items: center;
             justify-content: center;
         }
-        .qr-canvas-holder canvas { width: 100%; height: 100%; }
+        .qr-render-box canvas { width: 100%; height: 100%; }
 
-        .share-actions-row {
+        .modal-share-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
             margin-bottom: 10px;
         }
-        .btn-modal-outline {
+        .btn-modal-outline-action {
             padding: 12px 10px;
             border-radius: var(--radius-sm);
             font-size: 12px;
@@ -1596,7 +1597,7 @@
             border: 1px solid var(--border-subtle);
             color: #fff;
         }
-        .btn-whatsapp-share {
+        .btn-whatsapp-full {
             width: 100%;
             padding: 13px;
             border-radius: var(--radius-sm);
@@ -1638,7 +1639,7 @@
             gap: 8px;
             pointer-events: none;
         }
-        .toast-pill-item {
+        .toast-item-pill {
             background: rgba(18, 20, 36, 0.95);
             backdrop-filter: blur(20px);
             border: 1px solid var(--brand-border);
@@ -1659,9 +1660,9 @@
         }
 
         @media (max-width: 900px) {
-            .lobby-hero-grid { grid-template-columns: 1fr; gap: 20px; }
-            .hero-lead-section h1 { font-size: 26px; }
-            .side-panel-drawer {
+            .hero-dashboard-grid { grid-template-columns: 1fr; gap: 20px; }
+            .hero-intro-column h1 { font-size: 26px; }
+            .stage-side-drawer {
                 width: 100%;
                 top: auto; bottom: 0;
                 height: 75vh;
@@ -1670,10 +1671,10 @@
                 border-radius: 24px 24px 0 0;
                 transform: translateY(100%);
             }
-            .side-panel-drawer.open { transform: translateY(0); }
-            .studio-dock-bar { padding: 6px 10px; gap: 4px; }
-            .dock-control-btn { width: 40px; height: 40px; }
-            .dock-control-btn.btn-call-end { width: 46px; }
+            .stage-side-drawer.open { transform: translateY(0); }
+            .studio-dock-capsule { padding: 6px 10px; gap: 4px; }
+            .dock-action-btn { width: 40px; height: 40px; }
+            .dock-action-btn.btn-hangup { width: 46px; }
         }
     </style>
 </head>
@@ -1687,55 +1688,55 @@
      AUTH VIEW
      ======================================================== -->
 <div class="auth-overlay" id="authView">
-    <div class="auth-card">
-        <div class="auth-badge-icon">
+    <div class="auth-card-box">
+        <div class="auth-glyph-badge">
             <svg class="icon" viewBox="0 0 24 24" style="color:#000; width:28px; height:28px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor"/></svg>
         </div>
         <h2>Aura Identity</h2>
-        <p>Instant encrypted video meetings with 60FPS screen share, live whiteboard & captions.</p>
+        <p>Instant video meetings with 60FPS screen share, live whiteboard & AI captions.</p>
 
-        <div class="auth-segmented-ctrl">
-            <button class="auth-seg-btn active" id="btnAuthTabRegister" type="button">✨ Create ID</button>
-            <button class="auth-seg-btn" id="btnAuthTabLogin" type="button">🔑 Log In</button>
+        <div class="auth-tabs-segmented">
+            <button class="auth-seg-item active" id="btnAuthTabRegister" type="button">✨ Create ID</button>
+            <button class="auth-seg-item" id="btnAuthTabLogin" type="button">🔑 Log In</button>
         </div>
 
         <div id="authRegisterBox" style="width: 100%;">
-            <div class="auth-field-group">
-                <label class="auth-label">Full Name</label>
-                <input class="auth-input" id="regNameInput" placeholder="e.g. John Doe" autocomplete="name">
+            <div class="auth-group-field">
+                <label class="auth-label-tag">Full Name</label>
+                <input class="auth-text-input" id="regNameInput" placeholder="e.g. John Doe" autocomplete="name">
             </div>
 
-            <div class="auth-field-group">
-                <label class="auth-label">Permanent @AuraID</label>
-                <input class="auth-input" id="regTagInput" placeholder="e.g. @john" style="font-family: var(--font-code);" autocomplete="username">
+            <div class="auth-group-field">
+                <label class="auth-label-tag">Permanent @AuraID</label>
+                <input class="auth-text-input" id="regTagInput" placeholder="e.g. @john" style="font-family: var(--font-code);" autocomplete="username">
             </div>
 
-            <div class="auth-field-group">
-                <label class="auth-label">PIN / Password</label>
-                <div class="auth-input-box">
-                    <input class="auth-input" id="regPinInput" type="password" placeholder="4+ digits or PIN" autocomplete="new-password">
-                    <button class="auth-pass-toggle" id="btnToggleRegPin" type="button">👁️</button>
+            <div class="auth-group-field">
+                <label class="auth-label-tag">PIN / Password</label>
+                <div class="auth-input-wrapper">
+                    <input class="auth-text-input" id="regPinInput" type="password" placeholder="4+ digits or PIN" autocomplete="new-password">
+                    <button class="auth-toggle-pass" id="btnToggleRegPin" type="button">👁️</button>
                 </div>
             </div>
 
-            <button class="btn-brand-primary" id="btnSubmitRegister" type="button">Create Account & Enter</button>
+            <button class="btn-gradient-primary" id="btnSubmitRegister" type="button">Create Account & Enter</button>
         </div>
 
         <div id="authLoginBox" style="width: 100%; display: none;">
-            <div class="auth-field-group">
-                <label class="auth-label">@AuraID or Name</label>
-                <input class="auth-input" id="loginIdInput" placeholder="e.g. @john" style="font-family: var(--font-code);" autocomplete="username">
+            <div class="auth-group-field">
+                <label class="auth-label-tag">@AuraID or Name</label>
+                <input class="auth-text-input" id="loginIdInput" placeholder="e.g. @john" style="font-family: var(--font-code);" autocomplete="username">
             </div>
 
-            <div class="auth-field-group">
-                <label class="auth-label">PIN / Password</label>
-                <div class="auth-input-box">
-                    <input class="auth-input" id="loginPinInput" type="password" placeholder="Enter your PIN" autocomplete="current-password">
-                    <button class="auth-pass-toggle" id="btnToggleLoginPin" type="button">👁️</button>
+            <div class="auth-group-field">
+                <label class="auth-label-tag">PIN / Password</label>
+                <div class="auth-input-wrapper">
+                    <input class="auth-text-input" id="loginPinInput" type="password" placeholder="Enter your PIN" autocomplete="current-password">
+                    <button class="auth-toggle-pass" id="btnToggleLoginPin" type="button">👁️</button>
                 </div>
             </div>
 
-            <button class="btn-brand-primary" id="btnSubmitLogin" type="button">Log In</button>
+            <button class="btn-gradient-primary" id="btnSubmitLogin" type="button">Log In</button>
         </div>
     </div>
 </div>
@@ -1743,65 +1744,65 @@
 <!-- ========================================================
      LOBBY / DASHBOARD
      ======================================================== -->
-<div class="lobby-view hidden" id="lobbyView">
-    <div class="hub-navbar">
-        <div class="brand-logo">
-            <div class="brand-glyph">
+<div class="lobby-stage-view hidden" id="lobbyView">
+    <div class="stage-navbar">
+        <div class="brand-cluster">
+            <div class="brand-icon-box">
                 <svg viewBox="0 0 24 24" style="width:20px; height:20px; color:#000;" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             </div>
-            <div class="brand-title">AURA<span>STREAM</span></div>
+            <div class="brand-title-text">AURA<span>STREAM</span></div>
         </div>
 
-        <div class="user-profile-badge" id="btnLogoutUser" title="Click to Switch Account">
-            <div class="user-badge-av" id="navAvatar">J</div>
+        <div class="user-chip-menu" id="btnLogoutUser" title="Click to Switch Account">
+            <div class="user-chip-avatar" id="navAvatar">J</div>
             <span id="navName" style="font-size:13px; font-weight:700;">John</span>
             <span style="font-size: 10px; color: var(--text-3);">▼</span>
         </div>
     </div>
 
-    <div class="hub-tabs-row">
-        <button class="hub-tab-item active" data-target="tabCalls">
+    <div class="stage-tabs-row">
+        <button class="stage-tab-item active" data-target="tabCalls">
             <svg class="icon-sm" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             <span>Meeting Room</span>
         </button>
-        <button class="hub-tab-item" data-target="tabFriends">
+        <button class="stage-tab-item" data-target="tabFriends">
             <svg class="icon-sm" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>Friends Network</span>
-            <span class="count-pill" id="friendBadge">0</span>
+            <span class="count-bubble" id="friendBadge">0</span>
         </button>
-        <button class="hub-tab-item" data-target="tabRecents">
+        <button class="stage-tab-item" data-target="tabRecents">
             <svg class="icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             <span>Recents</span>
         </button>
     </div>
 
-    <div class="hub-main-area">
+    <div class="stage-scroll-body">
         <!-- Tab 1: Instant Meeting Room -->
-        <div class="hub-panel active" id="tabCalls">
-            <div class="lobby-hero-grid">
-                <div class="hero-lead-section">
+        <div class="stage-tab-panel active" id="tabCalls">
+            <div class="hero-dashboard-grid">
+                <div class="hero-intro-column">
                     <h1>Instant Video Meetings.<br><span>Pure HD Collaboration.</span></h1>
-                    <p>Ultra HD 60FPS screen share, collaborative whiteboard, live AI captions, local meeting recording, and instant 25-participant mesh.</p>
+                    <p>Ultra HD 60FPS screen share, collaborative canvas, live AI captions, local meeting recording, and instant 25-participant mesh.</p>
 
-                    <div class="action-hero-card">
+                    <div class="action-container-card">
                         <div id="joinFields" style="display: none;">
-                            <div class="join-inline-box">
-                                <label class="auth-label">Enter Meeting Code or Friend @AuraID</label>
-                                <input class="auth-input" id="roomCodeInput" placeholder="e.g. AUR-7890 or @alex" style="text-transform: uppercase; font-family: var(--font-code);" autocomplete="off">
-                                <div class="action-row-buttons">
-                                    <button class="btn-brand-primary" id="btnJoinRoom">Join Room</button>
-                                    <button class="btn-glass-secondary" id="btnBack">Back</button>
+                            <div class="join-panel-inline">
+                                <label class="auth-label-tag">Enter 4-Digit Room Code or @AuraID</label>
+                                <input class="auth-text-input" id="roomCodeInput" placeholder="e.g. 7890 or AUR-7890" style="text-transform: uppercase; font-family: var(--font-code);" autocomplete="off">
+                                <div class="action-buttons-grid">
+                                    <button class="btn-gradient-primary" id="btnJoinRoom">Join Room</button>
+                                    <button class="btn-surface-glass" id="btnBack">Back</button>
                                 </div>
                             </div>
                         </div>
 
                         <div id="createFields">
-                            <div class="action-row-buttons">
-                                <button class="btn-brand-primary" id="btnCreateRoom">
+                            <div class="action-buttons-grid">
+                                <button class="btn-gradient-primary" id="btnCreateRoom">
                                     <svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                                     New Meeting
                                 </button>
-                                <button class="btn-glass-secondary" id="btnShowJoin">
+                                <button class="btn-surface-glass" id="btnShowJoin">
                                     <svg class="icon" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
                                     Join with Code
                                 </button>
@@ -1812,67 +1813,67 @@
 
                 <!-- Camera Studio Viewfinder -->
                 <div class="preview-hero-column">
-                    <div class="camera-studio-viewfinder">
-                        <div class="vf-status-chip">
-                            <div class="vf-status-dot"></div>
+                    <div class="studio-preview-box">
+                        <div class="studio-telemetry-badge">
+                            <div class="telemetry-live-dot"></div>
                             <span>1080P · NOISE ISOLATION</span>
                         </div>
 
-                        <div class="vf-media-preview-off" id="vfPlaceholder">
-                            <div class="vf-avatar-circle" id="lobbyAvLetter">J</div>
+                        <div class="studio-camera-off-state" id="vfPlaceholder">
+                            <div class="studio-avatar-ring" id="lobbyAvLetter">J</div>
                             <span style="font-size: 12px; color: var(--text-2); font-weight: 600;">Camera Disabled</span>
-                            <button class="btn-glass-secondary" id="btnTestCamera" style="padding: 8px 16px; font-size: 12px;">Preview Camera</button>
+                            <button class="btn-surface-glass" id="btnTestCamera" style="padding: 8px 16px; font-size: 12px;">Preview Camera</button>
                         </div>
 
                         <video id="lobbyVideo" autoplay playsinline webkit-playsinline muted></video>
                         
-                        <div class="vf-controls-bar">
-                            <button class="vf-ctrl-btn off" id="lMicBtn" title="Toggle Mic">
+                        <div class="studio-media-toolbar">
+                            <button class="studio-ctrl-btn off" id="lMicBtn" title="Toggle Mic">
                                 <svg class="icon" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
                             </button>
-                            <button class="vf-ctrl-btn off" id="lCamBtn" title="Toggle Camera">
+                            <button class="studio-ctrl-btn off" id="lCamBtn" title="Toggle Camera">
                                 <svg class="icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
                             </button>
                         </div>
-                        <div class="vf-audio-meter-track"><div class="vf-audio-meter-fill" id="lAudioMeter"></div></div>
+                        <div class="studio-eq-bar-wrap"><div class="studio-eq-bar-fill" id="lAudioMeter"></div></div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Tab 2: Friends Network -->
-        <div class="hub-panel" id="tabFriends">
-            <div class="network-card-shell">
-                <div class="my-id-card-banner">
+        <div class="stage-tab-panel" id="tabFriends">
+            <div class="network-shell-box">
+                <div class="id-badge-banner">
                     <span style="font-size: 11px; font-weight: 800; color: var(--text-2); text-transform: uppercase;">YOUR PERMANENT AURA ID</span>
-                    <span class="my-id-text" id="myAuraTag">@john</span>
-                    <div class="action-row-buttons">
-                        <button class="btn-modal-outline" id="btnCopyMyId" type="button">📋 Copy ID</button>
-                        <button class="btn-whatsapp-share" id="btnShareMyIdWhatsApp" type="button">Share on WhatsApp</button>
+                    <span class="id-badge-value" id="myAuraTag">@john</span>
+                    <div class="action-buttons-grid">
+                        <button class="btn-modal-outline-action" id="btnCopyMyId" type="button">📋 Copy ID</button>
+                        <button class="btn-whatsapp-full" id="btnShareMyIdWhatsApp" type="button">Share on WhatsApp</button>
                     </div>
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <label class="auth-label">ADD FRIEND TO NETWORK</label>
+                    <label class="auth-label-tag">ADD FRIEND TO NETWORK</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <input class="auth-input" id="newFriendName" placeholder="Friend's Name (e.g. Alex)">
-                        <input class="auth-input" id="newFriendTag" placeholder="Friend's @AuraID (e.g. @alex)" style="font-family: var(--font-code);">
+                        <input class="auth-text-input" id="newFriendName" placeholder="Friend's Name (e.g. Alex)">
+                        <input class="auth-text-input" id="newFriendTag" placeholder="Friend's @AuraID (e.g. @alex)" style="font-family: var(--font-code);">
                     </div>
-                    <button class="btn-brand-primary" id="btnAddFriend" type="button">+ Add Friend</button>
+                    <button class="btn-gradient-primary" id="btnAddFriend" type="button">+ Add Friend</button>
                 </div>
 
-                <div class="friends-list-container" id="friendsNetworkList"></div>
+                <div class="friends-list-feed" id="friendsNetworkList"></div>
             </div>
         </div>
 
         <!-- Tab 3: Recent Calls Log -->
-        <div class="hub-panel" id="tabRecents">
-            <div class="network-card-shell">
+        <div class="stage-tab-panel" id="tabRecents">
+            <div class="network-shell-box">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <h3 style="font-size: 18px; font-weight: 800; font-family: var(--font-head);">Recent Meetings</h3>
-                    <button class="btn-glass-secondary" id="btnClearHistory" type="button" style="padding: 6px 14px; font-size: 11px;">Clear Log</button>
+                    <button class="btn-surface-glass" id="btnClearHistory" type="button" style="padding: 6px 14px; font-size: 11px;">Clear Log</button>
                 </div>
-                <div class="friends-list-container" id="historyContainer"></div>
+                <div class="friends-list-feed" id="historyContainer"></div>
             </div>
         </div>
     </div>
@@ -1881,77 +1882,77 @@
 <!-- ========================================================
      ACTIVE MEETING VIEW
      ======================================================== -->
-<div class="meeting-stage" id="callStage">
+<div class="stage-meeting-view" id="callStage">
     <!-- Top Dynamic Island HUD -->
-    <div class="stage-hud-top">
-        <div class="hud-group">
-            <div class="hud-island-pill" id="btnCopyCode" title="Click to share meeting invite">
-                <div class="sonar-core"></div>
-                <span class="hud-room-code" id="hudRoomText">AUR-XXXX</span>
-                <span class="hud-timer-badge" id="hudTimer">00:00</span>
+    <div class="stage-top-hud">
+        <div class="hud-side-group">
+            <div class="hud-island-chip" id="btnCopyCode" title="Click to share meeting invite">
+                <div class="sonar-pulse-core"></div>
+                <span class="hud-room-code-tag" id="hudRoomText">AUR-XXXX</span>
+                <span class="hud-timer-text" id="hudTimer">00:00</span>
             </div>
             
-            <div class="hud-telemetry-chip">
-                <div class="vf-status-dot"></div>
-                <span id="telemetryPing">18ms</span>
+            <div class="hud-status-badge">
+                <div class="telemetry-live-dot"></div>
+                <span id="telemetryPing">16ms</span>
                 <span>· 1080P</span>
             </div>
 
-            <div class="hud-rec-pill" id="recordingPill">
-                <div class="vf-status-dot" style="background:var(--danger); box-shadow:0 0 8px var(--danger);"></div>
+            <div class="hud-recording-pill" id="recordingPill">
+                <div class="telemetry-live-dot" style="background:var(--danger); box-shadow:0 0 8px var(--danger);"></div>
                 <span>REC</span>
                 <span id="recTimer" style="font-family:var(--font-code); font-size:10px;">00:00</span>
             </div>
         </div>
 
-        <div class="hud-group">
-            <button class="hud-circle-btn" id="btnToggleCaptions" title="Live AI Subtitles (CC)">
+        <div class="hud-side-group">
+            <button class="hud-action-round-btn" id="btnToggleCaptions" title="Live AI Subtitles (CC)">
                 <svg class="icon-sm" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h4M15 15h2M7 11h2M13 11h4"/></svg>
             </button>
-            <button class="hud-circle-btn" id="btnOpenWhiteboard" title="Collaborative Canvas">
+            <button class="hud-action-round-btn" id="btnOpenWhiteboard" title="Collaborative Canvas">
                 <svg class="icon-sm" viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
             </button>
-            <button class="hud-circle-btn" id="btnToggleSpotlight" title="Reset Grid View">
+            <button class="hud-action-round-btn" id="btnToggleSpotlight" title="Reset Grid View">
                 <svg class="icon-sm" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             </button>
-            <button class="hud-circle-btn" id="btnFlipCam" title="Flip Camera">
+            <button class="hud-action-round-btn" id="btnFlipCam" title="Flip Camera">
                 <svg class="icon-sm" viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
             </button>
-            <button class="hud-circle-btn" id="btnDrawerToggle" title="Chat">
+            <button class="hud-action-round-btn" id="btnDrawerToggle" title="Chat">
                 <svg class="icon-sm" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                <div class="hud-badge" id="chatBadge" style="display:none;">0</div>
+                <div class="hud-num-badge" id="chatBadge" style="display:none;">0</div>
             </button>
-            <button class="hud-circle-btn" id="btnRoster" title="Participants">
+            <button class="hud-action-round-btn" id="btnRoster" title="Participants">
                 <svg class="icon-sm" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-                <div class="hud-badge" id="rosterCount">1</div>
+                <div class="hud-num-badge" id="rosterCount">1</div>
             </button>
         </div>
     </div>
 
     <!-- Live Subtitles Box -->
-    <div class="live-captions-overlay" id="liveCaptionsBox">
-        <span class="caption-speaker-tag" id="captionSpeaker">John:</span>
+    <div class="captions-floating-shelf" id="liveCaptionsBox">
+        <span class="caption-speaker-label" id="captionSpeaker">John:</span>
         <span class="caption-content-text" id="captionText">Listening to speech...</span>
     </div>
 
     <!-- Video Canvas Container (Supports up to 25 participants) -->
-    <div class="video-stage-canvas" id="videoCanvasContainer">
+    <div class="stage-video-canvas" id="videoCanvasContainer">
         <div class="multi-video-grid" id="videoGrid" data-count="1">
             <!-- Dynamic video tiles injected here -->
         </div>
 
         <!-- Waiting Indicator -->
-        <div class="waiting-room-banner" id="waitingHub">
-            <div class="sonar-wave-circle">
-                <div class="sonar-ring"></div>
-                <div class="sonar-ring"></div>
-                <div class="sonar-core"></div>
+        <div class="waiting-room-beacon" id="waitingHub">
+            <div class="sonar-pulse-box">
+                <div class="sonar-pulse-ring"></div>
+                <div class="sonar-pulse-ring"></div>
+                <div class="sonar-pulse-core"></div>
             </div>
             <div style="display: flex; flex-direction: column;">
                 <span style="font-size: 13px; font-weight: 800; color: #fff;" id="waitingTitle">Room AUR-XXXX</span>
                 <span style="font-size: 11px; color: var(--text-2); font-weight: 600;" id="waitingSub">Waiting for participants to join...</span>
             </div>
-            <button class="btn-brand-primary" id="btnWaitingQuickShare" style="width: auto; padding: 7px 14px; font-size: 11px;">
+            <button class="btn-gradient-primary" id="btnWaitingQuickShare" style="width: auto; padding: 7px 14px; font-size: 11px;">
                 <svg class="icon-sm" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
                 Invite
             </button>
@@ -1959,139 +1960,139 @@
     </div>
 
     <!-- Bottom Studio Floating Dock -->
-    <div class="stage-dock-wrapper">
+    <div class="stage-dock-shelf">
         <!-- Background Blur/Wallpaper Menu -->
-        <div class="filter-presets-menu" id="camBgMenu">
+        <div class="filters-menu-popup" id="camBgMenu">
             <div style="font-size: 11px; font-weight: 800; color: var(--text-3); margin-bottom: 2px;">STUDIO FILTERS</div>
-            <div class="filter-item-btn" onclick="applyCameraFilter('none')">🚫 Standard Clean</div>
-            <div class="filter-item-btn" onclick="applyCameraFilter('blur')">✨ DSLR Studio Blur</div>
-            <div class="filter-item-btn" onclick="applyCameraFilter('warm')">🌅 Golden Hour Preset</div>
+            <div class="filter-select-btn" onclick="applyCameraFilter('none')">🚫 Standard Clean</div>
+            <div class="filter-select-btn" onclick="applyCameraFilter('blur')">✨ DSLR Studio Blur</div>
+            <div class="filter-select-btn" onclick="applyCameraFilter('warm')">🌅 Golden Hour Preset</div>
         </div>
 
         <!-- Reaction Menu -->
-        <div class="reaction-tray-popup" id="reactionMenu">
-            <button class="emoji-burst-btn" data-e="🔥">🔥</button>
-            <button class="emoji-burst-btn" data-e="❤️">❤️</button>
-            <button class="emoji-burst-btn" data-e="👏">👏</button>
-            <button class="emoji-burst-btn" data-e="😂">😂</button>
-            <button class="emoji-burst-btn" data-e="🚀">🚀</button>
-            <button class="emoji-burst-btn" data-e="💯">💯</button>
-            <button class="emoji-burst-btn" data-e="👍">👍</button>
+        <div class="reaction-menu-tray" id="reactionMenu">
+            <button class="reaction-emoji-btn" data-e="🔥">🔥</button>
+            <button class="reaction-emoji-btn" data-e="❤️">❤️</button>
+            <button class="reaction-emoji-btn" data-e="👏">👏</button>
+            <button class="reaction-emoji-btn" data-e="😂">😂</button>
+            <button class="reaction-emoji-btn" data-e="🚀">🚀</button>
+            <button class="reaction-emoji-btn" data-e="💯">💯</button>
+            <button class="reaction-emoji-btn" data-e="👍">👍</button>
         </div>
 
-        <div class="studio-dock-bar">
-            <button class="dock-control-btn active" id="dockMic" title="Microphone (M)">
+        <div class="studio-dock-capsule">
+            <button class="dock-action-btn active" id="dockMic" title="Microphone (M)">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
             </button>
             
-            <button class="dock-control-btn active" id="dockCam" title="Camera (V)">
+            <button class="dock-action-btn active" id="dockCam" title="Camera (V)">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
             </button>
 
-            <button class="dock-control-btn" id="dockFilter" title="Virtual Backgrounds & Blur">
+            <button class="dock-action-btn" id="dockFilter" title="Virtual Backgrounds & Blur">
                 <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"/></svg>
             </button>
 
-            <button class="dock-control-btn" id="dockScreen" title="Share Screen (4K / 60FPS)">
+            <button class="dock-action-btn" id="dockScreen" title="Share Screen (4K / 60FPS)">
                 <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             </button>
 
-            <div class="dock-split-divider"></div>
+            <div class="dock-pipe-separator"></div>
 
-            <button class="dock-control-btn" id="dockHand" title="Raise Hand">
+            <button class="dock-action-btn" id="dockHand" title="Raise Hand">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8M6 14v-1a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6a7 7 0 0 0 7 7h3a7 7 0 0 0 7-7v-5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2"/></svg>
             </button>
 
-            <button class="dock-control-btn" id="dockRecord" title="Record Meeting (Local HD)">
+            <button class="dock-action-btn" id="dockRecord" title="Record Meeting (Local HD)">
                 <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
             </button>
 
-            <button class="dock-control-btn" id="dockReact" title="Party Reactions">
+            <button class="dock-action-btn" id="dockReact" title="Party Reactions">
                 <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
             </button>
 
-            <button class="dock-control-btn" id="dockChat" title="Chat (C)">
+            <button class="dock-action-btn" id="dockChat" title="Chat (C)">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                <div class="badge-dot-indicator" id="dockChatDot"></div>
+                <div class="badge-dot-mark" id="dockChatDot"></div>
             </button>
 
-            <div class="dock-split-divider"></div>
+            <div class="dock-pipe-separator"></div>
 
-            <button class="dock-control-btn btn-call-end" id="dockEnd" title="End Call">
+            <button class="dock-action-btn btn-hangup" id="dockEnd" title="End Call">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 2.59 3.4l1.27 1.27a2 2 0 0 1 .45-2.11 12.84 12.84 0 0 0-2.81-.7 2 2 0 0 1-1.72-2z"/></svg>
             </button>
         </div>
     </div>
 
     <!-- Collaborative Whiteboard Modal -->
-    <div class="whiteboard-stage-modal" id="whiteboardModal">
-        <div class="wb-head-bar">
+    <div class="whiteboard-stage-overlay" id="whiteboardModal">
+        <div class="wb-header-panel">
             <h3 style="font-size: 16px; font-weight: 800; font-family: var(--font-head); color:#fff;">🎨 Collaborative Studio Canvas</h3>
-            <div class="wb-toolbar-pill">
-                <button class="wb-tool-icon-btn active" id="wbToolPen" title="Pen">✏️</button>
-                <button class="wb-tool-icon-btn" id="wbToolEraser" title="Eraser">🧹</button>
-                <div class="wb-color-swatch active" style="background: #ff5500;" data-c="#ff5500"></div>
-                <div class="wb-color-swatch" style="background: #22c55e;" data-c="#22c55e"></div>
-                <div class="wb-color-swatch" style="background: #06b6d4;" data-c="#06b6d4"></div>
-                <div class="wb-color-swatch" style="background: #a855f7;" data-c="#a855f7"></div>
-                <div class="wb-color-swatch" style="background: #000000;" data-c="#000000"></div>
-                <button class="btn-glass-secondary" id="wbClearBtn" style="padding: 4px 10px; font-size: 11px;">Clear</button>
-                <button class="btn-brand-primary" id="wbSaveBtn" style="padding: 4px 12px; font-size: 11px; width: auto;">Export PNG</button>
+            <div class="wb-toolbar-capsule">
+                <button class="wb-tool-button active" id="wbToolPen" title="Pen">✏️</button>
+                <button class="wb-tool-button" id="wbToolEraser" title="Eraser">🧹</button>
+                <div class="wb-color-dot active" style="background: #ff5500;" data-c="#ff5500"></div>
+                <div class="wb-color-dot" style="background: #22c55e;" data-c="#22c55e"></div>
+                <div class="wb-color-dot" style="background: #06b6d4;" data-c="#06b6d4"></div>
+                <div class="wb-color-dot" style="background: #a855f7;" data-c="#a855f7"></div>
+                <div class="wb-color-dot" style="background: #000000;" data-c="#000000"></div>
+                <button class="btn-surface-glass" id="wbClearBtn" style="padding: 4px 10px; font-size: 11px;">Clear</button>
+                <button class="btn-gradient-primary" id="wbSaveBtn" style="padding: 4px 12px; font-size: 11px; width: auto;">Export PNG</button>
             </div>
-            <button class="btn-close" id="btnCloseWhiteboard">✕</button>
+            <button class="btn-close-circle" id="btnCloseWhiteboard">✕</button>
         </div>
-        <div class="wb-canvas-viewport">
+        <div class="wb-canvas-container">
             <canvas id="whiteboardCanvas"></canvas>
         </div>
     </div>
 
     <!-- Side Drawer (Chat, Polls, Participants) -->
-    <div class="side-panel-drawer" id="sideDrawer">
-        <div class="drawer-top-header">
+    <div class="stage-side-drawer" id="sideDrawer">
+        <div class="drawer-top-bar">
             <h3 id="drawerTitle">Live Chat</h3>
-            <button class="btn-close" id="btnCloseDrawer">✕</button>
+            <button class="btn-close-circle" id="btnCloseDrawer">✕</button>
         </div>
 
-        <div class="drawer-nav-tabs">
-            <button class="drawer-tab-btn active" data-tab="chatTab">Chat</button>
-            <button class="drawer-tab-btn" data-tab="pollsTab">Live Polls</button>
-            <button class="drawer-tab-btn" data-tab="rosterTab">People</button>
+        <div class="drawer-segmented-tabs">
+            <button class="drawer-seg-btn active" data-tab="chatTab">Chat</button>
+            <button class="drawer-seg-btn" data-tab="pollsTab">Live Polls</button>
+            <button class="drawer-seg-btn" data-tab="rosterTab">People</button>
         </div>
 
-        <div class="drawer-tab-panel active" id="chatTab">
-            <div class="chat-stream-feed" id="chatMessages">
+        <div class="drawer-content-pane active" id="chatTab">
+            <div class="chat-bubbles-feed" id="chatMessages">
                 <div style="text-align: center; font-size: 11px; color: var(--text-3);">Encrypted Enterprise Mesh Chat</div>
             </div>
 
-            <div class="chat-bottom-input-bar">
-                <div class="chat-input-container">
+            <div class="chat-input-bottom-bar">
+                <div class="chat-input-pill">
                     <input type="text" id="chatInput" placeholder="Message everyone..." autocomplete="off">
-                    <button class="chat-send-trigger" id="btnSendChat">
+                    <button class="chat-send-btn-icon" id="btnSendChat">
                         <svg class="icon-sm" viewBox="0 0 24 24" style="transform: rotate(45deg);"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     </button>
                 </div>
             </div>
         </div>
 
-        <div class="drawer-tab-panel" id="pollsTab">
-            <div class="polls-drawer-content">
-                <div class="poll-creator-box">
+        <div class="drawer-content-pane" id="pollsTab">
+            <div class="polls-feed-box">
+                <div class="poll-create-card">
                     <span style="font-size: 11px; font-weight: 800; color: var(--brand);">CREATE INSTANT POLL</span>
-                    <input class="auth-input" id="pollQuestion" placeholder="Ask a question...">
-                    <input class="auth-input" id="pollOpt1" placeholder="Option 1">
-                    <input class="auth-input" id="pollOpt2" placeholder="Option 2">
-                    <button class="btn-brand-primary" id="btnLaunchPoll" style="font-size: 12px; padding: 10px;">Launch Poll</button>
+                    <input class="auth-text-input" id="pollQuestion" placeholder="Ask a question...">
+                    <input class="auth-text-input" id="pollOpt1" placeholder="Option 1">
+                    <input class="auth-text-input" id="pollOpt2" placeholder="Option 2">
+                    <button class="btn-gradient-primary" id="btnLaunchPoll" style="font-size: 12px; padding: 10px;">Launch Poll</button>
                 </div>
                 <div id="pollsList" style="display:flex; flex-direction:column; gap:10px;"></div>
             </div>
         </div>
 
-        <div class="drawer-tab-panel" id="rosterTab">
-            <div style="padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle);">
+        <div class="drawer-content-pane" id="rosterTab">
+            <div style="padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dim);">
                 <span style="font-size: 12px; font-weight: 800; color: var(--text-2);">PARTICIPANTS</span>
-                <button class="btn-glass-secondary" id="btnMuteAll" style="padding: 4px 10px; font-size: 10px;">Mute All</button>
+                <button class="btn-surface-glass" id="btnMuteAll" style="padding: 4px 10px; font-size: 10px;">Mute All</button>
             </div>
-            <div class="participants-list-view" id="peopleList"></div>
+            <div class="participants-scroll-list" id="peopleList"></div>
         </div>
     </div>
 </div>
@@ -2099,28 +2100,28 @@
 <!-- ========================================================
      MODALS
      ======================================================== -->
-<div class="stage-modal-backdrop" id="shareModal">
-    <div class="modal-inner-card">
-        <div class="modal-head-row">
+<div class="stage-backdrop-overlay" id="shareModal">
+    <div class="modal-body-card">
+        <div class="modal-top-row">
             <h3>Invite to Meeting</h3>
-            <button class="btn-close" id="btnCloseShareModal">✕</button>
+            <button class="btn-close-circle" id="btnCloseShareModal">✕</button>
         </div>
 
-        <div class="qr-canvas-holder"><canvas id="qrCanvas"></canvas></div>
+        <div class="qr-render-box"><canvas id="qrCanvas"></canvas></div>
 
-        <div class="share-actions-row">
-            <button class="btn-modal-outline" id="btnCopyInviteCode">Copy Code</button>
-            <button class="btn-modal-outline" id="btnCopyInviteLink">Copy Link</button>
+        <div class="modal-share-grid">
+            <button class="btn-modal-outline-action" id="btnCopyInviteCode">Copy Code</button>
+            <button class="btn-modal-outline-action" id="btnCopyInviteLink">Copy Link</button>
         </div>
         
-        <button class="btn-whatsapp-share" id="btnShareWhatsApp">Share on WhatsApp</button>
+        <button class="btn-whatsapp-full" id="btnShareWhatsApp">Share on WhatsApp</button>
     </div>
 </div>
 
 <script>
 /**
- * AURASTREAM — NEXT-GEN WEBRTC MULTI-PARTY MESH & BULLETPROOF SIGNALING
- * Deterministic Anchor Rendezvous Protocol for 100% Guaranteed Cross-Device Room Connection
+ * AURASTREAM — ULTRA WEBRTC SIGNALING & GUARANTEED 2-WAY CONNECTION PROTOCOL
+ * Resilient Cross-Device WebRTC Mesh with Canvas Fallback & Deterministic Anchor Routing
  */
 (function() {
     'use strict';
@@ -2157,7 +2158,7 @@
                 { urls: 'stun:stun4.l.google.com:19302' },
                 { urls: 'stun:stun.cloudflare.com:3478' }
             ],
-            iceCandidatePoolSize: 6
+            iceCandidatePoolSize: 8
         }
     };
 
@@ -2232,6 +2233,7 @@
         unreadChatCount: 0,
         localStream: null,
         screenStream: null,
+        fallbackStream: null,
         meshPeer: null,
         broadcast: null,
         peers: new Map(), // peerId -> { call, dataConn, stream, name, tag, isHost, hasCam, hasMic, isHand, isScreen }
@@ -2250,11 +2252,43 @@
     };
 
     // ========================================================
+    // SYNTHETIC FALLBACK STREAM (GUARANTEES WEBRTC NEVER CRASHES)
+    // ========================================================
+    function getSafeMediaStream() {
+        if (App.screen && App.screenStream && App.screenStream.active) {
+            return App.screenStream;
+        }
+        if (App.localStream && App.localStream.active && App.localStream.getVideoTracks().length > 0) {
+            return App.localStream;
+        }
+        if (!App.fallbackStream) {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 640; canvas.height = 480;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#080812'; ctx.fillRect(0, 0, 640, 480);
+                const vidTrack = canvas.captureStream(10).getVideoTracks()[0];
+
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                const aCtx = new AudioCtx();
+                const dst = aCtx.createMediaStreamDestination();
+                const audTrack = dst.stream.getAudioTracks()[0];
+                audTrack.enabled = false;
+
+                App.fallbackStream = new MediaStream([vidTrack, audTrack]);
+            } catch(e) {
+                return null;
+            }
+        }
+        return App.fallbackStream;
+    }
+
+    // ========================================================
     // ACCOUNT ENGINE
     // ========================================================
     const AccountEngine = {
-        activeUserKey: 'aurastream_active_session_v35',
-        usersDbKey: 'aurastream_users_db_v35',
+        activeUserKey: 'aurastream_active_session_v40',
+        usersDbKey: 'aurastream_users_db_v40',
 
         getUsers() {
             try { return JSON.parse(localStorage.getItem(this.usersDbKey) || '{}'); } catch(e) { return {}; }
@@ -2302,7 +2336,7 @@
         const box = $('toastShelf');
         if (!box) return;
         const item = document.createElement('div');
-        item.className = 'toast-pill-item';
+        item.className = 'toast-item-pill';
         item.innerHTML = `<span>${emoji}</span> <span>${msg}</span>`;
         box.appendChild(item);
         setTimeout(() => item.remove(), 2800);
@@ -2415,7 +2449,7 @@
     // FRIENDS NETWORK & HISTORY
     // ========================================================
     const FriendsNetwork = {
-        key: 'aurastream_friends_global_v35',
+        key: 'aurastream_friends_global_v40',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -2449,17 +2483,17 @@
             container.innerHTML = list.length === 0 
                 ? '<div style="text-align:center; color:var(--text-3); font-size:13px; padding:32px;">No friends added yet. Enter their Name and @AuraID above!</div>' 
                 : list.map(f => `
-                    <div class="friend-row-item">
-                        <div class="friend-row-left">
-                            <div class="friend-row-av">${f.name[0].toUpperCase()}</div>
+                    <div class="friend-tile-item">
+                        <div class="friend-tile-left">
+                            <div class="friend-tile-avatar">${f.name[0].toUpperCase()}</div>
                             <div>
                                 <div style="font-weight: 800; font-size: 14px;">${f.name}</div>
                                 <div style="font-size: 11px; color: var(--brand); font-family: var(--font-code);">${f.tag}</div>
                             </div>
                         </div>
                         <div style="display:flex; gap:6px;">
-                            <button class="btn-brand-primary" style="padding:6px 12px; font-size:11px; width:auto;" onclick="callFriendDirectly('${f.name}', '${f.tag}')">📹 Invite</button>
-                            <button class="btn-close" style="width:28px; height:28px; font-size:12px;" onclick="FriendsNetwork.remove(${f.id})">✕</button>
+                            <button class="btn-gradient-primary" style="padding:6px 12px; font-size:11px; width:auto;" onclick="callFriendDirectly('${f.name}', '${f.tag}')">📹 Invite</button>
+                            <button class="btn-close-circle" style="width:28px; height:28px; font-size:12px;" onclick="FriendsNetwork.remove(${f.id})">✕</button>
                         </div>
                     </div>
                 `).join('');
@@ -2492,7 +2526,7 @@
     });
 
     const HistoryManager = {
-        key: 'aurastream_recent_calls_v35',
+        key: 'aurastream_recent_calls_v40',
         getAll() {
             try { return JSON.parse(localStorage.getItem(this.key) || '[]'); } catch (e) { return []; }
         },
@@ -2516,15 +2550,15 @@
             container.innerHTML = list.length === 0 
                 ? '<div style="text-align:center; color:var(--text-3); font-size:12px; padding:24px;">No recent calls.</div>'
                 : list.map(h => `
-                    <div class="friend-row-item">
-                        <div class="friend-row-left">
-                            <div class="friend-row-av" style="background: rgba(255,255,255,0.08);">📹</div>
+                    <div class="friend-tile-item">
+                        <div class="friend-tile-left">
+                            <div class="friend-tile-avatar" style="background: rgba(255,255,255,0.08);">📹</div>
                             <div>
                                 <div style="font-weight: 800; font-size: 14px; font-family: var(--font-code);">${h.roomCode}</div>
                                 <div style="font-size: 11px; color: var(--text-2);">${h.time} · ${h.participants || 1} people · ${h.duration}</div>
                             </div>
                         </div>
-                        <button class="btn-brand-primary" style="width: auto; padding: 6px 14px; font-size: 12px;" onclick="reconnectCall('${h.roomCode}')">Join</button>
+                        <button class="btn-gradient-primary" style="width: auto; padding: 6px 14px; font-size: 12px;" onclick="reconnectCall('${h.roomCode}')">Join</button>
                     </div>
                 `).join('');
         }
@@ -2538,13 +2572,13 @@
     bind('btnClearHistory', () => HistoryManager.clear());
 
     function switchHubTab(targetId) {
-        document.querySelectorAll('.hub-tab-item').forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
-        document.querySelectorAll('.hub-panel').forEach(p => p.classList.toggle('active', p.id === targetId));
+        document.querySelectorAll('.stage-tab-item').forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
+        document.querySelectorAll('.stage-tab-panel').forEach(p => p.classList.toggle('active', p.id === targetId));
         if (targetId === 'tabFriends') FriendsNetwork.render();
         if (targetId === 'tabRecents') HistoryManager.render();
     }
 
-    document.querySelectorAll('.hub-tab-item').forEach(btn => {
+    document.querySelectorAll('.stage-tab-item').forEach(btn => {
         btn.onclick = () => switchHubTab(btn.dataset.target);
     });
 
@@ -2721,24 +2755,36 @@
         if ($('hudRoomText')) $('hudRoomText').textContent = App.roomCode;
         window.location.hash = App.roomCode;
 
-        try {
-            if (!App.localStream || !App.localStream.active) {
-                App.localStream = await navigator.mediaDevices.getUserMedia(getMediaConstraints());
-            }
-            App.mic = true;
-            App.cam = true;
-        } catch (e) {
-            notify('Camera / Mic access required', '⚠️');
-        }
-
-        if (App.localStream) initAudioMeter(App.localStream);
-
+        // Render self tile immediately so user always sees interface
         renderSelfTile();
         syncMediaState();
         startCallTimer();
         initWhiteboard();
         Sound.play('join');
 
+        // Request user media asynchronously without blocking UI
+        try {
+            if (!App.localStream || !App.localStream.active) {
+                App.localStream = await navigator.mediaDevices.getUserMedia(getMediaConstraints());
+            }
+            App.mic = true;
+            App.cam = true;
+            if (App.localStream) {
+                initAudioMeter(App.localStream);
+                const selfTile = $('tile-self');
+                if (selfTile) {
+                    const vid = selfTile.querySelector('video');
+                    if (vid) {
+                        vid.srcObject = App.localStream;
+                        vid.play().catch(()=>{});
+                    }
+                }
+            }
+        } catch (e) {
+            notify('Using synthetic media fallback (Camera/Mic off)', '📷');
+        }
+
+        syncMediaState();
         initMultiPartyMeshEngine();
     }
 
@@ -2747,17 +2793,17 @@
             App.localStream.getAudioTracks().forEach(t => t.enabled = App.mic);
             App.localStream.getVideoTracks().forEach(t => t.enabled = App.cam);
         }
-        if ($('dockMic')) $('dockMic').className = `dock-control-btn ${App.mic ? 'active' : 'muted'}`;
-        if ($('dockCam')) $('dockCam').className = `dock-control-btn ${App.cam ? 'active' : 'muted'}`;
+        if ($('dockMic')) $('dockMic').className = `dock-action-btn ${App.mic ? 'active' : 'muted'}`;
+        if ($('dockCam')) $('dockCam').className = `dock-action-btn ${App.cam ? 'active' : 'muted'}`;
         
         const selfTile = $('tile-self');
         if (selfTile) {
             const vid = selfTile.querySelector('video');
-            const placeholder = selfTile.querySelector('.tile-placeholder-view');
-            const micIcon = selfTile.querySelector('.tile-mic-status');
+            const placeholder = selfTile.querySelector('.tile-placeholder-card');
+            const micIcon = selfTile.querySelector('.tile-mic-indicator');
             if (vid) vid.style.display = App.cam ? 'block' : 'none';
             if (placeholder) placeholder.style.display = App.cam ? 'none' : 'flex';
-            if (micIcon) micIcon.className = `tile-mic-status ${App.mic ? '' : 'muted'}`;
+            if (micIcon) micIcon.className = `tile-mic-indicator ${App.mic ? '' : 'muted'}`;
         }
     }
 
@@ -2836,7 +2882,7 @@
             App.meshPeer.on('call', call => {
                 const callerId = call.peer;
                 const meta = call.metadata || {};
-                const streamToSend = App.screen && App.screenStream ? App.screenStream : App.localStream;
+                const streamToSend = getSafeMediaStream();
                 call.answer(streamToSend);
 
                 call.on('stream', remoteStream => {
@@ -2872,7 +2918,12 @@
                 if (err.type === 'unavailable-id' && onUnavailableFallback) {
                     onUnavailableFallback();
                 } else if (err.type === 'peer-unavailable') {
-                    // Anchor not available or peer left
+                    // Host not online yet, retry anchor connection after 2 seconds
+                    setTimeout(() => {
+                        if (!App.isAnchor && App.meshPeer && !App.meshPeer.destroyed) {
+                            connectToPeer(App.anchorPeerId, { isAnchor: true });
+                        }
+                    }, 2000);
                 }
             });
 
@@ -2884,7 +2935,7 @@
     function connectToPeer(targetPeerId, targetInfo = {}) {
         if (targetPeerId === App.myPeerId || App.peers.has(targetPeerId) || !App.meshPeer) return;
 
-        const streamToSend = App.screen && App.screenStream ? App.screenStream : App.localStream;
+        const streamToSend = getSafeMediaStream();
         
         const call = App.meshPeer.call(targetPeerId, streamToSend, {
             metadata: {
@@ -3094,16 +3145,16 @@
             selfTile.className = 'video-tile mirrored';
             selfTile.id = 'tile-self';
             selfTile.innerHTML = `
-                <div class="tile-placeholder-view" style="display: ${App.cam ? 'none' : 'flex'};">
-                    <div class="tile-avatar-badge">${App.userName[0].toUpperCase()}</div>
+                <div class="tile-placeholder-card" style="display: ${App.cam && App.localStream ? 'none' : 'flex'};">
+                    <div class="tile-avatar-disc">${App.userName[0].toUpperCase()}</div>
                     <span style="font-size: 13px; font-weight: 700; color: #fff;">${App.userName}</span>
                 </div>
                 <video autoplay playsinline webkit-playsinline muted></video>
-                <div class="tile-user-tag-pill">
-                    <svg class="tile-mic-status ${App.mic ? '' : 'muted'}" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+                <div class="tile-nameplate-pill">
+                    <svg class="tile-mic-indicator ${App.mic ? '' : 'muted'}" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
                     <span>${App.userName} (You)</span>
                 </div>
-                <button class="tile-pin-focus-btn" onclick="toggleSpotlightTile('tile-self')" title="Pin/Focus View">📌</button>
+                <button class="tile-pin-button" onclick="toggleSpotlightTile('tile-self')" title="Pin/Focus View">📌</button>
             `;
             grid.appendChild(selfTile);
         }
@@ -3148,16 +3199,16 @@
             tile.className = 'video-tile';
             tile.id = `tile-${peerId}`;
             tile.innerHTML = `
-                <div class="tile-placeholder-view" style="display: none;">
-                    <div class="tile-avatar-badge" style="background: linear-gradient(135deg, #a855f7, var(--brand)); color:#fff;">${p.name[0].toUpperCase()}</div>
+                <div class="tile-placeholder-card" style="display: none;">
+                    <div class="tile-avatar-disc" style="background: linear-gradient(135deg, #a855f7, var(--brand)); color:#fff;">${p.name[0].toUpperCase()}</div>
                     <span style="font-size: 13px; font-weight: 700; color: #fff;">${p.name}</span>
                 </div>
                 <video autoplay playsinline webkit-playsinline></video>
-                <div class="tile-user-tag-pill">
-                    <svg class="tile-mic-status" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+                <div class="tile-nameplate-pill">
+                    <svg class="tile-mic-indicator" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
                     <span class="tile-name-label">${p.name}</span>
                 </div>
-                <button class="tile-pin-focus-btn" onclick="toggleSpotlightTile('tile-${peerId}')" title="Pin/Focus View">📌</button>
+                <button class="tile-pin-button" onclick="toggleSpotlightTile('tile-${peerId}')" title="Pin/Focus View">📌</button>
             `;
             grid.appendChild(tile);
         }
@@ -3240,7 +3291,7 @@
         if (p && tile) {
             const label = tile.querySelector('.tile-name-label');
             if (label) label.textContent = p.name;
-            const bubble = tile.querySelector('.tile-avatar-badge');
+            const bubble = tile.querySelector('.tile-avatar-disc');
             if (bubble) bubble.textContent = p.name[0].toUpperCase();
         }
     }
@@ -3250,22 +3301,22 @@
         const tile = document.getElementById(`tile-${peerId}`);
         if (p && tile) {
             const vid = tile.querySelector('video');
-            const placeholder = tile.querySelector('.tile-placeholder-view');
-            const micIcon = tile.querySelector('.tile-mic-status');
+            const placeholder = tile.querySelector('.tile-placeholder-card');
+            const micIcon = tile.querySelector('.tile-mic-indicator');
             if (vid) vid.style.display = p.hasCam ? 'block' : 'none';
             if (placeholder) placeholder.style.display = p.hasCam ? 'none' : 'flex';
-            if (micIcon) micIcon.className = `tile-mic-status ${p.hasMic ? '' : 'muted'}`;
+            if (micIcon) micIcon.className = `tile-mic-indicator ${p.hasMic ? '' : 'muted'}`;
         }
     }
 
     function updateTileHand(peerId, isHand) {
         const tile = document.getElementById(`tile-${peerId}`);
         if (!tile) return;
-        let badge = tile.querySelector('.tile-hand-icon-badge');
+        let badge = tile.querySelector('.tile-hand-raised-badge');
         if (isHand) {
             if (!badge) {
                 badge = document.createElement('div');
-                badge.className = 'tile-hand-icon-badge';
+                badge.className = 'tile-hand-raised-badge';
                 badge.textContent = '✋';
                 tile.appendChild(badge);
             }
@@ -3418,7 +3469,7 @@
 
     function startMeetingRecording() {
         try {
-            const streamToRecord = App.screenStream || App.localStream;
+            const streamToRecord = App.screenStream || App.localStream || getSafeMediaStream();
             if (!streamToRecord) return notify('No active video stream to record', '⚠️');
 
             App.recordedChunks = [];
@@ -3637,9 +3688,9 @@
         $('wbToolPen')?.classList.remove('active');
     });
 
-    document.querySelectorAll('.wb-color-swatch').forEach(dot => {
+    document.querySelectorAll('.wb-color-dot').forEach(dot => {
         dot.onclick = () => {
-            document.querySelectorAll('.wb-color-swatch').forEach(d => d.classList.remove('active'));
+            document.querySelectorAll('.wb-color-dot').forEach(d => d.classList.remove('active'));
             dot.classList.add('active');
             wbColor = dot.dataset.c;
             wbTool = 'pen';
@@ -3745,15 +3796,15 @@
         if (!container) return;
 
         container.innerHTML = App.polls.map(poll => `
-            <div class="poll-display-card">
+            <div class="poll-item-card">
                 <div style="font-weight: 800; font-size: 13px; color: #fff;">${poll.question}</div>
                 <div style="font-size: 10px; color: var(--text-3);">By ${poll.creator} · ${poll.totalVotes} votes</div>
                 <div style="display:flex; flex-direction:column; gap:6px; margin-top:4px;">
                     ${poll.options.map((opt, idx) => {
                         const pct = poll.totalVotes > 0 ? Math.round((opt.votes / poll.totalVotes) * 100) : 0;
                         return `
-                            <button class="poll-vote-button" onclick="votePoll('${poll.id}', ${idx})">
-                                <div class="poll-bar-progress" style="width: ${pct}%;"></div>
+                            <button class="poll-vote-action-btn" onclick="votePoll('${poll.id}', ${idx})">
+                                <div class="poll-bar-fill-track" style="width: ${pct}%;"></div>
                                 <span style="position:relative; z-index:1;">${opt.text}</span>
                                 <span style="position:relative; z-index:1; font-family:var(--font-code); font-size:11px;">${pct}% (${opt.votes})</span>
                             </button>
@@ -3819,8 +3870,8 @@
         const feed = $('chatMessages');
         if (!feed) return;
         const el = document.createElement('div');
-        el.className = `chat-bubble-row ${side}`;
-        el.innerHTML = `<span class="chat-sender-name">${author}</span><div class="chat-bubble-box">${text}</div>`;
+        el.className = `chat-bubble-unit ${side}`;
+        el.innerHTML = `<span class="chat-author-tag">${author}</span><div class="chat-message-bubble">${text}</div>`;
         feed.appendChild(el);
         feed.scrollTop = feed.scrollHeight;
     }
@@ -3830,9 +3881,9 @@
         if (!list) return;
 
         let html = `
-            <div class="participant-item-card">
-                <div class="participant-left-group">
-                    <div class="participant-avatar-icon">${App.userName[0].toUpperCase()}</div>
+            <div class="participant-card-item">
+                <div class="participant-meta-left">
+                    <div class="participant-avatar-pill">${App.userName[0].toUpperCase()}</div>
                     <div>
                         <div style="font-weight: 800; font-size: 13px;">${App.userName} (You)</div>
                         <div style="font-size: 11px; color: var(--brand); font-weight:700;">${App.isHost ? 'Host' : 'Participant'}</div>
@@ -3844,15 +3895,15 @@
 
         App.peers.forEach((peer, pId) => {
             html += `
-                <div class="participant-item-card">
-                    <div class="participant-left-group">
-                        <div class="participant-avatar-icon">${peer.name[0].toUpperCase()}</div>
+                <div class="participant-card-item">
+                    <div class="participant-meta-left">
+                        <div class="participant-avatar-pill">${peer.name[0].toUpperCase()}</div>
                         <div>
                             <div style="font-weight: 800; font-size: 13px;">${peer.name}</div>
                             <div style="font-size: 11px; color: var(--text-2);">${peer.tag}</div>
                         </div>
                     </div>
-                    <button class="btn-brand-primary" style="width:auto; padding:4px 8px; font-size:10px;" onclick="FriendsNetwork.add('${peer.name}', '${peer.tag}')">+ Friend</button>
+                    <button class="btn-gradient-primary" style="width:auto; padding:4px 8px; font-size:10px;" onclick="FriendsNetwork.add('${peer.name}', '${peer.tag}')">+ Friend</button>
                 </div>
             `;
         });
@@ -3888,13 +3939,13 @@
     bind('btnRoster', () => toggleDrawer('rosterTab'));
     bind('btnCloseDrawer', () => toggleDrawer());
 
-    document.querySelectorAll('.drawer-tab-btn').forEach(tab => {
+    document.querySelectorAll('.drawer-seg-btn').forEach(tab => {
         tab.onclick = () => switchDrawerTab(tab.dataset.tab);
     });
 
     function switchDrawerTab(targetId) {
-        document.querySelectorAll('.drawer-tab-btn').forEach(t => t.classList.toggle('active', t.dataset.tab === targetId));
-        document.querySelectorAll('.drawer-tab-panel').forEach(c => c.classList.toggle('active', c.id === targetId));
+        document.querySelectorAll('.drawer-seg-btn').forEach(t => t.classList.toggle('active', t.dataset.tab === targetId));
+        document.querySelectorAll('.drawer-content-pane').forEach(c => c.classList.toggle('active', c.id === targetId));
         if (targetId === 'rosterTab') renderParticipantsRoster();
         if (targetId === 'pollsTab') renderPolls();
     }
@@ -3961,7 +4012,7 @@
 
     bind('dockReact', () => $('reactionMenu')?.classList.toggle('show'));
 
-    document.querySelectorAll('.emoji-burst-btn').forEach(btn => {
+    document.querySelectorAll('.reaction-emoji-btn').forEach(btn => {
         btn.onclick = () => {
             const emoji = btn.dataset.e;
             triggerParticleBurst(emoji);
@@ -3998,7 +4049,7 @@
 
         function drawQrCorner(cx, x, y) {
             cx.fillRect(x, y, 44, 44);
-            cx.fillStyle = '#ffffff'; cx.fillRect(x + 6, y + 6, 32, 32);
+            cx.fillStyle = '#ffffff'; ctx.fillRect(x + 6, y + 6, 32, 32);
             cx.fillStyle = '#000000'; cx.fillRect(x + 13, y + 13, 18, 18);
         }
 
