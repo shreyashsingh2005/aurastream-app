@@ -2014,6 +2014,12 @@
             canvas.width = 640; canvas.height = 480;
             const ctx = canvas.getContext('2d');
             ctx.fillStyle = '#080812'; ctx.fillRect(0, 0, 640, 480);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Camera Disabled', 320, 240);
+
             const vTrack = canvas.captureStream(10).getVideoTracks()[0];
 
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -2066,6 +2072,13 @@
     // BULLETPROOF CAMERA / MIC ACQUISITION
     // ========================================================
     async function startCameraSafe() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            console.warn("Media devices not supported (might be HTTP). Proceeding without camera.");
+            App.cam = false;
+            App.mic = false;
+            return null;
+        }
+
         if (App.localStream && App.localStream.active && App.localStream.getVideoTracks().length > 0) {
             attachToLobbyVideo(App.localStream);
             return App.localStream;
@@ -2088,9 +2101,13 @@
                 initAudioMeter(stream);
                 return stream;
             } catch(e) {
-                // Try next
+                // Try next constraint
             }
         }
+        
+        // If everything fails
+        App.cam = false;
+        App.mic = false;
         return null;
     }
 
@@ -2108,9 +2125,11 @@
         Sound.init();
     }
 
-    // Auto-start camera in lobby
+    // Auto-start camera in lobby (wrap in try-catch)
     setTimeout(() => {
-        startCameraSafe().catch(() => {});
+        try {
+            startCameraSafe().catch(() => {});
+        } catch (e) {}
     }, 300);
 
     bind('btnTestCamera', () => {
@@ -2256,12 +2275,15 @@
         initWhiteboard();
         Sound.play('join');
 
-        // Check if camera stream is active, if not acquire now
-        if (!App.localStream || !App.localStream.active) {
-            await startCameraSafe();
+        try {
+            if (!App.localStream || !App.localStream.active) {
+                await startCameraSafe();
+            }
+        } catch (err) {
+            console.warn("Camera start failed during session launch", err);
         }
 
-        // Attach local stream to self tile video
+        // Attach local stream to self tile video if acquired
         if (App.localStream) {
             const selfTile = $('tile-self');
             if (selfTile) {
@@ -2272,9 +2294,13 @@
                 }
             }
             initAudioMeter(App.localStream);
+        } else {
+            notify("Joined without Camera/Mic", "ℹ️");
         }
 
         syncMediaState();
+        
+        // This must run no matter what happens to the camera!
         initDeterministicWebRTCEngine();
     }
 
@@ -2315,7 +2341,7 @@
     function initDeterministicWebRTCEngine() {
         const clean = App.cleanRoom;
         
-        // Use deterministic fallback ID schema
+        // Deterministic fallback ID schema
         const hostId = `aurastream_${clean}_host`;
         const guestId = `aurastream_${clean}_p_${Math.random().toString(36).substring(2,8)}`;
         
@@ -2333,9 +2359,16 @@
                 App.isHost = (id === hostId); // Confirm host status via peerjs connection
 
                 // If I am NOT the host, I aggressively dial the host!
-                // This ensures WebRTC works even if MQTT/Sockets are entirely blocked on network
                 if (!App.isHost) {
                     connectToPeer(hostId, { name: 'Host', isHost: true });
+                    
+                    // Fail-safe Watchdog: Auto-reconnect if host stream is missing after 6s
+                    setInterval(() => {
+                        const hostPeer = App.peers.get(hostId);
+                        if (!hostPeer || !hostPeer.stream) {
+                            connectToPeer(hostId, { name: 'Host', isHost: true });
+                        }
+                    }, 6000);
                 }
 
                 // Start Multi-Channel Discovery for other participants
@@ -2347,8 +2380,15 @@
             App.meshPeer.on('call', call => {
                 const callerId = call.peer;
                 const meta = call.metadata || {};
+                
+                // Get valid stream (either real or synthetic fallback)
                 const streamToSend = getValidStream();
-                call.answer(streamToSend);
+                if (streamToSend) {
+                    call.answer(streamToSend);
+                } else {
+                    // Absolute last resort
+                    call.answer(new MediaStream());
+                }
 
                 call.on('stream', remoteStream => {
                     handleRemoteStream(callerId, remoteStream, meta);
@@ -2479,7 +2519,6 @@
         }
     }
 
-    // THE CRITICAL TIE-BREAKER: Prevents WebRTC Glare / Collision
     function handlePeerDiscovery(peerInfo) {
         const otherId = peerInfo.peerId;
         if (!otherId || otherId === App.myPeerId) return;
@@ -2489,17 +2528,12 @@
         const existing = App.peers.get(otherId);
         if (existing && existing.stream) return; // Already connected!
 
-        // Deterministic Tie-Breaker: Only the peer with smaller string ID initiates the call
-        if (App.myPeerId < otherId) {
-            connectToPeer(otherId, peerInfo);
-        } else {
-            // Higher ID peer waits. If after 3.5 seconds no call received, initiates fallback
-            setTimeout(() => {
-                const check = App.peers.get(otherId);
-                if ((!check || !check.stream) && App.knownPeers.has(otherId)) {
-                    connectToPeer(otherId, peerInfo);
-                }
-            }, 3500);
+        // If I am Host and I discover a peer, I wait for them to dial me. 
+        // If I am Guest and I discover another Guest, I apply Tie-Breaker.
+        if (!App.isHost && !peerInfo.isHost) {
+            if (App.myPeerId < otherId) {
+                connectToPeer(otherId, peerInfo);
+            }
         }
     }
 
@@ -2511,7 +2545,7 @@
 
         const streamToSend = getValidStream();
         
-        const call = App.meshPeer.call(targetPeerId, streamToSend, {
+        const call = App.meshPeer.call(targetPeerId, streamToSend || new MediaStream(), {
             metadata: {
                 name: App.userName,
                 tag: App.myAuraTag,
@@ -2564,7 +2598,6 @@
             });
             
             // SEND ROSTER IF HOST:
-            // This ensures if someone manually joins via host directly, they get told about all other guests.
             if (App.isHost) {
                 const rosterList = [];
                 App.peers.forEach((p, pId) => {
